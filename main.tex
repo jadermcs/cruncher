@@ -1,11 +1,7 @@
 \documentclass{article}
 \usepackage[a4paper, total={6in, 10in}]{geometry}
 \usepackage[T1]{fontenc}
-
-\newcommand{\incfig}[1]{%
-    \def\svgwidth{\columnwidth}
-    \import{./figures/}{#1.pdf_tex}
-}
+\usepackage{url}
 
 \title{Cruncher\\
 \large A Semantically Consistent Language for Handling Files}
@@ -41,9 +37,9 @@ inconsistent language for files handling and operations, like tar, sed, md5
 although all of those have a common paradigm.
 
 In modern \textbf{data processing}, a computing paradigm emmerged dominating
-as the most adopted by major frameworks, like HadoopMR, Spark and Kafka.
+as the most adopted by major frameworks like HadoopMR, Spark and Kafka.
 MapReduce is a computational paradigm that decompose computations in a
-Map operation and a following reduction has a clear and efficient model of
+Maps and a following reduction, it has a clear and efficient model of
 computation besides not being so clear how to describe any computation in
 this paradigm \cite{afrati2012vision}.
 
@@ -52,19 +48,21 @@ specifically files and folder processing in a standardized syntax, it is
 semantically consistent language in the sense that many distinct usual shell
 operations will follow a intuitive syntax.
 
-\section{Formal Description}
+A main difficult in developing an interpreter to this is the type
+check for the DESTINY statement (presented later).
 
+\section{Formal Description}
 % descrição da linguagem formal para a qual será implementado o tradutor (ou seja, a gramática de tal linguagem), contendo também descrição informal dos aspectos inerentes à linguagem e a gramática subjacente;
 In this section the formal grammar is presented.
 \\
 
-PROCEDURE $\rightarrow$ SELECTION \$OPERATION AGGREGATION DESTINY
+PROCEDURE $\rightarrow$ SELECTION \$OPERATION(PARAM-LIST) AGGREGATION DESTINY
 \\
 
-SELECTION $\rightarrow$ LIKE|PATH|MAPPING in SELECTION if EXPRESSION
+SELECTION $\rightarrow$ LIKE|PATH|[MAPPING in SELECTION if EXPRESSION]
 \\
 
-OPERATION $\rightarrow$ >|\&|!|@|\# (PARAM-LIST)
+OPERATION $\rightarrow$ >|\&|!|@|\#
 \\
 
 AGGREGATION $\rightarrow$ .|\_
@@ -73,7 +71,7 @@ AGGREGATION $\rightarrow$ .|\_
 DESTINY $\rightarrow$ PATH
 \\
 
-PATH $\rightarrow$ type:string
+PATH $\rightarrow$ type:FILE|type:FILES|type:FOLDER|type:FOLDERS
 \\
 
 MAPPING $\rightarrow$ ff|rr|cc|++ PARAM-LIST
@@ -85,19 +83,26 @@ EXPRESSION $\rightarrow$ LIKE
 PARAM-LIST $\rightarrow$ PARAM-LIST PARAM|PARAM
 \\
 
-LIKE $\rightarrow$ type:string
+LIKE $\rightarrow$ type:RESTRING
 
 \section{Semantics}
-The language is inspired in the MapReduce paradigm, which is dominating the
-frameworks design for data processing. The main statement in the language
-is the PROCEDURE, it summarizes the general MapReduce operation in an
-intuitive syntax as the \$\_ operator is succinct and mnemonical.
+The main statement in the language is the PROCEDURE, it summarizes the
+general MapReduce operation in an intuitive syntax as the \$\_ operator is
+succinct and mnemonical, the SELECTION statement is used to describe the
+files or folders that the mapping OPERATION will be applied, the
+AGGREGATION specifies which gatter method to used, summarize a result in
+a single file or apply each operation in separated files. The DESTINY
+statement specifies the output file/directory to send the mapping results.
 
-The SELECTION acts in the folder dimension and the EXPRESSION in the
-file dimension.
+The SELECTION could be described in three ways, a regular expression
+to pattern match the many paths, a direct path and a list comprehension of
+paths, the list comprehension of paths contain a control statement named
+EXPRESSION for filtering based on a regex match, it only acts in the files
+dimension.
 
-If no AGGREGATION is applied the DESTINY must have the same size that
-SELECTION.
+OPERATION statement is a succinct caller for external tools, like sed, tar
+sha256sum, and others. Then the result is send to DESTINY, if no AGGREGATION
+is applied the DESTINY must have the same size that SELECTION.
 
 %The LIKE
 
@@ -125,7 +130,7 @@ Hash        & \#     & Calculates the hash \\
 \begin{tabular}{|r|c|l|}
 \hline
 Mapping   & Symbol & Description\\ \hline
-Identity  &        & Return same given value \\
+Identity  & ..     & Return same given value \\
 Filter    & ff     & Remove a given pattern \\
 Replace   & rr     & Replace a given pattern \\
 Cut       & cc     & Remove a substring \\
