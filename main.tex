@@ -1,10 +1,6 @@
 \documentclass{article}
 \usepackage[a4paper, total={6in, 10in}]{geometry}
 \usepackage[T1]{fontenc}
-\usepackage{import}
-\usepackage{xifthen}
-\usepackage{pdfpages}
-\usepackage{transparent}
 
 \newcommand{\incfig}[1]{%
     \def\svgwidth{\columnwidth}
@@ -22,44 +18,123 @@
 
 \section{Introduction}
 
-i) área da Ciência da Computação a que a linguagem se destina;
-This language is designed for data processing, specifically files and folder processing.
+% motivação para a escolha da linguagem/área: que tipos de problemas resolve; porque é adequada para descrição/apresentação de soluções na área da Ciência da Computação a que se destina; quais as facilidades que garante ao programador/usuário leigo; quais as dificuldades relativas à implementação da linguagem com as quais você irá lidar no seu trabalho;
 
 
+The Unix Shell is the general denomination for a command line interpreter
+(and a scripting language) that provides for users and systems admins an
+interface to control the execution of the system \cite{negus2010linux},
+this names comes from earlier times when operating systems had this only
+interface covering the operating system. It provides a way to create
+executable scripts, execute programs, manage filesystems, compile code and
+other general computer manipulation tasks \cite{negus2010linux,blum2008linux}.
 
-ii) descrição da linguagem formal para a qual será implementado o tradutor (ou seja, a gramática de tal linguagem), contendo também descrição informal dos aspectos inerentes à linguagem e a gramática subjacente;
+Although shell be a very old computer technology later being replaced by
+graphical interfaces, many users (specially super-users) prefer this less
+intuitive interface \cite{negus2010linux,newham2005learning}. Many shells were
+developed with similar behaviour but distinct orientation, to cite a few, the
+most popular ones are Bash \cite{bash}, Zsh \cite{zsh} and Fish \cite{fish}.
+
+External tools were developed to supply the needs of Unix users
+but not integrated in the any shell scripting language so they presents an
+inconsistent language for files handling and operations, like tar, sed, md5
+although all of those have a common paradigm.
+
+In modern \textbf{data processing}, a computing paradigm emmerged dominating
+as the most adopted by major frameworks, like HadoopMR, Spark and Kafka.
+MapReduce is a computational paradigm that decompose computations in a
+Map operation and a following reduction has a clear and efficient model of
+computation besides not being so clear how to describe any computation in
+this paradigm \cite{afrati2012vision}.
+
+This paper proposes a language designed for \textbf{data processing},
+specifically files and folder processing in a standardized syntax, it is
+semantically consistent language in the sense that many distinct usual shell
+operations will follow a intuitive syntax.
+
+\section{Formal Description}
+
+% descrição da linguagem formal para a qual será implementado o tradutor (ou seja, a gramática de tal linguagem), contendo também descrição informal dos aspectos inerentes à linguagem e a gramática subjacente;
+In this section the formal grammar is presented.
+\\
+
+PROCEDURE $\rightarrow$ SELECTION \$OPERATION AGGREGATION DESTINY
+\\
+
+SELECTION $\rightarrow$ LIKE|PATH|MAPPING in SELECTION if EXPRESSION
+\\
+
+OPERATION $\rightarrow$ >|\&|!|@|\# (PARAM-LIST)
+\\
+
+AGGREGATION $\rightarrow$ .|\_
+\\
+
+DESTINY $\rightarrow$ PATH
+\\
+
+PATH $\rightarrow$ type:string
+\\
+
+MAPPING $\rightarrow$ ff|rr|cc|++ PARAM-LIST
+\\
+
+EXPRESSION $\rightarrow$ LIKE
+\\
+
+PARAM-LIST $\rightarrow$ PARAM-LIST PARAM|PARAM
+\\
+
+LIKE $\rightarrow$ type:string
+
+\section{Semantics}
+The language is inspired in the MapReduce paradigm, which is dominating the
+frameworks design for data processing. The main statement in the language
+is the PROCEDURE, it summarizes the general MapReduce operation in an
+intuitive syntax as the \$\_ operator is succinct and mnemonical.
+
+The SELECTION acts in the folder dimension and the EXPRESSION in the
+file dimension.
+
+If no AGGREGATION is applied the DESTINY must have the same size that
+SELECTION.
+
+%The LIKE
 
 
-
-iii) motivação para a escolha da linguagem/área: que tipos de problemas resolve; porque é adequada para descrição/apresentação de soluções na área da Ciência da Computação a que se destina; quais as facilidades que garante ao programador/usuário leigo; quais as dificuldades relativas à implementação da linguagem com as quais você irá lidar no seu trabalho;
-It is a semantically consistent language in the sense that many distinct usual shell
-operations will follow a intuitive syntax
-
-
-iv) descrição breve da semântica da linguagem.
-
-\begin{figure}
-    \centering
-    \incfig{drawing}
-    \caption{Caption}
-    \label{fig:my_label}
-\end{figure}
-
-\begin{table}[]
+\begin{table}[ht]
 \centering
 \caption{Operations description}
-\label{tab:onmetrics}
+\label{tab:operations}
 \begin{tabular}{|r|c|l|}
 \hline
 Operation   & Symbol & Description\\ \hline
 Move        & >      & Move given files or directories \\
 Rename      & \&     & Renames given files or directories \\
+Edit        & !      & Stream editor operations \\
 Compression & @      & Compress files and/or directories using tar \\
 Hash        & \#     & Calculates the hash \\
- &  &  \\
- &  &  \\
 \hline
 \end{tabular}
 \end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Maps description}
+\label{tab:maps}
+\begin{tabular}{|r|c|l|}
+\hline
+Mapping   & Symbol & Description\\ \hline
+Identity  &        & Return same given value \\
+Filter    & ff     & Remove a given pattern \\
+Replace   & rr     & Replace a given pattern \\
+Cut       & cc     & Remove a substring \\
+Concat    & ++     & Replace a given pattern \\
+\hline
+\end{tabular}
+\end{table}
+
+\bibliographystyle{unsrt}
+\bibliography{ref.bib}
 
 \end{document}
