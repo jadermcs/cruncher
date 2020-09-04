@@ -2,6 +2,13 @@
 1234.
 1234.123
 1234.e123
+funcao = statement
+funcao arg1 = statement
+funcao arg1 arg2 = statement
+funcao arg1 arg2 arg3 = statement
+funcao arg1 =
+    statement
+-- a comment
 -123
 -123.
 -1234.123e-123

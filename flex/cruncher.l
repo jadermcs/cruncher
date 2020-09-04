@@ -1,16 +1,18 @@
 %{
 /* need this for the call to atof() below */
 #include <math.h>
-int line_count = 0;
+int line_count = 1;
 %}
 
 DIGIT   [0-9]
-ID      [a-z][a-z0-9]*
-INT     [0-9]+
+ID      [a-z][a-z0-9\_]*
+SPACE   [ \t\n]+
+ASSIGN  {ID}{SPACE}<-{SPACE}{ID}|{ID}
+BLOCK   ({ASSIGN}{SPACE})+
 
 %%
 
--?{DIGIT}+      {
+-?{DIGIT}+ {
     printf("An integer: %s\n", yytext);
     line_count++;
 }
@@ -20,10 +22,24 @@ INT     [0-9]+
     line_count++;
 }
 
+{ID}(" "{ID})*" "*"="{SPACE}?{BLOCK} {
+    printf("A function: %s\n", yytext);
+    line_count++;
+}
+
+let|in|if|otherwise {
+    printf("A keyword: %s\n", yytext);
+    line_count++;
+}
+
+"--"[^\n]*\n    /*eat comments*/
+
+{SPACE}    /*eat spaces*/
+
 .       {
-        printf("Unrecognized character in line %d, position %d: %s\n", line_count, yyleng, yytext);
-        return 1;
-        }
+    printf("Unrecognized character in line %d, position %d: %s\n", line_count, yyleng, yytext);
+    return 1;
+}
 
 %%
 
