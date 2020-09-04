@@ -1,3 +1,5 @@
+*.o
+*.yy.cc
 ## Core latex/pdflatex auxiliary files:
 main.pdf
 *.aux
