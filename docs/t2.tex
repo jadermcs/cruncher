@@ -1,0 +1,105 @@
+\documentclass{article}
+\usepackage[a4paper, total={6in, 10in}]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage[portuguese]{babel}
+
+\title{Cruncher\\
+\large A Semantically Consistent Language for Handling Files}
+\author{Jader M. C. de S\'{a}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdu\c{c}\~{a}o}
+
+A sintaxe nessa implementação foi baseada na refencia de 2010 da linguagem
+haskell \cite{marlow2010haskell}
+
+Although shell be a very old computer technology later being replaced by
+graphical interfaces, many users (specially super-users) prefer this less
+intuitive interface \cite{negus2010linux,newham2005learning}. Many shells were
+developed with similar behaviour but distinct orientation, to cite a few, the
+most popular ones are Bash \cite{bash}, Zsh \cite{zsh} and Fish \cite{fish}.
+
+External tools were developed to supply the needs of Unix users
+but not integrated in the any shell scripting language so they presents an
+inconsistent language for files handling and operations, like tar, sed, md5
+although all of those have a common paradigm.
+
+In modern \textbf{data processing}, a computing paradigm emmerged dominating
+as the most adopted by major frameworks like HadoopMR, Spark and Kafka.
+MapReduce is a computational paradigm that decompose computations in a
+Maps and a following reduction, it has a clear and efficient model of
+computation besides not being so clear how to describe any computation in
+this paradigm \cite{afrati2012vision}.
+
+This paper proposes a language designed for \textbf{data processing},
+specifically files and folder processing in a standardized syntax, it is
+semantically consistent language in the sense that many distinct usual shell
+operations will follow a intuitive syntax.
+
+A main difficult in developing an interpreter to this is the type
+check for the DESTINY statement (presented later).
+
+
+\section{Semantics}
+The main statement in the language is the PROCEDURE, it summarizes the
+general MapReduce operation in an intuitive syntax as the \$\_ operator is
+succinct and mnemonical, the SELECTION statement is used to describe the
+files or folders that the mapping OPERATION will be applied, the
+AGGREGATION specifies which gatter method to used, summarize a result in
+a single file or apply each operation in separated files. The DESTINY
+statement specifies the output file/directory to send the mapping results.
+
+The SELECTION could be described in three ways, a regular expression
+to pattern match the many paths, a direct path and a list comprehension of
+paths, the list comprehension of paths contain a control statement named
+EXPRESSION for filtering based on a regex match, it only acts in the files
+dimension.
+
+OPERATION statement is a succinct caller for external tools, like sed, tar
+sha256sum, and others. Then the result is send to DESTINY, if no AGGREGATION
+is applied the DESTINY must have the same size that SELECTION.
+
+%The LIKE
+
+
+\begin{table}[ht]
+\centering
+\caption{Operations description}
+\label{tab:operations}
+\begin{tabular}{|r|c|l|}
+\hline
+Operation   & Symbol & Description\\ \hline
+Move        & >      & Move given files or directories \\
+Rename      & \&     & Renames given files or directories \\
+Edit        & !      & Stream editor operations \\
+Compression & @      & Compress files and/or directories using tar \\
+Hash        & \#     & Calculates the hash \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Maps description}
+\label{tab:maps}
+\begin{tabular}{|r|c|l|}
+\hline
+Mapping   & Symbol & Description\\ \hline
+Identity  & ..     & Return same given value \\
+Filter    & ff     & Remove a given pattern \\
+Replace   & rr     & Replace a given pattern \\
+Cut       & cc     & Remove a substring \\
+Concat    & ++     & Replace a given pattern \\
+\hline
+\end{tabular}
+\end{table}
+
+\bibliographystyle{unsrt}
+\bibliography{ref.bib}
+
+\end{document}

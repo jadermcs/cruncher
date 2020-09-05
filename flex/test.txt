@@ -1,6 +1,8 @@
 1234
+
 1234.
 1234.123
+
 1234.e123
 funcao = statement
 funcao arg1 = statement
@@ -12,3 +14,6 @@ funcao arg1 =
 -123
 -123.
 -1234.123e-123
+
+main = do $
+    a <- [1..60], n <- [1..60], mod (poly m n) 60 == k ]
