@@ -557,7 +557,7 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "src/cruncher.l"
+#line 1 "src/cruncher_lex.l"
 /* Scanner for the     _
 *  ___ ___ _ _ ___ ___| |_ ___ ___
 * |  _|  _| | |   |  _|   | -_|  _|
@@ -566,22 +566,15 @@ char *yytext;
 * Authored by jadermcs, 21-09-2020.
 * Details at: https://github.com/jadermcs/cruncher
 */
-#line 14 "src/cruncher.l"
-#include <math.h>
-#define printlexeme(type, mod) printf(((mod)==0)?"A %s at line %d: \"%s\"\n":"A %s at line %d: %s",\
-                                (type), yylineno, yytext);
-typedef struct {
-    char error_msg[64][128];
-    int error_count;
-    int at_line[64];
-    int at_column[64];
-} lexErrors;
+#define YY_NO_INPUT 1
+#line 15 "src/cruncher_lex.l"
+#include <cruncher_lex.h>
 
 lexErrors errors;
 int col_count = 1;
-#line 583 "src/cruncher_lex.yy.c"
+#line 576 "src/cruncher_lex.yy.c"
 
-#line 585 "src/cruncher_lex.yy.c"
+#line 578 "src/cruncher_lex.yy.c"
 
 #define INITIAL 0
 #define STRING 1
@@ -798,10 +791,10 @@ YY_DECL
 		}
 
 	{
-#line 61 "src/cruncher.l"
+#line 54 "src/cruncher_lex.l"
 
 
-#line 805 "src/cruncher_lex.yy.c"
+#line 798 "src/cruncher_lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -870,7 +863,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 63 "src/cruncher.l"
+#line 56 "src/cruncher_lex.l"
 {
     printlexeme("string", 1);
     col_count += yyleng;
@@ -879,7 +872,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 69 "src/cruncher.l"
+#line 62 "src/cruncher_lex.l"
 {
     printf("%s\n", yytext);
     col_count += yyleng;
@@ -888,7 +881,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 75 "src/cruncher.l"
+#line 68 "src/cruncher_lex.l"
 {
     printf("%s", yytext);
     col_count += yyleng;
@@ -897,7 +890,7 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 80 "src/cruncher.l"
+#line 73 "src/cruncher_lex.l"
 {
     printf("[ERROR]\n");
     int error_num = errors.error_count;
@@ -911,7 +904,7 @@ YY_RULE_SETUP
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 90 "src/cruncher.l"
+#line 83 "src/cruncher_lex.l"
 {
     yylineno++;
     col_count += yyleng;
@@ -921,14 +914,14 @@ YY_RULE_SETUP
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 96 "src/cruncher.l"
+#line 89 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     BEGIN(STRING);
 }
 	YY_BREAK
 case YY_STATE_EOF(STRING):
-#line 101 "src/cruncher.l"
+#line 94 "src/cruncher_lex.l"
 {
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], "Unexpected end of file while in string.");
@@ -940,7 +933,7 @@ case YY_STATE_EOF(STRING):
 }
 	YY_BREAK
 case YY_STATE_EOF(STRINGBREAK):
-#line 110 "src/cruncher.l"
+#line 103 "src/cruncher_lex.l"
 {
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], "Unexpected end of file while in string.");
@@ -953,7 +946,7 @@ case YY_STATE_EOF(STRINGBREAK):
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 119 "src/cruncher.l"
+#line 112 "src/cruncher_lex.l"
 {
     int size = strlen(yytext);
     yytext[size-1] = '\0';
@@ -965,7 +958,7 @@ YY_RULE_SETUP
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 127 "src/cruncher.l"
+#line 120 "src/cruncher_lex.l"
 {
     col_count = 1;
     yylineno++;
@@ -973,7 +966,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 132 "src/cruncher.l"
+#line 125 "src/cruncher_lex.l"
 {
     printlexeme("integer", 0);
     col_count += yyleng;
@@ -981,7 +974,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 137 "src/cruncher.l"
+#line 130 "src/cruncher_lex.l"
 {
     printlexeme("float", 0);
     col_count += yyleng;
@@ -989,7 +982,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 142 "src/cruncher.l"
+#line 135 "src/cruncher_lex.l"
 {
     printlexeme("char", 0);
     col_count += yyleng;
@@ -997,7 +990,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 147 "src/cruncher.l"
+#line 140 "src/cruncher_lex.l"
 {
     printlexeme("special", 0);
     col_count += yyleng;
@@ -1005,7 +998,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 152 "src/cruncher.l"
+#line 145 "src/cruncher_lex.l"
 {
     printlexeme("symbol", 0);
     col_count += yyleng;
@@ -1013,7 +1006,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 157 "src/cruncher.l"
+#line 150 "src/cruncher_lex.l"
 {
     printlexeme("reserved id", 0);
     col_count += yyleng;
@@ -1021,7 +1014,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 162 "src/cruncher.l"
+#line 155 "src/cruncher_lex.l"
 {
     printlexeme("reserved op", 0);
     col_count += yyleng;
@@ -1029,7 +1022,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 167 "src/cruncher.l"
+#line 160 "src/cruncher_lex.l"
 {
     printlexeme("variable", 0);
     col_count += yyleng;
@@ -1037,7 +1030,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 172 "src/cruncher.l"
+#line 165 "src/cruncher_lex.l"
 {
     printlexeme("constructor", 0);
     col_count += yyleng;
@@ -1046,14 +1039,14 @@ YY_RULE_SETUP
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
-#line 177 "src/cruncher.l"
+#line 170 "src/cruncher_lex.l"
 {
     col_count += yyleng;
 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 181 "src/cruncher.l"
+#line 174 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     int error_num = errors.error_count;
@@ -1065,10 +1058,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 190 "src/cruncher.l"
+#line 183 "src/cruncher_lex.l"
 ECHO;
 	YY_BREAK
-#line 1072 "src/cruncher_lex.yy.c"
+#line 1065 "src/cruncher_lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2044,7 +2037,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 190 "src/cruncher.l"
+#line 183 "src/cruncher_lex.l"
 
 
 int yywrap(void) {

@@ -28,24 +28,21 @@ clean:
 	@echo " Cleaning...";
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
 
-clean_all:
-	@echo " Cleaning...";
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
-	@echo " $(RM) $(SRCDIR)/porygon_lex.c $(INCLUDEDIR)/porygon_lex.h"; $(RM) $(SRCDIR)/porygon_lex.c $(SRCDIR)/porygon_lex.h
-
 flex:
 	@echo " Generating scanner..."
-	@echo " flex src/cruncher.l "; flex src/cruncher.l
+	@echo " flex src/cruncher.l "; flex src/cruncher_lex.l
 
 test:
 	@echo " Running tests..."
 	@echo " Valid files:"
 	@echo "------------------------------"
 	@./$(TARGET) tests/test-valid1.hs
+	@echo "------------------------------"
 	@./$(TARGET) tests/test-valid2.hs
 	@echo "\n\n Invalid files..."
 	@echo "------------------------------"
 	@./$(TARGET) tests/test-invalid1.hs
+	@echo "------------------------------"
 	@./$(TARGET) tests/test-invalid2.hs
 
 .PHONY: clean_all flex
