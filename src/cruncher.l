@@ -1,3 +1,15 @@
+/* Scanner for the     _
+*  ___ ___ _ _ ___ ___| |_ ___ ___
+* |  _|  _| | |   |  _|   | -_|  _|
+* |___|_| |___|_|_|___|_|_|___|_|
+*                              language.
+* Authored by jadermcs, 21-09-2020.
+* Details at: https://github.com/jadermcs/cruncher
+*/
+%option yylineno
+%option nounput
+%option outfile="src/cruncher_lex.c" header-file="include/cruncher_lex.h"
+
 %{
 #include <math.h>
 #define printlexeme(type, mod) printf(((mod)==0)?"A %s at line %d: \"%s\"\n":"A %s at line %d: %s",\
@@ -12,6 +24,7 @@ typedef struct {
 lexErrors errors;
 int col_count = 1, line_count = 1;
 %}
+
 %x          STRING
 %x          STRINGBREAK
 
@@ -175,6 +188,10 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
 }
 
 %%
+
+int yywrap(void) {
+    return 1;
+}
 
 int main(int argc, char **argv) {
     ++argv, --argc;  /* skip over program name */

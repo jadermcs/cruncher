@@ -1,11 +1,19 @@
 \documentclass{article}
 \usepackage[a4paper, total={6in, 10in}]{geometry}
 \usepackage[T1]{fontenc}
+\usepackage{syntax}
 \usepackage{url}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{example}{Verbatim}{fontsize=\small}
+\newcommand{\ignore}[1]{}
 
-\title{Cruncher\\
-\large A Semantically Consistent Language for Handling Files}
-\author{Jader M. C. de Sá}
+\title{Cruncher:\\
+\large A Funcional Language for Handling Files and Folders}
+\author{Jáder M. C. de Sá \\
+        Department of Computer Science\\
+        University of Brasília, Brazil \\
+        jader.martins@ipea.gov.br}
 \date{\today}
 
 \begin{document}
@@ -13,112 +21,196 @@
 \maketitle
 
 \section{Introduction}
-
-% motivação para a escolha da linguagem/área: que tipos de problemas resolve; porque é adequada para descrição/apresentação de soluções na área da Ciência da Computação a que se destina; quais as facilidades que garante ao programador/usuário leigo; quais as dificuldades relativas à implementação da linguagem com as quais você irá lidar no seu trabalho;
-
-
-The Unix Shell is the general denomination for a command line interpreter
+\label{sec:intro}
+The Unix Shell is a general denomination for a command line interpreter
 (and a scripting language) that provides for users and systems admins an
-interface to control the execution of the system \cite{negus2010linux},
-this names comes from earlier times when operating systems had this only
-interface covering the operating system. It provides a way to create
-executable scripts, execute programs, manage filesystems, compile code and
-other general computer manipulation tasks \cite{negus2010linux,blum2008linux}.
+interface to control the execution of operating system task's in Unix-like
+environments \cite{negus2010linux}, this name comes from earlier times
+when OS had this only interface covering the user interaction (like a shell
+protecting the pearl). The Shell provides a way to create executable scripts,
+execute programs, manage file-systems, compile code and other general computer
+manipulation tasks \cite{negus2010linux,blum2008linux}.
 
-Although shell be a very old computer technology later being replaced by
+Although Shell be a very old computer technology later being replaced by
 graphical interfaces, many users (specially super-users) prefer this less
-intuitive interface \cite{negus2010linux,newham2005learning}. Many shells were
-developed with similar behaviour but distinct orientation, to cite a few, the
-most popular ones are Bash \cite{bash}, Zsh \cite{zsh} and Fish \cite{fish}.
+intuitive interface \cite{newham2005learning} for daily tasks. The \textit{sh}
+is the precursor project and the default shell in many Unix distributions but
+many other shells were also developed with similar behavior but distinct
+orientation, to cite a few, the most popular ones are \textit{bash}
+\cite{bash}, \textit{zsh} \cite{zsh} and \textit{fish} \cite{fish}.
 
-External tools were developed to supply the needs of Unix users
-but not integrated in the any shell scripting language so they presents an
-inconsistent language for files handling and operations, like tar, sed, md5
-although all of those have a common paradigm.
+Allied with the Shell, many external tools were developed to supply the needs
+of Unix users \cite{negus2010linux} but those were not integrated natively in
+any of those shell scripting language resulting in an inconsistent language for
+files handling and operations. Tools like tar, sed, md5, etc, each has a
+distinct parameter handling paradigm.
 
-In modern \textbf{data processing}, a computing paradigm emmerged dominating
-as the most adopted by major frameworks like HadoopMR, Spark and Kafka.
-MapReduce is a computational paradigm that decompose computations in a
-Maps and a following reduction, it has a clear and efficient model of
-computation besides not being so clear how to describe any computation in
-this paradigm \cite{afrati2012vision}.
+In modern \textbf{data processing}, a computing paradigm presented himself
+as a suitable and intuitive way to describe massive computations and is
+adopted by major frameworks like Hadoop, Spark and Kafka. The MapReduce
+is a computational paradigm that decompose computations in a Maps and
+Reduction operations, it has a clear and efficient model of computation
+besides not being so trivial to describe any computation in this paradigm
+\cite{afrati2012vision}.
 
-This paper proposes a language designed for \textbf{data processing},
-specifically files and folder processing in a standardized syntax, it is
-semantically consistent language in the sense that many distinct usual shell
-operations will follow a intuitive syntax.
-
-A main difficult in developing an interpreter to this is the type
-check for the DESTINY statement (presented later).
+This paper proposes a language designed for \textbf{data processing} in
+shell, specifically files and folder processing in a standardized syntax,
+it is resembles the \textit{bash} language but it adds a semantically
+consistent operation for external tools with a intuitive syntax. It is
+organized in the following manner, Section \ref{sec:formal} describes the
+formal grammar for Cruncher language, \ref{sec:semantics} presents the
+semantics of principal keywords in the language, and finally Section
+\ref{sec:conclusion} concludes the paper.
 
 \section{Formal Description}
-% descrição da linguagem formal para a qual será implementado o tradutor (ou seja, a gramática de tal linguagem), contendo também descrição informal dos aspectos inerentes à linguagem e a gramática subjacente;
-In this section the formal grammar is presented.
-\\
+\label{sec:formal}
+In this section we present the formal grammar for the \textit{Cruncher}
+language, also we discuss notation and specification of the grammar. The
+language is extended the list comprehension, blobs and mappings, additionally,
+it incorporates the main external tools from Unix shell in the same syntax. It
+has the main grammatical structures presented in \textit{Haskell}, so we took
+the bash reference \cite{marlow2010haskell} as basis for this grammar.
 
-PROCEDURE $\rightarrow$ SELECTION \$OPERATION(PARAM-LIST) AGGREGATION DESTINY
-\\
+\paragraph{Notation Convention}
+These notations convention are used for presenting syntax:
 
-SELECTION $\rightarrow$ LIKE|PATH|[MAPPING in SELECTION if EXPRESSION]
-\\
+\begin{grammar}
+\item $\epsilon$ - empty symbol.
 
-OPERATION $\rightarrow$ >|\&|!|@|\#
-\\
+\item ( \textit{pattern} )* - zero or more repetitions of the pattern.
 
-AGGREGATION $\rightarrow$ .|\_
-\\
+\item \textit{symbol1} "..." \textit{symbol2} - a choice from symbol1 to symbol2.
 
-DESTINY $\rightarrow$ PATH
-\\
+\item <\textit{definition}> - definition for a statement.
 
-PATH $\rightarrow$ type:FILE|type:FILES|type:FOLDER|type:FOLDERS
-\\
+\item <regexp> - a regular expression based on POSIX standard \cite{posix}.
 
-MAPPING $\rightarrow$ ff|rr|cc|++ PARAM-LIST
-\\
+\item <globexp> - a glob expression based on Linux implementation \cite{glob}.
 
-EXPRESSION $\rightarrow$ LIKE
-\\
+\item "\textvisiblespace" - in some points the space is made visible to
+    emphasize his existence.
+\end{grammar}
 
-PARAM-LIST $\rightarrow$ PARAM-LIST PARAM|PARAM
-\\
+\paragraph{Lexical Syntax}
 
-LIKE $\rightarrow$ type:RESTRING
+\begin{grammar}
+<letter> ::= "a"..."z"
+
+<digit> ::= "0"..."1"
+
+<name> ::= <letter>(<letter>|<digit>|"_")*
+
+<comments> ::= "- -"(<letter>|<digit>|"\textvisiblespace")*
+
+<like> ::= type:blob
+
+<path> ::= type:string
+
+<mapping> ::= (".."|"ff"|"rr"|"cc"|"++") type:string
+
+<list_comprehension> ::= "["<mapping> "\\" <like>"," "if" <bool_exp>"]"
+
+<selection> ::= <like>|<path>|<list_comprehension>
+
+<sed_range> ::= "g"|(<digit>)*|(<digit>)*","(<digit>)*
+
+<sed_exp> ::= "s/"<regexp>"/"<regexp>"/"<sed_range>
+
+<op_symbol> ::= ">"|"\&("<list_comprehension>")"|"!("<sed_exp>")"|"@("<param_list>")"|"*("<param_list>")"
+
+<param> ::=  <param_list>|<name>|$\epsilon$
+
+<param_list> ::= <name> <param_list>|<name>
+
+<operation> ::= <op_symbol>(<param>)
+
+<glob> ::= <globexp> | $\epsilon$
+
+<destiny> ::= <glob> | "\_" <path>
+
+<crunch> ::= \$<operation> <selection> <destiny>
+
+<exp> ::= (<name>|type:int|type:float|type:string)
+
+<bool_exp> ::= <exp> (">"|"<"|">="|"<="|"=="|"!=") <exp>
+
+<attribution> ::= <name>"="<exp>
+
+<attributions> ::= <attribution> | <attribution>"\\n"<attributions>
+
+<block> ::= "let" <attributions> "in" <exp>
+
+<if> ::= "if" <bool_exp> "then" <block> \alt "else" <block>
+
+<guard> ::= <name> <name>
+\alt <bool_exp>  = <exp>
+\alt <bool_exp>  = <exp>
+\alt "otherwise" = <exp>
+
+<case> ::= <exp> "of"
+\alt <exp> "->" <exp>
+\alt <exp> "->" <exp>
+\alt <exp> "->" <exp>
+
+<procedure> ::= <name> <param_list> "= do \$"
+\alt <block>
+\end{grammar}
 
 \section{Semantics}
-The main statement in the language is the PROCEDURE, it summarizes the
-general MapReduce operation in an intuitive syntax as the \$\_ operator is
-succinct and mnemonical, the SELECTION statement is used to describe the
-files or folders that the mapping OPERATION will be applied, the
-AGGREGATION specifies which gatter method to used, summarize a result in
-a single file or apply each operation in separated files. The DESTINY
-statement specifies the output file/directory to send the mapping results.
+\label{sec:semantics}
+The language main feature is inspired in the MapReduce paradigm, which is a
+popular design for data processing frameworks, so this language uses Haskell as
+his basis semantic. To facilitate the implementation many of the types will not
+be implemented, only a subset of those (to have the basics functionality) will
+be implemented. In this section we discuss the semantics and exemplify the
+usage:
 
-The SELECTION could be described in three ways, a regular expression
-to pattern match the many paths, a direct path and a list comprehension of
-paths, the list comprehension of paths contain a control statement named
-EXPRESSION for filtering based on a regex match, it only acts in the files
-dimension.
+First we begin exemplifying the <crunch> keyword:
 
-OPERATION statement is a succinct caller for external tools, like sed, tar
-sha256sum, and others. Then the result is send to DESTINY, if no AGGREGATION
-is applied the DESTINY must have the same size that SELECTION.
+\begin{code}
+-- replaces every occurrence of cat word in the files inplace.
+main = do $
+    $!("s/cat/dog/g") "/home/jader/files/*.txt" .
 
-%The LIKE
 
+-- moves every content from those .txt files to a single .json file in json folder.
+main = do $
+    $> "/home/jader/files/*.txt" _"/home/jader/json/file.json"
+\end{code}
+
+It has an input folder or file and an output folder or file, depending on the
+kind of operation.  In Table \ref{tab:operations} some extra references for
+additional symbols are shown, every operation has a single symbol. It replaces
+the following Unix shell commands: \texttt{mv}, \texttt{rename}, \texttt{sed},
+\texttt{tar} and \texttt{shaXsum}.
+
+The list comprehension applies implicit operations on string in the same sense
+in \ref{tab:maps} the mappings which has 2 symbols are shown. They occur in
+list comprehension to iterate in files, here is an example of his usage:
+
+\begin{code}
+-- creates a backup for every .txt file in the folder.
+main = do $
+    $& "/home/jader/files/*" [++ ".backup" \ "/home/jader/files/*" if endsWith ".txt"]
+\end{code}
+
+The type of operation alternates the kind of matching between files, some have
+a direct mapping, some perform an aggregation, and others both. For in-place
+mapping the output files can be implicitly defined by ``.'' if aggregation is
+we must specify the  ``\_'' to be performed.
 
 \begin{table}[ht]
 \centering
 \caption{Operations description}
 \label{tab:operations}
-\begin{tabular}{|r|c|l|}
+\begin{tabular}{|c|c|l|}
 \hline
 Operation   & Symbol & Description\\ \hline
 Move        & >      & Move given files or directories \\
 Rename      & \&     & Renames given files or directories \\
 Edit        & !      & Stream editor operations \\
 Compression & @      & Compress files and/or directories using tar \\
-Hash        & \#     & Calculates the hash \\
+Hash        & *     & Calculates the hash \\
 \hline
 \end{tabular}
 \end{table}
@@ -131,15 +223,24 @@ Hash        & \#     & Calculates the hash \\
 \hline
 Mapping   & Symbol & Description\\ \hline
 Identity  & ..     & Return same given value \\
-Filter    & ff     & Remove a given pattern \\
+Filter    & ff     & Filter a given pattern \\
 Replace   & rr     & Replace a given pattern \\
 Cut       & cc     & Remove a substring \\
-Concat    & ++     & Replace a given pattern \\
+Concat    & ++     & Concatenate strings \\
 \hline
 \end{tabular}
 \end{table}
 
-\bibliographystyle{unsrt}
+\section{Conclusion}
+\label{sec:conclusion}
+The language presented in this paper aims to achieve a clear and consistent
+syntax for files and folders handling, replacing the usual shell scripting that
+requires external tools to made common operations that should be native in the
+language. It is done by applying the functional scheme from Haskell allied to
+the MapReduce paradigm. With two additional structures, it captures major
+operations done in the Unix terminal using a minimal and intuitive syntax.
+
+\bibliographystyle{alpha}
 \bibliography{ref.bib}
 
 \end{document}
