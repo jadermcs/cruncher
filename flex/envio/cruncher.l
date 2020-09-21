@@ -92,7 +92,6 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
     errors.at_column[error_num] = col_count;
     errors.error_count++;
     BEGIN(INITIAL);
-    yyterminate();
 }
 <STRINGBREAK><<EOF>> {
     int error_num = errors.error_count;
