@@ -1,4 +1,5 @@
 *.o
+bin/
 ## Core latex/pdflatex auxiliary files:
 *.pdf
 *.aux

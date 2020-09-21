@@ -8,12 +8,12 @@
 */
 %option yylineno
 %option nounput
-%option outfile="src/cruncher_lex.c" header-file="include/cruncher_lex.h"
+%option outfile="src/cruncher_lex.yy.c"
 
 %{
 #include <math.h>
 #define printlexeme(type, mod) printf(((mod)==0)?"A %s at line %d: \"%s\"\n":"A %s at line %d: %s",\
-                                (type), line_count, yytext);
+                                (type), yylineno, yytext);
 typedef struct {
     char error_msg[64][128];
     int error_count;
@@ -22,7 +22,7 @@ typedef struct {
 } lexErrors;
 
 lexErrors errors;
-int col_count = 1, line_count = 1;
+int col_count = 1;
 %}
 
 %x          STRING
@@ -81,14 +81,14 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
     printf("[ERROR]\n");
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], "Unexpected linebreak while in string.");
-    errors.at_line[error_num] = line_count;
+    errors.at_line[error_num] = yylineno;
     errors.at_column[error_num] = col_count;
     errors.error_count++;
     BEGIN(INITIAL);
 }
 
 <STRING>\\\n {
-    line_count++;
+    yylineno++;
     col_count += yyleng;
     BEGIN(STRINGBREAK);
 }
@@ -101,7 +101,7 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
 <STRING><<EOF>> {
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], "Unexpected end of file while in string.");
-    errors.at_line[error_num] = line_count;
+    errors.at_line[error_num] = yylineno;
     errors.at_column[error_num] = col_count;
     errors.error_count++;
     BEGIN(INITIAL);
@@ -110,7 +110,7 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
 <STRINGBREAK><<EOF>> {
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], "Unexpected end of file while in string.");
-    errors.at_line[error_num] = line_count;
+    errors.at_line[error_num] = yylineno;
     errors.at_column[error_num] = col_count;
     errors.error_count++;
     BEGIN(INITIAL);
@@ -121,12 +121,12 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
     yytext[size-1] = '\0';
     printlexeme("comment", 0);
     col_count = 1;
-    line_count++;
+    yylineno++;
 }
 
 {NEWLINE} {
     col_count = 1;
-    line_count++;
+    yylineno++;
 }
 
 {INTEGER} {
@@ -182,7 +182,7 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
     col_count += yyleng;
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], yytext);
-    errors.at_line[error_num] = line_count;
+    errors.at_line[error_num] = yylineno;
     errors.at_column[error_num] = col_count;
     errors.error_count++;
 }
