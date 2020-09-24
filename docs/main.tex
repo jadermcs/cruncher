@@ -6,6 +6,10 @@
 \usepackage{fancyvrb}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
+\usetikzlibrary{positioning}
 \DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
 \DefineVerbatimEnvironment{example}{Verbatim}{fontsize=\small}
 \newcommand{\ignore}[1]{}
@@ -26,9 +30,20 @@
     showtabs=false,
 }
 \lstset{style=mystyle}
+\tikzset{
+    state/.style={
+           rectangle,
+           rounded corners,
+           draw=black, very thick,
+           minimum height=2em,
+           inner sep=2pt,
+           text centered,
+           },
+}
+\newenvironment{allintypewriter}{\ttfamily}{\par}
 
 \title{Cruncher:\\
-\large A Funcional Language for Handling Files and Folders}
+\large A Functional Language for Handling Files and Folders}
 \author{Jáder M. C. de Sá \\
         Department of Computer Science\\
         University of Brasília, Brazil \\
@@ -250,7 +265,7 @@ for line and column, to track locations of points with unrecognized tokens,
 i.e., \texttt{line_count} and \texttt{line_count}, respectively. In the
 code bellow is exemplified this operation.
 
-\begin{lstlisting}[language=C, caption=Exemplo de código para monitorar linhas e colunas.]
+\begin{lstlisting}[language=C, caption=Example of code monitoring lines and columns.]
     %{
     int line_count = 1;
     int col_count = 1;
@@ -305,12 +320,96 @@ typedef struct {
 
 \section{Symbol Table}
 As Haskell is a functional language it doesn't have variables, only functions,
-so the symbol table only take care of function types.
+so the symbol table only take care of function types. The function types in
+Haskell could be explicit or implicit but for easiness of implementation in
+Cruncher it should be explicit, with this types declared, every function will
+be presented in the symbol table with type, id, location, and a pointer to a
+local symbol table. In Figure \ref{fig:symboltable} is shown an example of
+references in symbol table, initially a global table is created and for each
+function a local table is defined with local definitions.
+
+\begin{figure}[ht]
+\label{fig:symboltable}
+\centering
+\begin{tikzpicture}[->,>=stealth']
+
+ \node[state] (t0)
+ {\begin{tabular}{l}
+  \textbf{Global Table}\\
+  \begin{allintypewriter}
+  \begin{tabular}{ccc}
+          type & id & local_table\\\hline
+          Int   & func1 & *1\\
+          String& func2 & NULL\\
+          Float & func3 & *3\\
+          Int   & func4 & NULL
+           \end{tabular}
+ \end{tabular}
+  \end{allintypewriter}
+ };
+
+ \node[state,
+  yshift=2cm,
+  right of=t0,
+  node distance=6.5cm,
+  anchor=center] (t1)
+ {\begin{tabular}{l}
+  \textbf{Local Table 1}\\
+  \begin{allintypewriter}
+  \begin{tabular}{ccc}
+          type & id & local_table\\\hline
+          Int   & funcl1 & NULL\\
+          Int   & funcl2 & *2
+           \end{tabular}
+ \end{tabular}
+  \end{allintypewriter}
+ };
+
+ \node[state,
+  below of=t1,
+  node distance=3.0cm,
+  anchor=center] (t2)
+ {\begin{tabular}{l}
+  \textbf{Local Table 2}\\
+  \begin{allintypewriter}
+  \begin{tabular}{ccc}
+          type & id & local_table\\\hline
+          Int   & funcl1 & NULL
+           \end{tabular}
+ \end{tabular}
+  \end{allintypewriter}
+ };
+
+ \node[state,
+  yshift=1cm, 		% move 2cm in y
+  below of=t2,
+  node distance=3.0cm, 	% distance to QUERY
+  anchor=center] (t3)
+ {\begin{tabular}{l}
+  \textbf{Local Table 3}\\
+  \begin{allintypewriter}
+  \begin{tabular}{ccc}
+          type & id & local_table\\\hline
+          Int   & funcl1 & NULL\\
+          Float & funcl2 & NULL
+           \end{tabular}
+ \end{tabular}
+  \end{allintypewriter}
+ };
+
+ \path (t0) 	edge[bend left=20]  node[anchor=south,above]{*1} (t1)
+ (t1)     	edge[bend right=20] node[anchor=south,right]{*2} (t2)
+ (t0)     	edge[bend right=20] node[anchor=south,below]{*3} (t3);
+
+\end{tikzpicture}
+\caption{Example of symbol table.}
+\end {figure}
 
 \section{Test files}
 There are two files for valid code examples and two for invalid codes, the
 valid ones have the \texttt{test-valid} prefix, and the invalid,
 \texttt{test-invalid} prefix.
+
 
 \section{Conclusion}
 \label{sec:conclusion}
