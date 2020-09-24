@@ -201,4 +201,5 @@ int main(int argc, char **argv) {
         printf("Error: Unrecognized character in line %d, position %d: %s\n",
             errors.at_line[i], errors.at_column[i], errors.error_msg[i]);
     }
+    fclose(yyin);
 }

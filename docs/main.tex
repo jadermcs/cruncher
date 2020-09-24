@@ -4,9 +4,28 @@
 \usepackage{syntax}
 \usepackage{url}
 \usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{xcolor}
 \DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
 \DefineVerbatimEnvironment{example}{Verbatim}{fontsize=\small}
 \newcommand{\ignore}[1]{}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    keepspaces=true,
+    numbers=left,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+}
+\lstset{style=mystyle}
 
 \title{Cruncher:\\
 \large A Funcional Language for Handling Files and Folders}
@@ -83,78 +102,72 @@ These notations convention are used for presenting syntax:
 
 \item <\textit{definition}> - definition for a statement.
 
-\item <regexp> - a regular expression based on POSIX standard \cite{posix}.
-
-\item <globexp> - a glob expression based on Linux implementation \cite{glob}.
-
 \item "\textvisiblespace" - in some points the space is made visible to
     emphasize his existence.
 \end{grammar}
 
-\paragraph{Lexical Syntax}
+\subsection{Lexical Syntax}
 
 \begin{grammar}
-<letter> ::= "a"..."z"
+<program> ::= (<lexeme>|<whitespace>)*
+
+<lexeme> ::= <reservedid>|<varid>|<conid>|<literal>|<special>|<reservedop>
+
+<literal> ::= <integer>|<float>|<char>|<string>
+
+<special> ::= "("|")"|","|";"|"["|"]"|"`"|"{"|"}"
+
+<whitespace> ::= <whitestuff><whitestuff>*
+
+<whitestuff> ::= <whitechar>|<comment>
+
+<whitechar> ::= <newline>|"\\t"|"\textvisiblespace"
+
+<newline> ::= "\\n"
+
+<any> ::= anything except <newline>
+
+<comment> ::= "-""-"<any><newline>
 
 <digit> ::= "0"..."1"
 
-<name> ::= <letter>(<letter>|<digit>|"_")*
+<integer> ::= [+|-]<digit><digit>*
 
-<comments> ::= "- -"(<letter>|<digit>|"\textvisiblespace")*
+<float> ::= <integer>"."<digit>*[<expon>]
 
-<like> ::= type:blob
+<expon> ::= ("e"|"E")[+|-]<integer>
 
-<path> ::= type:string
+<lsmall> ::= "a"..."z"|"_"
 
-<mapping> ::= (".."|"ff"|"rr"|"cc"|"++") type:string
+<lsmall> ::= "A"..."Z"
 
-<list_comprehension> ::= "["<mapping> "\\" <like>"," "if" <bool_exp>"]"
+<symbol> ::= "!"|"#"|"\$"|"\%"|"&"|"*"|"+"|"."|"\\"|"/"|"<"|"="|">"|"?"|"@"|"|"|"^"|"-"|"~"|":"
 
-<selection> ::= <like>|<path>|<list_comprehension>
+<graphic> ::= <lsmall>|<llarge>|<symbol>
 
-<sed_range> ::= "g"|(<digit>)*|(<digit>)*","(<digit>)*
+<char> ::= "'"<graphic>"'"
 
-<sed_exp> ::= "s/"<regexp>"/"<regexp>"/"<sed_range>
+<string> ::= "\""<graphic>*"\""
 
-<op_symbol> ::= ">"|"\&("<list_comprehension>")"|"!("<sed_exp>")"|"@("<param_list>")"|"*("<param_list>")"
+<path> ::= ("_"|".")(<llarge>|<lsmall>|"."|"/")*
 
-<param> ::=  <param_list>|<name>|$\epsilon$
+<reservedid> ::= "case"|"class"|"data"|"default"|"deriving"|"do"|"else"
+\alt"foreign"|"if"|"import"|"in"|"infix"|"infixl"|"infixr"|"instance"
+\alt"let"|"module"|"newtype"|"of"|"then"|"type"|"where"|"like"
 
-<param_list> ::= <name> <param_list>|<name>
+<varid> ::= <lsmall>(<lsmall>|<llarge>|<digit>)*
 
-<operation> ::= <op_symbol>(<param>)
+<conid> ::= <llarge>(<lsmall>|<llarge>|<digit>)*
 
-<glob> ::= <globexp> | $\epsilon$
-
-<destiny> ::= <glob> | "\_" <path>
-
-<crunch> ::= \$<operation> <selection> <destiny>
-
-<exp> ::= (<name>|type:int|type:float|type:string)
-
-<bool_exp> ::= <exp> (">"|"<"|">="|"<="|"=="|"!=") <exp>
-
-<attribution> ::= <name>"="<exp>
-
-<attributions> ::= <attribution> | <attribution>"\\n"<attributions>
-
-<block> ::= "let" <attributions> "in" <exp>
-
-<if> ::= "if" <bool_exp> "then" <block> \alt "else" <block>
-
-<guard> ::= <name> <name>
-\alt <bool_exp>  = <exp>
-\alt <bool_exp>  = <exp>
-\alt "otherwise" = <exp>
-
-<case> ::= <exp> "of"
-\alt <exp> "->" <exp>
-\alt <exp> "->" <exp>
-\alt <exp> "->" <exp>
-
-<procedure> ::= <name> <param_list> "= do \$"
-\alt <block>
+<reservedop> ::= ".."|":"|"::"|"="|"\\"|"|"|"<-"|"->"|"@"|"~"|"=>"
 \end{grammar}
+
+\subsection{Changes and Updates}
+In the first version, the lexical syntax presented erros as advanced structures
+were recognized at this step, but those more complex structures should be
+recognized in the parser phase by a free context grammar. Also, the language
+was missing some important token patterns, so all those were added to this
+version.
 
 \section{Semantics}
 \label{sec:semantics}
@@ -230,6 +243,74 @@ Concat    & ++     & Concatenate strings \\
 \hline
 \end{tabular}
 \end{table}
+
+\section{Error Handling}
+For the scanner phase, only local structures are recognized, so we use counters,
+for line and column, to track locations of points with unrecognized tokens,
+i.e., \texttt{line_count} and \texttt{line_count}, respectively. In the
+code bellow is exemplified this operation.
+
+\begin{lstlisting}[language=C, caption=Exemplo de código para monitorar linhas e colunas.]
+    %{
+    int line_count = 1;
+    int col_count = 1;
+    %}
+    EOL     \n
+    ... /*some patterns*/
+    %%
+    EOL {
+        line_count++;
+        col_count = 1;
+    }
+
+    ... /*some patterns*/
+
+    . {
+        printf("Pattern unrecognized at line %d, column %d: %s\n",
+                line_count, col_count+yyleng, yytext);
+        return 1;
+    }
+\end{lstlisting}
+
+If any other pattern is unrecognized it is captured by the `.', and reported
+latter.
+
+\section{Procedures}
+The Flex scanner provides many directives and variables to help in the scanning
+process, four directives of this tool was used, \texttt{yyleng},
+\texttt{yytext}, \texttt{yyin} and \texttt{yylineno}. The \texttt{yyleng}
+returns the length of the current string recognized, the \texttt{yytext}
+returns this string, the \texttt{yyin} read and return the file to be scanned.
+All tokens are recognized and categorized by a macro \texttt{printLexeme}
+defined in the following manner:
+
+\begin{verbatim}
+#define printLexeme(type) printf("A %s: \"%s\" at line %d\n",\
+                                (type), yytext, line_count);
+\end{verbatim}
+
+When an error occur in the scanning phase, the scanner saves those informations
+in a struct and continues the scanning process. At the end those errors are
+reported. Here is an example:
+
+\begin{verbatim}
+typedef struct {
+     char error_type[64][16];
+     char error_msg[64][128];
+     int error_count;
+     int at_line[64];
+     int at_column[64];
+} lexErrors;
+\end{verbatim}
+
+\section{Symbol Table}
+As Haskell is a functional language it doesn't have variables, only functions,
+so the symbol table only take care of function types.
+
+\section{Test files}
+There are two files for valid code examples and two for invalid codes, the
+valid ones have the \texttt{test-valid} prefix, and the invalid,
+\texttt{test-invalid} prefix.
 
 \section{Conclusion}
 \label{sec:conclusion}
