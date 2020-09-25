@@ -12,10 +12,12 @@
 %option outfile="src/cruncher_lex.yy.c"
 
 %{
-#include <cruncher_lex.h>
+#include <cruncher.h>
 
 lexErrors errors;
 int col_count = 1;
+enum types current_type=INT;
+int current_addr=0;
 %}
 
 %x          STRING
@@ -39,7 +41,7 @@ EXPON       [eE]{INTEGER}
 
 LSMALL      [a-z]|_
 LLARGE      [A-Z]
-SYMBOL      [!#$%&⋆+.\\\/<=>?@^\|-~: ]
+SYMBOL      [!#$%&⋆+.\\\/<=>?@^\|-~:]
 GRAPHIC     [{LSMALL}{LLARGE}{SYMBOL}{WHITECHAR}]
 CHAR        \'{GRAPHIC}\'
 PATH        [\._][{LLARGE}{LSMALL}\/\.]+
@@ -138,32 +140,34 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
 }
 
 {SPECIAL} {
-    printlexeme("special", 0);
+    printlexeme("SPECIAL", 0);
     col_count += yyleng;
 }
 
 {SYMBOL} {
-    printlexeme("symbol", 0);
+    printlexeme("SYMBOL", 0);
     col_count += yyleng;
 }
 
 {RESERVEDID} {
-    printlexeme("reserved id", 0);
+    printlexeme("RESERVED ID", 0);
     col_count += yyleng;
 }
 
 {RESERVEDOP} {
-    printlexeme("reserved op", 0);
+    printlexeme("RESERVED OP", 0);
     col_count += yyleng;
 }
 
 {VARID} {
-    printlexeme("variable", 0);
+    printlexeme("VARIABLE", 0);
     col_count += yyleng;
+    add_table(yytext, current_addr, current_type);
+    current_addr++;
 }
 
 {CONID} {
-    printlexeme("constructor", 0);
+    printlexeme("CONSTRUCTOR", 0);
     col_count += yyleng;
 }
 
@@ -201,5 +205,7 @@ int main(int argc, char **argv) {
         printf("Error: Unrecognized character in line %d, position %d: %s\n",
             errors.at_line[i], errors.at_column[i], errors.error_msg[i]);
     }
+    print_table();
     fclose(yyin);
+    free_table();
 }
