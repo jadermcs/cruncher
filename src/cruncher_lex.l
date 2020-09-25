@@ -56,7 +56,7 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
 %%
 
 \" {
-    printlexeme("string", 1);
+    printlexeme("STRING", 1);
     col_count += yyleng;
     BEGIN(STRING);
 }
@@ -114,7 +114,7 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
 {COMMENT} {
     int size = strlen(yytext);
     yytext[size-1] = '\0';
-    printlexeme("comment", 0);
+    printlexeme("COMMENT", 0);
     col_count = 1;
     yylineno++;
 }
@@ -125,17 +125,17 @@ FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
 }
 
 {INTEGER} {
-    printlexeme("integer", 0);
+    printlexeme("INTEGER", 0);
     col_count += yyleng;
 }
 
 {FLOAT} {
-    printlexeme("float", 0);
+    printlexeme("FLOAT", 0);
     col_count += yyleng;
 }
 
 {CHAR} {
-    printlexeme("char", 0);
+    printlexeme("CHAR", 0);
     col_count += yyleng;
 }
 

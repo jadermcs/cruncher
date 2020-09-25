@@ -867,7 +867,7 @@ case 1:
 YY_RULE_SETUP
 #line 58 "src/cruncher_lex.l"
 {
-    printlexeme("string", 1);
+    printlexeme("STRING", 1);
     col_count += yyleng;
     BEGIN(STRING);
 }
@@ -952,7 +952,7 @@ YY_RULE_SETUP
 {
     int size = strlen(yytext);
     yytext[size-1] = '\0';
-    printlexeme("comment", 0);
+    printlexeme("COMMENT", 0);
     col_count = 1;
     yylineno++;
 }
@@ -970,7 +970,7 @@ case 9:
 YY_RULE_SETUP
 #line 127 "src/cruncher_lex.l"
 {
-    printlexeme("integer", 0);
+    printlexeme("INTEGER", 0);
     col_count += yyleng;
 }
 	YY_BREAK
@@ -978,7 +978,7 @@ case 10:
 YY_RULE_SETUP
 #line 132 "src/cruncher_lex.l"
 {
-    printlexeme("float", 0);
+    printlexeme("FLOAT", 0);
     col_count += yyleng;
 }
 	YY_BREAK
@@ -986,7 +986,7 @@ case 11:
 YY_RULE_SETUP
 #line 137 "src/cruncher_lex.l"
 {
-    printlexeme("char", 0);
+    printlexeme("CHAR", 0);
     col_count += yyleng;
 }
 	YY_BREAK
