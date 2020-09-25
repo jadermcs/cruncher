@@ -2065,6 +2065,7 @@ int main(int argc, char **argv) {
     }
     print_table();
     fclose(yyin);
+    yylex_destroy();
     free_table();
 }
 
