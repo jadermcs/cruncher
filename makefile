@@ -2,7 +2,7 @@ CC	     := gcc
 CFLAGS   := -std=c11 --pedantic -O3 -Wall -Wextra -Wpedantic
 
 TARGETF  := bin
-TARGET   := $(TARGETF)/cruncher_scanner
+TARGET   := $(TARGETF)/cruncher_lang
 
 SRCEXT   := c
 SRCDIR   := src

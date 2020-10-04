@@ -48,3 +48,11 @@
     Run the compiled analyzer in test examples:
 
         $ make test
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5. Running
+
+    Run the compiler in a cruncher file:
+
+        $ ./bin/cruncher_lang file.cr

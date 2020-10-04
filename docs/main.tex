@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage[english]{babel}
 \usepackage[a4paper, total={6in, 10in}]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{syntax}
@@ -44,7 +45,7 @@
 
 \title{Cruncher:\\
 \large A Functional Language for Handling Files and Folders}
-\author{Jáder M. C. de Sá \\
+\author{Jáder M. Camboim de Sá \\
         Department of Computer Science\\
         University of Brasília, Brazil \\
         jader.martins@ipea.gov.br}
@@ -56,54 +57,53 @@
 
 \section{Introduction}
 \label{sec:intro}
-The Unix Shell is a general denomination for a command line interpreter
+The Unix Shell is a general denomination for a command-line interpreter
 (and a scripting language) that provides for users and systems admins an
 interface to control the execution of operating system task's in Unix-like
 environments \cite{negus2010linux}, this name comes from earlier times
 when OS had this only interface covering the user interaction (like a shell
 protecting the pearl). The Shell provides a way to create executable scripts,
-execute programs, manage file-systems, compile code and other general computer
+execute programs, manage file-systems, compile code, and other general computer
 manipulation tasks \cite{negus2010linux,blum2008linux}.
 
-Although Shell be a very old computer technology later being replaced by
+Although Shell is a very old computer technology later being replaced by
 graphical interfaces, many users (specially super-users) prefer this less
 intuitive interface \cite{newham2005learning} for daily tasks. The \textit{sh}
 is the precursor project and the default shell in many Unix distributions but
 many other shells were also developed with similar behavior but distinct
 orientation, to cite a few, the most popular ones are \textit{bash}
-\cite{bash}, \textit{zsh} \cite{zsh} and \textit{fish} \cite{fish}.
+\cite{bash}, \textit{zsh} \cite{zsh}, and \textit{fish} \cite{fish}.
 
 Allied with the Shell, many external tools were developed to supply the needs
 of Unix users \cite{negus2010linux} but those were not integrated natively in
-any of those shell scripting language resulting in an inconsistent language for
-files handling and operations. Tools like tar, sed, md5, etc, each has a
+any of those shell scripting languages resulting in an inconsistent language for
+file handling and operations. Tools like tar, sed, md5, etc, each has a
 distinct parameter handling paradigm.
 
 In modern \textbf{data processing}, a computing paradigm presented himself
 as a suitable and intuitive way to describe massive computations and is
-adopted by major frameworks like Hadoop, Spark and Kafka. The MapReduce
-is a computational paradigm that decompose computations in a Maps and
+adopted by major frameworks like Hadoop, Spark, and Kafka. The MapReduce
+is a computational paradigm that decomposes computations in a Maps and
 Reduction operations, it has a clear and efficient model of computation
 besides not being so trivial to describe any computation in this paradigm
 \cite{afrati2012vision}.
 
 This paper proposes a language designed for \textbf{data processing} in
-shell, specifically files and folder processing in a standardized syntax,
-it is resembles the \textit{bash} language but it adds a semantically
-consistent operation for external tools with a intuitive syntax. It is
+shell, specifically files, and folder processing in a standardized syntax,
+it resembles the \textit{bash} language but it adds a semantically
+consistent operation for external tools with an intuitive syntax. It is
 organized in the following manner, Section \ref{sec:formal} describes the
 formal grammar for Cruncher language, \ref{sec:semantics} presents the
-semantics of principal keywords in the language, and finally Section
+semantics of principal keywords in the language, and finally, Section
 \ref{sec:conclusion} concludes the paper.
 
 \section{Formal Description}
 \label{sec:formal}
-In this section we present the formal grammar for the \textit{Cruncher}
+In this section, we present the formal grammar for the \textit{Cruncher}
 language, also we discuss notation and specification of the grammar. The
-language is extended the list comprehension, blobs and mappings, additionally,
-it incorporates the main external tools from Unix shell in the same syntax. It
-has the main grammatical structures presented in \textit{Haskell}, so we took
-the bash reference \cite{marlow2010haskell} as basis for this grammar.
+language extends the ANSI C \cite{kernighan2006c} by adding file handling
+operations, incorporating external tools from the Unix shell in the same
+syntax.
 
 \paragraph{Notation Convention}
 These notations convention are used for presenting syntax:
@@ -112,6 +112,8 @@ These notations convention are used for presenting syntax:
 \item $\epsilon$ - empty symbol.
 
 \item ( \textit{pattern} )* - zero or more repetitions of the pattern.
+
+\item ( \textit{pattern} )? - zero or one of the pattern.
 
 \item \textit{symbol1} "..." \textit{symbol2} - a choice from symbol1 to symbol2.
 
@@ -124,87 +126,229 @@ These notations convention are used for presenting syntax:
 \subsection{Lexical Syntax}
 
 \begin{grammar}
-<program> ::= (<lexeme>|<whitespace>)*
+<translation-unit> ::= {<external-declaration>}*
 
-<lexeme> ::= <reservedid>|<varid>|<conid>|<literal>|<special>|<reservedop>
+<external-declaration> ::= <function-definition>
+                         | <declaration>
 
-<literal> ::= <integer>|<float>|<char>|<string>
+<function-definition> ::= {<type-specifier>}* <declarator> {<declaration>}* <compound-statement>
 
-<special> ::= "("|")"|","|";"|"["|"]"|"`"|"{"|"}"
+<type-specifier> ::= "void"
+\alt "char"
+\alt "int"
+\alt "long"
+\alt "float"
+\alt "path"
+\alt <struct-or-union-specifier>
+\alt <enum-specifier>
+\alt <typedef-name>
 
-<whitespace> ::= <whitestuff><whitestuff>*
+<struct-or-union-specifier> ::= <struct-or-union> <identifier> { {<struct-declaration>}+ }
+\alt <struct-or-union> { {<struct-declaration>}+ }
+\alt <struct-or-union> <identifier>
 
-<whitestuff> ::= <whitechar>|<comment>
+<struct-or-union> ::= struct | union
 
-<whitechar> ::= <newline>|"\\t"|"\textvisiblespace"
+<struct-declaration> ::= {<specifier-qualifier>}* <struct-declarator-list>
 
-<newline> ::= "\\n"
+<specifier-qualifier> ::= <type-specifier> | <type-qualifier>
 
-<any> ::= anything except <newline>
+<struct-declarator-list> ::= <struct-declarator> | <struct-declarator-list> , <struct-declarator>
 
-<comment> ::= "-""-"<any><newline>
+<struct-declarator> ::= <declarator>
+\alt <declarator> : <constant-expression>
+\alt : <constant-expression>
 
-<digit> ::= "0"..."1"
+<declarator> ::= {<pointer>}? <direct-declarator>
 
-<integer> ::= [+|-]<digit><digit>*
+<pointer> ::= "*" {<pointer>}?
 
-<float> ::= <integer>"."<digit>*[<expon>]
+<direct-declarator> ::= <identifier>
+\alt ( <declarator> )
+\alt <direct-declarator> [ {<constant-expression>}? ]
+\alt <direct-declarator> ( <parameter-type-list> )
+\alt <direct-declarator> ( {<identifier>}* )
 
-<expon> ::= ("e"|"E")[+|-]<integer>
+<constant-expression> ::= <conditional-expression>
 
-<lsmall> ::= "a"..."z"|"_"
+<conditional-expression> ::= <logical-or-expression>
+\alt <logical-or-expression> "?" <expression> ":" <conditional-expression>
 
-<lsmall> ::= "A"..."Z"
+<logical-or-expression> ::= <logical-and-expression>
+\alt <logical-or-expression> "||" <logical-and-expression>
 
-<symbol> ::= "!"|"#"|"\$"|"\%"|"&"|"*"|"+"|"."|"\\"|"/"|"<"|"="|">"|"?"|"@"|"|"|"^"|"-"|"~"|":"
+<logical-and-expression> ::= <inclusive-or-expression>
+\alt <logical-and-expression> "&&" <inclusive-or-expression>
 
-<graphic> ::= <lsmall>|<llarge>|<symbol>
+<inclusive-or-expression> ::= <exclusive-or-expression>
+\alt <inclusive-or-expression> "|" <exclusive-or-expression>
 
-<char> ::= "'"<graphic>"'"
+<exclusive-or-expression> ::= <and-expression>
+\alt <exclusive-or-expression> "\string^" <and-expression>
 
-<string> ::= "\""<graphic>*"\""
+<and-expression> ::= <equality-expression>
+                   | <and-expression> "&" <equality-expression>
 
-<path> ::= ("_"|".")(<llarge>|<lsmall>|"."|"/")*
+<equality-expression> ::= <relational-expression>
+\alt <equality-expression> "==" <relational-expression>
+\alt <equality-expression> "!=" <relational-expression>
 
-<reservedid> ::= "case"|"class"|"data"|"default"|"deriving"|"do"|"else"
-\alt"foreign"|"if"|"import"|"in"|"infix"|"infixl"|"infixr"|"instance"
-\alt"let"|"module"|"newtype"|"of"|"then"|"type"|"where"|"like"
+<relational-expression> ::= <shift-expression>
+\alt <relational-expression> "<" <shift-expression>
+\alt <relational-expression> ">" <shift-expression>
+\alt <relational-expression> "<=" <shift-expression>
+\alt <relational-expression> ">=" <shift-expression>
 
-<varid> ::= <lsmall>(<lsmall>|<llarge>|<digit>)*
+<shift-expression> ::= <additive-expression>
+\alt <shift-expression> "<""<" <additive-expression>
+\alt <shift-expression> ">"">" <additive-expression>
 
-<conid> ::= <llarge>(<lsmall>|<llarge>|<digit>)*
+<additive-expression> ::= <multiplicative-expression>
+\alt <additive-expression> "+" <multiplicative-expression>
+\alt <additive-expression> "-" <multiplicative-expression>
 
-<reservedop> ::= ".."|":"|"::"|"="|"\\"|"|"|"<-"|"->"|"@"|"~"|"=>"
+<multiplicative-expression> ::= <cast-expression>
+\alt <multiplicative-expression> "*" <cast-expression>
+\alt <multiplicative-expression> "/" <cast-expression>
+\alt <multiplicative-expression> "\%" <cast-expression>
+
+<cast-expression> ::= <unary-expression> | ( <type-name> ) <cast-expression>
+
+<unary-expression> ::= <postfix-expression>
+\alt "++" <unary-expression>
+\alt "-""-" <unary-expression>
+\alt <unary-operator> <cast-expression>
+\alt "sizeof" <unary-expression>
+\alt "sizeof" <type-name>
+
+<postfix-expression> ::= <primary-expression>
+\alt <postfix-expression> [ <expression> ]
+\alt <postfix-expression> ( {<assignment-expression>}* )
+\alt <postfix-expression> "." <identifier>
+\alt <postfix-expression> "->" <identifier>
+\alt <postfix-expression> "++"
+\alt <postfix-expression> "-""-"
+
+<primary-expression> ::= <identifier> | <constant> | <string> | ( <expression> )
+
+<constant> ::= <integer-constant>
+\alt <character-constant>
+\alt <floating-constant>
+\alt <enumeration-constant>
+
+<expression> ::= <assignment-expression> | <expression> , <assignment-expression>
+
+<assignment-expression> ::= <conditional-expression>
+\alt <unary-expression> <assignment-operator> <assignment-expression>
+
+<assignment-operator> ::= "="
+
+<unary-operator> ::= "&" | "*" | "+" | "-" | "~" | "!"
+
+<type-name> ::= {<specifier-qualifier>}+ {<abstract-declarator>}?
+
+<parameter-type-list> ::= <parameter-list>
+                        | <parameter-list> , ...
+
+<parameter-list> ::= <parameter-declaration>
+                   | <parameter-list> , <parameter-declaration>
+
+<parameter-declaration> ::= {<type-specifier>}+ <declarator>
+                          | {<type-specifier>}+ <abstract-declarator>
+                          | {<type-specifier>}+
+
+<abstract-declarator> ::= <pointer>
+\alt <pointer> <direct-abstract-declarator>
+\alt <direct-abstract-declarator>
+
+<direct-abstract-declarator> ::=  ( <abstract-declarator> )
+\alt {<direct-abstract-declarator>}? [ {<constant-expression>}? ]
+\alt {<direct-abstract-declarator>}? ( {<parameter-type-list>}? )
+
+<enum-specifier> ::= enum <identifier> { <enumerator-list> }
+\alt enum { <enumerator-list> }
+\alt enum <identifier>
+
+<enumerator-list> ::= <enumerator> | <enumerator-list> , <enumerator>
+
+<enumerator> ::= <identifier> | <identifier> = <constant-expression>
+
+<typedef-name> ::= <identifier>
+
+<declaration> ::=  {<type-specifier>}+ {<init-declarator>}* ;
+
+<init-declarator> ::= <declarator> | <declarator> = <initializer>
+
+<initializer> ::= <assignment-expression> | { <initializer-list> } | { <initializer-list> , }
+
+<initializer-list> ::= <initializer> | <initializer-list> , <initializer>
+
+<compound-statement> ::= "{" {<declaration>}* {<statement>}* "}"
+
+<statement> ::= <expression-statement>
+\alt <compound-statement>
+\alt <selection-statement>
+\alt <iteration-statement>
+\alt <jump-statement>
+\alt <crunch-statement>
+
+<expression-statement> ::= {<expression>}? ;
+
+<selection-statement> ::= "if" "(" <expression> ")" <statement>
+\alt "if" "(" <expression> ")" <statement> "else" <statement>
+
+<iteration-statement> ::= "while" "(" <expression> ")" <statement>
+\alt "for" "(" {<expression>}? ; {<expression>}? ; {<expression>}? ")" <statement>
+
+<jump-statement> ::= "goto" <identifier>";"
+\alt "continue;"
+\alt "break;"
+\alt "return" {<expression>}?";"
+
+<crunch-statement> ::= "crunch" "(" <init-declarator> "\$"<crunch-op> <init-declarator> ")"
+
+<crunch-op> ::= ">"|"*"|"+"|"&"|"!"|"@"
 \end{grammar}
 
 \subsection{Changes and Updates}
-In the first version, the lexical syntax presented erros as advanced structures
+In the first version, the lexical syntax presented errors as advanced structures
 were recognized at this step, but those more complex structures should be
-recognized in the parser phase by a free context grammar. Also, the language
-was missing some important token patterns, so all those were added to this
-version.
+recognized in the parser phase by a free context grammar. The second version
+corrected major problems but as a purelly functional language it would require
+extra steps, resulting in extra work. The new grammar is based on C so many
+changes were applied.
+
+
 
 \section{Semantics}
 \label{sec:semantics}
-The language main feature is inspired in the MapReduce paradigm, which is a
-popular design for data processing frameworks, so this language uses Haskell as
-his basis semantic. To facilitate the implementation many of the types will not
-be implemented, only a subset of those (to have the basics functionality) will
-be implemented. In this section we discuss the semantics and exemplify the
-usage:
+The language's main feature is inspired in the MapReduce paradigm, which is a
+popular design for data processing frameworks, so this language uses C
+structural paradigm as his basis semantic. To facilitate the implementation
+many of the types will not be implemented, only a subset of those (to have the
+basics functionality) will be implemented. In this section we discuss the
+semantics and exemplify the usage:
 
-First we begin exemplifying the <crunch> keyword:
+First, we begin exemplifying the <crunch> keyword:
 
-\begin{code}
--- replaces every occurrence of cat word in the files inplace.
-main = do $
-    $!("s/cat/dog/g") "/home/jader/files/*.txt" .
+\begin{verbatim}
+/* replaces every occurrence of cat word in the files inplace.*/
+int main() {
+    path input = "/home/jader/files/*.txt";
+    path output = ".";
+    crunch (input $!("s/cat/dog/g") output);
+    return 0;
+}
 
 
--- moves every content from those .txt files to a single .json file in json folder.
-main = do $
-    $> "/home/jader/files/*.txt" _"/home/jader/json/file.json"
-\end{code}
+/*moves every content from those .txt files to a single .json file in json folder.*/
+int main() {
+    path input = "/home/jader/files/*.txt";
+    path output = "_/home/jader/json/file.json";
+    crunch (input $> output);
+    return 0;
+}
+\end{verbatim}
 
 It has an input folder or file and an output folder or file, depending on the
 kind of operation.  In Table \ref{tab:operations} some extra references for
@@ -212,19 +356,9 @@ additional symbols are shown, every operation has a single symbol. It replaces
 the following Unix shell commands: \texttt{mv}, \texttt{rename}, \texttt{sed},
 \texttt{tar} and \texttt{shaXsum}.
 
-The list comprehension applies implicit operations on string in the same sense
-in \ref{tab:maps} the mappings which has 2 symbols are shown. They occur in
-list comprehension to iterate in files, here is an example of his usage:
-
-\begin{code}
--- creates a backup for every .txt file in the folder.
-main = do $
-    $& "/home/jader/files/*" [++ ".backup" \ "/home/jader/files/*" if endsWith ".txt"]
-\end{code}
-
 The type of operation alternates the kind of matching between files, some have
 a direct mapping, some perform an aggregation, and others both. For in-place
-mapping the output files can be implicitly defined by ``.'' if aggregation is
+mapping, the output files can be implicitly defined by ``.'' if aggregation is
 we must specify the  ``\_'' to be performed.
 
 \begin{table}[ht]
@@ -239,31 +373,32 @@ Rename      & \&     & Renames given files or directories \\
 Edit        & !      & Stream editor operations \\
 Compression & @      & Compress files and/or directories using tar \\
 Hash        & *     & Calculates the hash \\
+Copy        & +     & Copy given files or directories \\
 \hline
 \end{tabular}
 \end{table}
 
-\begin{table}[ht]
-\centering
-\caption{Maps description}
-\label{tab:maps}
-\begin{tabular}{|r|c|l|}
-\hline
-Mapping   & Symbol & Description\\ \hline
-Identity  & ..     & Return same given value \\
-Filter    & ff     & Filter a given pattern \\
-Replace   & rr     & Replace a given pattern \\
-Cut       & cc     & Remove a substring \\
-Concat    & ++     & Concatenate strings \\
-\hline
-\end{tabular}
-\end{table}
+% \begin{table}[ht]
+% \centering
+% \caption{Maps description}
+% \label{tab:maps}
+% \begin{tabular}{|r|c|l|}
+% \hline
+% Mapping   & Symbol & Description\\ \hline
+% Identity  & ..     & Return same given value \\
+% Filter    & ff     & Filter a given pattern \\
+% Replace   & rr     & Replace a given pattern \\
+% Cut       & cc     & Remove a substring \\
+% Concat    & ++     & Concatenate strings \\
+% \hline
+% \end{tabular}
+% \end{table}
 
 \section{Error Handling}
 For the scanner phase, only local structures are recognized, so we use counters,
 for line and column, to track locations of points with unrecognized tokens,
-i.e., \texttt{line_count} and \texttt{line_count}, respectively. In the
-code bellow is exemplified this operation.
+i.e., \texttt{line_count} and \texttt{line_count}, respectively. The
+code bellow has exemplified this operation.
 
 \begin{lstlisting}[language=C, caption=Example of code monitoring lines and columns.]
     %{
@@ -304,9 +439,9 @@ defined in the following manner:
                                 (type), yytext, line_count);
 \end{verbatim}
 
-When an error occur in the scanning phase, the scanner saves those informations
-in a struct and continues the scanning process. At the end those errors are
-reported. Here is an example:
+When an error occurs in the scanning phase, the scanner saves those pieces of
+information in a struct and continues the scanning process. In the end, those
+errors are reported. Here is an example:
 
 \begin{verbatim}
 typedef struct {
@@ -319,14 +454,9 @@ typedef struct {
 \end{verbatim}
 
 \section{Symbol Table}
-As Haskell is a functional language it doesn't have variables, only functions,
-so the symbol table only take care of function types. The function types in
-Haskell could be explicit or implicit but for easiness of implementation in
-Cruncher it should be explicit, with this types declared, every function will
-be presented in the symbol table with type, id, location, and a pointer to a
-local symbol table. In Figure \ref{fig:symboltable} is shown an example of
-references in symbol table, initially a global table is created and for each
-function a local table is defined with local definitions.
+In Figure \ref{fig:symboltable} is shown an example of references in symbol
+table, initially a global table is created and for each function a local table
+is defined with local definitions.
 
 \begin{figure}[ht]
 \label{fig:symboltable}
@@ -338,14 +468,14 @@ function a local table is defined with local definitions.
   \textbf{Global Table}\\
   \begin{allintypewriter}
   \begin{tabular}{ccc}
-          type & id & local_table\\\hline
-          Int   & func1 & *1\\
-          String& func2 & NULL\\
-          Float & func3 & *3\\
-          Int   & func4 & NULL
+          type & id & value_pointer\\\hline
+          int   & func1 & *1\\
+          path & var2 & "/home"\\
+          float & func3 & *3\\
+          int   & var 1& 123
            \end{tabular}
- \end{tabular}
   \end{allintypewriter}
+ \end{tabular}
  };
 
  \node[state,
@@ -358,11 +488,11 @@ function a local table is defined with local definitions.
   \begin{allintypewriter}
   \begin{tabular}{ccc}
           type & id & local_table\\\hline
-          Int   & funcl1 & NULL\\
-          Int   & funcl2 & *2
+          int   & var1 & 1234 \\
+          int   & funcl2 & *2
            \end{tabular}
- \end{tabular}
   \end{allintypewriter}
+ \end{tabular}
  };
 
  \node[state,
@@ -374,10 +504,10 @@ function a local table is defined with local definitions.
   \begin{allintypewriter}
   \begin{tabular}{ccc}
           type & id & local_table\\\hline
-          Int   & funcl1 & NULL
+          float & var2 & 123.123
            \end{tabular}
- \end{tabular}
   \end{allintypewriter}
+ \end{tabular}
  };
 
  \node[state,
@@ -390,11 +520,11 @@ function a local table is defined with local definitions.
   \begin{allintypewriter}
   \begin{tabular}{ccc}
           type & id & local_table\\\hline
-          Int   & funcl1 & NULL\\
-          Float & funcl2 & NULL
+          int   & var1 & NULL\\
+          float & var2 & 213.32
            \end{tabular}
- \end{tabular}
   \end{allintypewriter}
+ \end{tabular}
  };
 
  \path (t0) 	edge[bend left=20]  node[anchor=south,above]{*1} (t1)
@@ -405,11 +535,36 @@ function a local table is defined with local definitions.
 \caption{Example of symbol table.}
 \end {figure}
 
+\section{Syntax Tree}%
+\label{sec:syntax}
+The syntax tree for the cruncher language is based on LR(1) it was built using
+unions handling the node values and structs to handle the growing tree.
+
+
 \section{Test files}
 There are two files for valid code examples and two for invalid codes, the
 valid ones have the \texttt{test-valid} prefix, and the invalid,
 \texttt{test-invalid} prefix.
 
+\section{Compiling and Running}%
+\label{sec:compiling}
+This project provides a Makefile for compiling and testing, to compile run the
+following commands in terminal:
+\begin{verbatim}
+    $ make flex
+    $ make bison
+    $ make
+\end{verbatim}
+
+Then to run the test files use:
+\begin{verbatim}
+    $ make test
+\end{verbatim}
+
+Now you can run Cruncher with:
+\begin{verbatim}
+    $ ./bin/cruncher_lang file.cr
+\end{verbatim}
 
 \section{Conclusion}
 \label{sec:conclusion}
