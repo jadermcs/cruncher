@@ -20,8 +20,7 @@ lexErrors errors;
 int col_count = 1;
 enum yytokentype current_type=INT_TYPE;
 int current_addr=0;
-int yylval;
-char* yysval;
+char yysval[1024];
 %}
 
 %x          COMMENTLINE
@@ -207,48 +206,42 @@ return COMMA; }
 
 {INTEGER} {
     col_count += yyleng;
-    yylval = atoi(yytext);
+    strcpy(yysval, yytext);
     return INTCONST;
 }
 
 {FLOAT} {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return FLOATCONST;
 }
 
 {CHAR} {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return CHARCONST;
 }
 
 {PATH} {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return PATHCONST;
 }
 
 {STRING} {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return STRINGCONST;
 }
 
 {SYMBOL} {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return SYMBOL;
 }
 
 {LSMALL}({LSMALL}|{LLARGE})* {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return valid_id();
 }
@@ -293,19 +286,19 @@ int main(int argc, char **argv) {
     while((tok = yylex())) {
         printf("%s", yytokenstring(tok));
         if (tok == INTCONST)
-            printf(" = %d\n", yylval);
+            printf(" = %s\n", yytext);
         else if (tok == FLOATCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == PATHCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == STRINGCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == CHARCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == IDENTIFIER)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == SYMBOL)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else
             printf("\n");
     }

@@ -12,7 +12,7 @@ INCLUDEDIR := build
 SRCEXT   := c
 SOURCES  := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS  := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-LIB      := -lm
+LIB      := -lm -lfl
 INC      := -I include
 
 $(TARGET): $(OBJECTS)
@@ -20,6 +20,8 @@ $(TARGET): $(OBJECTS)
 	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+	@echo " flex src/cruncher_lex.l "; flex src/cruncher_lex.l
+	@echo " bison src/cruncher_syntax.y "; bison -d src/cruncher_syntax.y
 	@mkdir -p $(BUILDDIR)
 	@mkdir -p $(TARGETF)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -27,10 +29,6 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 clean:
 	@echo " Cleaning...";
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
-
-flex:
-	@echo " Generating scanner..."
-	@echo " flex src/cruncher.l "; flex src/cruncher_lex.l
 
 test:
 	@echo " Running tests..."

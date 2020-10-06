@@ -576,11 +576,10 @@ lexErrors errors;
 int col_count = 1;
 enum yytokentype current_type=INT_TYPE;
 int current_addr=0;
-int yylval;
-char* yysval;
-#line 582 "src/cruncher_lex.yy.c"
+char yysval[1024];
+#line 581 "src/cruncher_lex.yy.c"
 
-#line 584 "src/cruncher_lex.yy.c"
+#line 583 "src/cruncher_lex.yy.c"
 
 #define INITIAL 0
 #define COMMENTLINE 1
@@ -797,10 +796,10 @@ YY_DECL
 		}
 
 	{
-#line 44 "src/cruncher_lex.l"
+#line 43 "src/cruncher_lex.l"
 
 
-#line 804 "src/cruncher_lex.yy.c"
+#line 803 "src/cruncher_lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -869,7 +868,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 46 "src/cruncher_lex.l"
+#line 45 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     BEGIN(COMMENTBLOCK);
@@ -877,7 +876,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 51 "src/cruncher_lex.l"
+#line 50 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     BEGIN(INITIAL);
@@ -886,20 +885,20 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 56 "src/cruncher_lex.l"
+#line 55 "src/cruncher_lex.l"
 {
     col_count += yyleng;
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 60 "src/cruncher_lex.l"
+#line 59 "src/cruncher_lex.l"
 {
     col_count += yyleng;
 }
 	YY_BREAK
 case YY_STATE_EOF(COMMENTBLOCK):
-#line 64 "src/cruncher_lex.l"
+#line 63 "src/cruncher_lex.l"
 {
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], "Unexpected end of file while in comment.");
@@ -913,7 +912,7 @@ case YY_STATE_EOF(COMMENTBLOCK):
 /* keywords */
 case 5:
 YY_RULE_SETUP
-#line 75 "src/cruncher_lex.l"
+#line 74 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return WHILE_KW;
@@ -921,7 +920,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 80 "src/cruncher_lex.l"
+#line 79 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return FOR_KW;
@@ -929,7 +928,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 85 "src/cruncher_lex.l"
+#line 84 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return IF_KW;
@@ -937,7 +936,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 90 "src/cruncher_lex.l"
+#line 89 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return IN_KW;
@@ -945,7 +944,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 95 "src/cruncher_lex.l"
+#line 94 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return ELSE_KW;
@@ -953,7 +952,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 100 "src/cruncher_lex.l"
+#line 99 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return RETURN_KW;
@@ -961,7 +960,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 105 "src/cruncher_lex.l"
+#line 104 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return CRUNCH_KW;
@@ -970,7 +969,7 @@ YY_RULE_SETUP
 /* types */
 case 12:
 YY_RULE_SETUP
-#line 111 "src/cruncher_lex.l"
+#line 110 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return CHAR_TYPE;
@@ -978,7 +977,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 116 "src/cruncher_lex.l"
+#line 115 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return PATH_TYPE;
@@ -986,7 +985,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 121 "src/cruncher_lex.l"
+#line 120 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return STRING_TYPE;
@@ -994,7 +993,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 126 "src/cruncher_lex.l"
+#line 125 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return INT_TYPE;
@@ -1002,7 +1001,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 131 "src/cruncher_lex.l"
+#line 130 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return FLOAT_TYPE;
@@ -1010,7 +1009,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 135 "src/cruncher_lex.l"
+#line 134 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return VOID_TYPE;
@@ -1019,7 +1018,7 @@ YY_RULE_SETUP
 /* definition */
 case 18:
 YY_RULE_SETUP
-#line 141 "src/cruncher_lex.l"
+#line 140 "src/cruncher_lex.l"
 {
 col_count += yyleng;
 return ADD_OP;
@@ -1027,42 +1026,42 @@ return ADD_OP;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 145 "src/cruncher_lex.l"
+#line 144 "src/cruncher_lex.l"
 {
 col_count += yyleng;
 return SUB_OP; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 148 "src/cruncher_lex.l"
+#line 147 "src/cruncher_lex.l"
 {
 col_count += yyleng;
 return MULT_OP; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 151 "src/cruncher_lex.l"
+#line 150 "src/cruncher_lex.l"
 {
 col_count += yyleng;
 return DIV_OP; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 154 "src/cruncher_lex.l"
+#line 153 "src/cruncher_lex.l"
 {
 col_count += yyleng;
 return REM_OP; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 158 "src/cruncher_lex.l"
+#line 157 "src/cruncher_lex.l"
 {
 col_count += yyleng;
 return NOT_OP; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 162 "src/cruncher_lex.l"
+#line 161 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     return LESSTHAN_OP;
@@ -1070,128 +1069,127 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 166 "src/cruncher_lex.l"
+#line 165 "src/cruncher_lex.l"
 { col_count += yyleng;
 return LESSEQUAL_OP; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 168 "src/cruncher_lex.l"
+#line 167 "src/cruncher_lex.l"
 { col_count += yyleng;
 return GREATERTHAN_OP; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 170 "src/cruncher_lex.l"
+#line 169 "src/cruncher_lex.l"
 { col_count += yyleng;
 return GREATEREQUAl_OP; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 172 "src/cruncher_lex.l"
+#line 171 "src/cruncher_lex.l"
 { col_count += yyleng;
 return NOTEQUAL_OP; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 174 "src/cruncher_lex.l"
+#line 173 "src/cruncher_lex.l"
 { col_count += yyleng;
 return COMPARISON_OP; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 177 "src/cruncher_lex.l"
+#line 176 "src/cruncher_lex.l"
 { col_count += yyleng;
 return OR_OP; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 179 "src/cruncher_lex.l"
+#line 178 "src/cruncher_lex.l"
 { col_count += yyleng;
 return AND_OP; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 182 "src/cruncher_lex.l"
+#line 181 "src/cruncher_lex.l"
 { col_count += yyleng;
 return LBRACE; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 184 "src/cruncher_lex.l"
+#line 183 "src/cruncher_lex.l"
 { col_count += yyleng;
 return RBRACE; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 186 "src/cruncher_lex.l"
+#line 185 "src/cruncher_lex.l"
 { col_count += yyleng;
 return LBRACKET; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 188 "src/cruncher_lex.l"
+#line 187 "src/cruncher_lex.l"
 { col_count += yyleng;
 return RBRACKET; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 190 "src/cruncher_lex.l"
+#line 189 "src/cruncher_lex.l"
 { col_count += yyleng;
 return LPARENTHESES; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 192 "src/cruncher_lex.l"
+#line 191 "src/cruncher_lex.l"
 { col_count += yyleng;
 return RPARENTHESES; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 194 "src/cruncher_lex.l"
+#line 193 "src/cruncher_lex.l"
 { col_count += yyleng;
 return COLON; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 196 "src/cruncher_lex.l"
+#line 195 "src/cruncher_lex.l"
 { col_count += yyleng;
 return SEMICOLON; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 198 "src/cruncher_lex.l"
+#line 197 "src/cruncher_lex.l"
 { col_count += yyleng;
 return PIPE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 201 "src/cruncher_lex.l"
+#line 200 "src/cruncher_lex.l"
 { col_count += yyleng;
 return DEF_EQ; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 203 "src/cruncher_lex.l"
+#line 202 "src/cruncher_lex.l"
 { col_count += yyleng;
 return COMMA; }
 	YY_BREAK
 /* consts */
 case 43:
 YY_RULE_SETUP
-#line 208 "src/cruncher_lex.l"
+#line 207 "src/cruncher_lex.l"
 {
     col_count += yyleng;
-    yylval = atoi(yytext);
+    strcpy(yysval, yytext);
     return INTCONST;
 }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 214 "src/cruncher_lex.l"
+#line 213 "src/cruncher_lex.l"
 {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return FLOATCONST;
 }
@@ -1199,10 +1197,9 @@ YY_RULE_SETUP
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 221 "src/cruncher_lex.l"
+#line 219 "src/cruncher_lex.l"
 {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return CHARCONST;
 }
@@ -1210,10 +1207,9 @@ YY_RULE_SETUP
 case 46:
 /* rule 46 can match eol */
 YY_RULE_SETUP
-#line 228 "src/cruncher_lex.l"
+#line 225 "src/cruncher_lex.l"
 {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return PATHCONST;
 }
@@ -1221,30 +1217,27 @@ YY_RULE_SETUP
 case 47:
 /* rule 47 can match eol */
 YY_RULE_SETUP
-#line 235 "src/cruncher_lex.l"
+#line 231 "src/cruncher_lex.l"
 {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return STRINGCONST;
 }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 242 "src/cruncher_lex.l"
+#line 237 "src/cruncher_lex.l"
 {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return SYMBOL;
 }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 249 "src/cruncher_lex.l"
+#line 243 "src/cruncher_lex.l"
 {
     col_count += yyleng;
-    yysval = (char*)malloc(sizeof yytext);
     strcpy(yysval, yytext);
     return valid_id();
 }
@@ -1252,14 +1245,14 @@ YY_RULE_SETUP
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 256 "src/cruncher_lex.l"
+#line 249 "src/cruncher_lex.l"
 {
     col_count += yyleng;
 }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 260 "src/cruncher_lex.l"
+#line 253 "src/cruncher_lex.l"
 {
     col_count += yyleng;
     int error_num = errors.error_count;
@@ -1271,10 +1264,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 269 "src/cruncher_lex.l"
+#line 262 "src/cruncher_lex.l"
 ECHO;
 	YY_BREAK
-#line 1278 "src/cruncher_lex.yy.c"
+#line 1271 "src/cruncher_lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENTLINE):
 	yyterminate();
@@ -2251,7 +2244,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 269 "src/cruncher_lex.l"
+#line 262 "src/cruncher_lex.l"
 
 
 int yywrap(void) {
@@ -2279,19 +2272,19 @@ int main(int argc, char **argv) {
     while((tok = yylex())) {
         printf("%s", yytokenstring(tok));
         if (tok == INTCONST)
-            printf(" = %d\n", yylval);
+            printf(" = %s\n", yytext);
         else if (tok == FLOATCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == PATHCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == STRINGCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == CHARCONST)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == IDENTIFIER)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else if (tok == SYMBOL)
-            printf(" = %s\n", yysval);
+            printf(" = %s\n", yytext);
         else
             printf("\n");
     }
