@@ -1,7 +1,7 @@
-funcao :: a -> a
-funcao = id
+#include <stdio.h>
 
-funcao :: Integer -> Integer
-funcao arg1 = add arg1 23
-
-main = printLn "Hello World!"
+int main(int argc, char *argv[]) {
+    float a = 123.123e123
+    printf("Hello World\n");
+    return 0;
+}

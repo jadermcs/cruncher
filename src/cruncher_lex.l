@@ -14,164 +14,246 @@
 %{
 #include <cruncher.h>
 
+static enum yytokentype valid_id();
+
 lexErrors errors;
 int col_count = 1;
-enum types current_type=INT;
+enum yytokentype current_type=INT_TYPE;
 int current_addr=0;
+int yylval;
+char* yysval;
 %}
 
-%x          STRING
-%x          STRINGBREAK
-
-PROGRAM     ({LEXEME}|{WHITESPACE})*
-LEXEME      RESERVEDID|VARID|CONID|LITERAL|SPECIAL|RESERVEDOP
-LITERAL     INTEGER|FLOAT|CHAR|STRING
-SPECIAL     [(),;\[\]{}]
-
-WHITESPACE  {WHITESTUFF}+
-WHITESTUFF  {WHITECHAR}|{COMMENT}
-WHITECHAR   {NEWLINE}|\t|" "
-COMMENT     --[^\n]*{NEWLINE}
-NEWLINE     \n
+%x          COMMENTLINE
+%x          COMMENTBLOCK
 
 DIGIT       [0-9]
-INTEGER     [+-]?{DIGIT}
-FLOAT       {INTEGER}"."{DIGIT}*{EXPON}?
+INTEGER     [+-]?{DIGIT}+
 EXPON       [eE]{INTEGER}
+FLOAT       {INTEGER}"."({DIGIT})*{EXPON}?
 
-LSMALL      [a-z]|_
+LSMALL      [a-z\_]
 LLARGE      [A-Z]
-SYMBOL      [!#$%&⋆+.\\\/<=>?@^\|-~:]
-GRAPHIC     [{LSMALL}{LLARGE}{SYMBOL}{WHITECHAR}]
+WHITECHAR   [\n\t ]
+SYMBOL      [!#$%&*+.\\\/;<=>?@^\|-~:]
+GRAPHIC     {LSMALL}|{LLARGE}|{SYMBOL}|{WHITECHAR}|{DIGIT}
 CHAR        \'{GRAPHIC}\'
-PATH        [\._][{LLARGE}{LSMALL}\/\.]+
-
-RESERVEDID  case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|module|newtype|of|then|type|where|like
-VARID       {LSMALL}({LSMALL}|{LLARGE}|{DIGIT})*
-CONID       {LLARGE}({LSMALL}|{LLARGE}|{DIGIT})*
-RESERVEDOP  \.\.|:|::|=|\\|\||<-|->|@|~|=>
-
-FUNCTION    ({VARID}::{CONID}(->{CONID})+)?{NEWLINE}{VARID}
+STRING      \"({GRAPHIC})*\"
+PATH        ("."|_){STRING}
 
 %%
 
-\" {
-    printlexeme("STRING", 1);
+"/*" {
     col_count += yyleng;
-    BEGIN(STRING);
+    BEGIN(COMMENTBLOCK);
 }
 
-<STRING>\" {
-    printf("%s\n", yytext);
+<COMMENTBLOCK>"*/" {
     col_count += yyleng;
     BEGIN(INITIAL);
 }
 
-<STRING>[^\\\n] {
-    printf("%s", yytext);
+<COMMENTBLOCK>\n {
     col_count += yyleng;
 }
 
-<STRING>\n {
-    printf("[ERROR]\n");
+<COMMENTBLOCK>. {
+    col_count += yyleng;
+}
+
+<COMMENTBLOCK><<EOF>> {
     int error_num = errors.error_count;
-    strcpy(errors.error_msg[error_num], "Unexpected linebreak while in string.");
-    errors.at_line[error_num] = yylineno;
-    errors.at_column[error_num] = col_count;
-    errors.error_count++;
-    BEGIN(INITIAL);
-}
-
-<STRING>\\\n {
-    yylineno++;
-    col_count += yyleng;
-    BEGIN(STRINGBREAK);
-}
-
-<STRINGBREAK>{WHITESPACE}*\\ {
-    col_count += yyleng;
-    BEGIN(STRING);
-}
-
-<STRING><<EOF>> {
-    int error_num = errors.error_count;
-    strcpy(errors.error_msg[error_num], "Unexpected end of file while in string.");
+    strcpy(errors.error_msg[error_num], "Unexpected end of file while in comment.");
     errors.at_line[error_num] = yylineno;
     errors.at_column[error_num] = col_count;
     errors.error_count++;
     BEGIN(INITIAL);
     yyterminate();
 }
-<STRINGBREAK><<EOF>> {
-    int error_num = errors.error_count;
-    strcpy(errors.error_msg[error_num], "Unexpected end of file while in string.");
-    errors.at_line[error_num] = yylineno;
-    errors.at_column[error_num] = col_count;
-    errors.error_count++;
-    BEGIN(INITIAL);
+
+    /* keywords */
+"while" {
+    col_count += yyleng;
+    return WHILE_KW;
 }
 
-{COMMENT} {
-    int size = strlen(yytext);
-    yytext[size-1] = '\0';
-    printlexeme("COMMENT", 0);
-    col_count = 1;
-    yylineno++;
+"for" {
+    col_count += yyleng;
+    return FOR_KW;
 }
 
-{NEWLINE} {
-    col_count = 1;
-    yylineno++;
+"if" {
+    col_count += yyleng;
+    return IF_KW;
 }
+
+"in" {
+    col_count += yyleng;
+    return IN_KW;
+}
+
+"else" {
+    col_count += yyleng;
+    return ELSE_KW;
+}
+
+"return" {
+    col_count += yyleng;
+    return RETURN_KW;
+}
+
+"crunch" {
+    col_count += yyleng;
+    return CRUNCH_KW;
+}
+
+    /* types */
+"char" {
+    col_count += yyleng;
+    return CHAR_TYPE;
+}
+
+"path" {
+    col_count += yyleng;
+    return PATH_TYPE;
+}
+
+"string" {
+    col_count += yyleng;
+    return STRING_TYPE;
+}
+
+"int" {
+    col_count += yyleng;
+    return INT_TYPE;
+}
+
+"float" {
+    col_count += yyleng;
+    return FLOAT_TYPE;
+}
+"void" {
+    col_count += yyleng;
+    return VOID_TYPE;
+}
+
+        /* definition */
+"+" {
+col_count += yyleng;
+return ADD_OP;
+}
+"-" {
+col_count += yyleng;
+return SUB_OP; }
+"*" {
+col_count += yyleng;
+return MULT_OP; }
+"/" {
+col_count += yyleng;
+return DIV_OP; }
+"%" {
+col_count += yyleng;
+return REM_OP; }
+
+"!" {
+col_count += yyleng;
+return NOT_OP; }
+
+"<" {
+    col_count += yyleng;
+    return LESSTHAN_OP;
+}
+"<=" { col_count += yyleng;
+return LESSEQUAL_OP; }
+">" { col_count += yyleng;
+return GREATERTHAN_OP; }
+">=" { col_count += yyleng;
+return GREATEREQUAl_OP; }
+"!=" { col_count += yyleng;
+return NOTEQUAL_OP; }
+"==" { col_count += yyleng;
+return COMPARISON_OP; }
+
+"||" { col_count += yyleng;
+return OR_OP; }
+"&&" { col_count += yyleng;
+return AND_OP; }
+
+"{" { col_count += yyleng;
+return LBRACE; }
+"}" { col_count += yyleng;
+return RBRACE; }
+"[" { col_count += yyleng;
+return LBRACKET; }
+"]" { col_count += yyleng;
+return RBRACKET; }
+"(" { col_count += yyleng;
+return LPARENTHESES; }
+")" { col_count += yyleng;
+return RPARENTHESES; }
+":" { col_count += yyleng;
+return COLON; }
+";" { col_count += yyleng;
+return SEMICOLON; }
+"|" { col_count += yyleng;
+return PIPE; }
+
+"=" { col_count += yyleng;
+return DEF_EQ; }
+"," { col_count += yyleng;
+return COMMA; }
+
+ /* consts */
 
 {INTEGER} {
-    printlexeme("INTEGER", 0);
     col_count += yyleng;
+    yylval = atoi(yytext);
+    return INTCONST;
 }
 
 {FLOAT} {
-    printlexeme("FLOAT", 0);
     col_count += yyleng;
+    yysval = (char*)malloc(sizeof yytext);
+    strcpy(yysval, yytext);
+    return FLOATCONST;
 }
 
 {CHAR} {
-    printlexeme("CHAR", 0);
     col_count += yyleng;
+    yysval = (char*)malloc(sizeof yytext);
+    strcpy(yysval, yytext);
+    return CHARCONST;
 }
 
-{SPECIAL} {
-    printlexeme("SPECIAL", 0);
+{PATH} {
     col_count += yyleng;
+    yysval = (char*)malloc(sizeof yytext);
+    strcpy(yysval, yytext);
+    return PATHCONST;
+}
+
+{STRING} {
+    col_count += yyleng;
+    yysval = (char*)malloc(sizeof yytext);
+    strcpy(yysval, yytext);
+    return STRINGCONST;
 }
 
 {SYMBOL} {
-    printlexeme("SYMBOL", 0);
     col_count += yyleng;
+    yysval = (char*)malloc(sizeof yytext);
+    strcpy(yysval, yytext);
+    return SYMBOL;
 }
 
-{RESERVEDID} {
-    printlexeme("RESERVED ID", 0);
+{LSMALL}({LSMALL}|{LLARGE})* {
     col_count += yyleng;
+    yysval = (char*)malloc(sizeof yytext);
+    strcpy(yysval, yytext);
+    return valid_id();
 }
 
-{RESERVEDOP} {
-    printlexeme("RESERVED OP", 0);
-    col_count += yyleng;
-}
-
-{VARID} {
-    printlexeme("VARIABLE", 0);
-    col_count += yyleng;
-    add_table(yytext, current_addr, current_type);
-    current_addr++;
-}
-
-{CONID} {
-    printlexeme("CONSTRUCTOR", 0);
-    col_count += yyleng;
-}
-
-{WHITESTUFF} {
+{WHITECHAR}* {
     col_count += yyleng;
 }
 
@@ -190,6 +272,14 @@ int yywrap(void) {
     return 1;
 }
 
+static enum yytokentype valid_id() {
+    if (yyleng <= 32) {
+        return IDENTIFIER;
+    } else {
+        return ERR_INVALID_ID;
+    }
+}
+
 int main(int argc, char **argv) {
     ++argv, --argc;  /* skip over program name */
     if ( argc > 0 )
@@ -197,9 +287,28 @@ int main(int argc, char **argv) {
     else
             yyin = stdin;
 
+    int tok;
     errors.error_count = 0;
 
-    yylex();
+    while((tok = yylex())) {
+        printf("%s", yytokenstring(tok));
+        if (tok == INTCONST)
+            printf(" = %d\n", yylval);
+        else if (tok == FLOATCONST)
+            printf(" = %s\n", yysval);
+        else if (tok == PATHCONST)
+            printf(" = %s\n", yysval);
+        else if (tok == STRINGCONST)
+            printf(" = %s\n", yysval);
+        else if (tok == CHARCONST)
+            printf(" = %s\n", yysval);
+        else if (tok == IDENTIFIER)
+            printf(" = %s\n", yysval);
+        else if (tok == SYMBOL)
+            printf(" = %s\n", yysval);
+        else
+            printf("\n");
+    }
 
     for (int i = 0; i < errors.error_count; i++) {
         printf("Error: Unrecognized character in line %d, position %d: %s\n",
