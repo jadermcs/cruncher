@@ -123,44 +123,40 @@ extern int yydebug;
     CHARCONST = 262,
     STRINGCONST = 263,
     PATHCONST = 264,
-    WHILE_KW = 265,
-    FOR_KW = 266,
-    IN_KW = 267,
-    IF_KW = 268,
-    ELSE_KW = 269,
-    CRUNCH_KW = 270,
-    RETURN_KW = 271,
-    CHAR_TYPE = 272,
-    INT_TYPE = 273,
-    FLOAT_TYPE = 274,
-    STRING_TYPE = 275,
-    PATH_TYPE = 276,
-    VOID_TYPE = 277,
-    ADD_OP = 278,
-    SUB_OP = 279,
-    MULT_OP = 280,
-    DIV_OP = 281,
-    REM_OP = 282,
-    NOT_OP = 283,
-    LESSTHAN_OP = 284,
-    LESSEQUAL_OP = 285,
-    GREATERTHAN_OP = 286,
-    GREATEREQUAl_OP = 287,
-    NOTEQUAL_OP = 288,
-    COMPARISON_OP = 289,
-    OR_OP = 290,
-    AND_OP = 291,
-    LBRACE = 292,
-    RBRACE = 293,
-    LBRACKET = 294,
-    RBRACKET = 295,
-    LPARENTHESES = 296,
-    RPARENTHESES = 297,
-    COLON = 298,
-    SEMICOLON = 299,
-    DEF_EQ = 300,
-    COMMA = 301,
-    PIPE = 302
+    WHILE = 265,
+    FOR = 266,
+    IN = 267,
+    IF = 268,
+    ELSE = 269,
+    CRUNCH = 270,
+    RETURN = 271,
+    TYPE = 272,
+    PARAMS = 273,
+    ADD_OP = 274,
+    SUB_OP = 275,
+    MULT_OP = 276,
+    DIV_OP = 277,
+    REM_OP = 278,
+    NOT_OP = 279,
+    LESSTHAN_OP = 280,
+    LESSEQUAL_OP = 281,
+    GREATERTHAN_OP = 282,
+    GREATEREQUAl_OP = 283,
+    NOTEQUAL_OP = 284,
+    COMPARISON_OP = 285,
+    OR_OP = 286,
+    AND_OP = 287,
+    LBRACE = 288,
+    RBRACE = 289,
+    LBRACKET = 290,
+    RBRACKET = 291,
+    LPARENTHESES = 292,
+    RPARENTHESES = 293,
+    COLON = 294,
+    SEMICOLON = 295,
+    DEF_EQ = 296,
+    COMMA = 297,
+    PIPE = 298
   };
 #endif
 
@@ -409,21 +405,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  2
+#define YYFINAL  8
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   24
+#define YYLAST   7
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  48
+#define YYNTOKENS  44
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  5
+#define YYNNTS  7
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  9
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  16
+#define YYNSTATES  15
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   302
+#define YYMAXUTOK   298
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
    as returned by yylex, with out-of-bounds checking.  */
@@ -463,16 +459,14 @@ static const yytype_uint8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47
+      35,    36,    37,    38,    39,    40,    41,    42,    43
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    35,    35,    36,    38,    39,    40,    43,    44,    45,
-      48
+       0,    37,    37,    41,    42,    46,    47,    51,    59,    59
 };
 #endif
 
@@ -482,15 +476,14 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "SYMBOL", "IDENTIFIER", "INTCONST",
-  "FLOATCONST", "CHARCONST", "STRINGCONST", "PATHCONST", "WHILE_KW",
-  "FOR_KW", "IN_KW", "IF_KW", "ELSE_KW", "CRUNCH_KW", "RETURN_KW",
-  "CHAR_TYPE", "INT_TYPE", "FLOAT_TYPE", "STRING_TYPE", "PATH_TYPE",
-  "VOID_TYPE", "ADD_OP", "SUB_OP", "MULT_OP", "DIV_OP", "REM_OP", "NOT_OP",
-  "LESSTHAN_OP", "LESSEQUAL_OP", "GREATERTHAN_OP", "GREATEREQUAl_OP",
-  "NOTEQUAL_OP", "COMPARISON_OP", "OR_OP", "AND_OP", "LBRACE", "RBRACE",
-  "LBRACKET", "RBRACKET", "LPARENTHESES", "RPARENTHESES", "COLON",
-  "SEMICOLON", "DEF_EQ", "COMMA", "PIPE", "$accept", "calclist", "exp",
-  "factor", "term", YY_NULLPTR
+  "FLOATCONST", "CHARCONST", "STRINGCONST", "PATHCONST", "WHILE", "FOR",
+  "IN", "IF", "ELSE", "CRUNCH", "RETURN", "TYPE", "PARAMS", "ADD_OP",
+  "SUB_OP", "MULT_OP", "DIV_OP", "REM_OP", "NOT_OP", "LESSTHAN_OP",
+  "LESSEQUAL_OP", "GREATERTHAN_OP", "GREATEREQUAl_OP", "NOTEQUAL_OP",
+  "COMPARISON_OP", "OR_OP", "AND_OP", "LBRACE", "RBRACE", "LBRACKET",
+  "RBRACKET", "LPARENTHESES", "RPARENTHESES", "COLON", "SEMICOLON",
+  "DEF_EQ", "COMMA", "PIPE", "$accept", "program", "declarations",
+  "declaration", "var_definition", "func_definition", "$@1", YY_NULLPTR
 };
 #endif
 
@@ -503,14 +496,14 @@ static const yytype_uint16 yytoknum[] =
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
-     295,   296,   297,   298,   299,   300,   301,   302
+     295,   296,   297,   298
 };
 # endif
 
-#define YYPACT_NINF -24
+#define YYPACT_NINF -38
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-24)))
+  (!!((Yystate) == (-38)))
 
 #define YYTABLE_NINF -1
 
@@ -521,8 +514,8 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -24,     2,   -24,   -24,   -23,   -22,   -24,     3,     3,   -24,
-       3,     3,   -22,   -22,   -24,   -24
+     -17,    -3,     2,   -17,   -38,   -38,   -38,   -37,   -38,   -38,
+     -38,   -33,   -13,   -32,   -38
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -530,20 +523,20 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     0,     1,    10,     0,     4,     7,     0,     0,     3,
-       0,     0,     5,     6,     8,     9
+       0,     0,     0,     2,     4,     5,     6,     8,     1,     3,
+       7,     0,     0,     0,     9
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -24,   -24,   -24,    -2,    -1
+     -38,   -38,   -38,     4,   -38,   -38,   -38
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     4,     5,     6
+      -1,     2,     3,     4,     5,     6,    11
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -551,38 +544,32 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-       7,     8,     2,    10,    11,    12,    13,     3,     3,    14,
-      15,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     9
+       1,     7,     8,    10,    12,    13,    14,     9
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-      23,    24,     0,    25,    26,     7,     8,     5,     5,    10,
-      11,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    47
+      17,     4,     0,    40,    37,    18,    38,     3
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    49,     0,     5,    50,    51,    52,    23,    24,    47,
-      25,    26,    51,    51,    52,    52
+       0,    17,    45,    46,    47,    48,    49,     4,     0,    47,
+      40,    50,    37,    18,    38
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    48,    49,    49,    50,    50,    50,    51,    51,    51,
-      52
+       0,    44,    45,    46,    46,    47,    47,    48,    50,    49
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     0,     3,     1,     3,     3,     1,     3,     3,
-       1
+       0,     2,     1,     2,     1,     1,     1,     3,     0,     6
 };
 
 
@@ -1267,38 +1254,67 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 3:
-#line 36 "src/cruncher_syntax.y" /* yacc.c:1652  */
-    {printf("= %d\n", yyvsp[-2]);}
-#line 1274 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+        case 2:
+#line 37 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {syntax_tree = yyvsp[0];}
+#line 1261 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 3:
+#line 41 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {yyval = add_ast_node('A', yyvsp[-1], yyvsp[0]);}
+#line 1267 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 4:
+#line 42 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {yyval = yyvsp[0];}
+#line 1273 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
     break;
 
   case 5:
-#line 39 "src/cruncher_syntax.y" /* yacc.c:1652  */
-    {yyval = yyvsp[-2] + yyvsp[0];}
-#line 1280 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+#line 46 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {yyval = yyvsp[0];}
+#line 1279 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
     break;
 
   case 6:
-#line 40 "src/cruncher_syntax.y" /* yacc.c:1652  */
-    {yyval = yyvsp[-2] - yyvsp[0];}
-#line 1286 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+#line 47 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {yyval = yyvsp[0];}
+#line 1285 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 7:
+#line 51 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {
+    yyval = NULL;
+    add_symbol(yyvsp[-1], yyvsp[-2], 'V', NULL);
+    gen_table_symbol(yyvsp[-2], yyvsp[-1]); free(yyvsp[-2]); free(yyvsp[-1]);
+}
+#line 1295 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
     break;
 
   case 8:
-#line 44 "src/cruncher_syntax.y" /* yacc.c:1652  */
-    {yyval = yyvsp[-2] * yyvsp[0];}
-#line 1292 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+#line 59 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {
+    tmp_gen = 0;
+    params_gen = 0;
+    add_symbol(yyvsp[0], yyvsp[-1], 'F', NULL);
+    gen_label(yyvsp[0]);
+}
+#line 1306 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
     break;
 
   case 9:
-#line 45 "src/cruncher_syntax.y" /* yacc.c:1652  */
-    {yyval = yyvsp[-2] / yyvsp[0];}
-#line 1298 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+#line 65 "src/cruncher_syntax.y" /* yacc.c:1652  */
+    {
+
+}
+#line 1314 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
     break;
 
 
-#line 1302 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
+#line 1318 "src/cruncher_syntax.tab.c" /* yacc.c:1652  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1529,7 +1545,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 50 "src/cruncher_syntax.y" /* yacc.c:1918  */
+#line 72 "src/cruncher_syntax.y" /* yacc.c:1918  */
 
 
 int main(int argc, char **argv) {

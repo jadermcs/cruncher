@@ -29,37 +29,21 @@ char yysval[1024];
 DIGIT       [0-9]
 INTEGER     [+-]?{DIGIT}+
 EXPON       [eE]{INTEGER}
-FLOAT       {INTEGER}"."({DIGIT})*{EXPON}?
+FLOAT       [+-]?({DIGIT}*\.{DIGIT}+|{DIGIT}+\.)
 
-LSMALL      [a-z\_]
-LLARGE      [A-Z]
-WHITECHAR   [\n\t ]
-SYMBOL      [!#$%&*+.\\\/;<=>?@^\|-~:]
-GRAPHIC     {LSMALL}|{LLARGE}|{SYMBOL}|{WHITECHAR}|{DIGIT}
-CHAR        \'{GRAPHIC}\'
-STRING      \"({GRAPHIC})*\"
-PATH        ("."|_){STRING}
+LETTER      [a-zA-Z]
+IDENTIFIER  {LETTER}({LETTER}|{DIGIT}|_)*
+WHITESPACE  [\n\t ]+
+SYMBOL      [!#$%&*+\.\\\/;<=>?@^\|-~:]
+CHAR        '(\\.|[^\\'])+'
+STRING      \"(\\.|[^\\"])*\"
+PATH        ("."|_)\"(LETTER|SYMBOL)*\"
 
 %%
 
-"/*" {
-    col_count += yyleng;
-    BEGIN(COMMENTBLOCK);
-}
-
-<COMMENTBLOCK>"*/" {
-    col_count += yyleng;
-    BEGIN(INITIAL);
-}
-
-<COMMENTBLOCK>\n {
-    col_count += yyleng;
-}
-
-<COMMENTBLOCK>. {
-    col_count += yyleng;
-}
-
+"/*" { col_count += yyleng; BEGIN(COMMENTBLOCK); }
+<COMMENTBLOCK>"*/" { col_count += yyleng; BEGIN(INITIAL); }
+<COMMENTBLOCK>. { col_count += yyleng; }
 <COMMENTBLOCK><<EOF>> {
     int error_num = errors.error_count;
     strcpy(errors.error_msg[error_num], "Unexpected end of file while in comment.");
@@ -71,185 +55,55 @@ PATH        ("."|_){STRING}
 }
 
     /* keywords */
-"while" {
-    col_count += yyleng;
-    return WHILE_KW;
-}
-
-"for" {
-    col_count += yyleng;
-    return FOR_KW;
-}
-
-"if" {
-    col_count += yyleng;
-    return IF_KW;
-}
-
-"in" {
-    col_count += yyleng;
-    return IN_KW;
-}
-
-"else" {
-    col_count += yyleng;
-    return ELSE_KW;
-}
-
-"return" {
-    col_count += yyleng;
-    return RETURN_KW;
-}
-
-"crunch" {
-    col_count += yyleng;
-    return CRUNCH_KW;
-}
+"while" { col_count += yyleng; return WHILE; }
+"for" { col_count += yyleng; return FOR; }
+"if" { col_count += yyleng; return IF; }
+"in" { col_count += yyleng; return IN; }
+"else" { col_count += yyleng; return ELSE; }
+"return" { col_count += yyleng; return RETURN; }
+"crunch" { col_count += yyleng; return CRUNCH; }
 
     /* types */
-"char" {
-    col_count += yyleng;
-    return CHAR_TYPE;
-}
-
-"path" {
-    col_count += yyleng;
-    return PATH_TYPE;
-}
-
-"string" {
-    col_count += yyleng;
-    return STRING_TYPE;
-}
-
-"int" {
-    col_count += yyleng;
-    return INT_TYPE;
-}
-
-"float" {
-    col_count += yyleng;
-    return FLOAT_TYPE;
-}
-"void" {
-    col_count += yyleng;
-    return VOID_TYPE;
-}
+"char|path|string|int|float|void" { col_count += yyleng; return TYPE; }
 
         /* definition */
-"+" {
-col_count += yyleng;
-return ADD_OP;
-}
-"-" {
-col_count += yyleng;
-return SUB_OP; }
-"*" {
-col_count += yyleng;
-return MULT_OP; }
-"/" {
-col_count += yyleng;
-return DIV_OP; }
-"%" {
-col_count += yyleng;
-return REM_OP; }
-
-"!" {
-col_count += yyleng;
-return NOT_OP; }
-
-"<" {
-    col_count += yyleng;
-    return LESSTHAN_OP;
-}
-"<=" { col_count += yyleng;
-return LESSEQUAL_OP; }
-">" { col_count += yyleng;
-return GREATERTHAN_OP; }
-">=" { col_count += yyleng;
-return GREATEREQUAl_OP; }
-"!=" { col_count += yyleng;
-return NOTEQUAL_OP; }
-"==" { col_count += yyleng;
-return COMPARISON_OP; }
-
-"||" { col_count += yyleng;
-return OR_OP; }
-"&&" { col_count += yyleng;
-return AND_OP; }
-
-"{" { col_count += yyleng;
-return LBRACE; }
-"}" { col_count += yyleng;
-return RBRACE; }
-"[" { col_count += yyleng;
-return LBRACKET; }
-"]" { col_count += yyleng;
-return RBRACKET; }
-"(" { col_count += yyleng;
-return LPARENTHESES; }
-")" { col_count += yyleng;
-return RPARENTHESES; }
-":" { col_count += yyleng;
-return COLON; }
-";" { col_count += yyleng;
-return SEMICOLON; }
-"|" { col_count += yyleng;
-return PIPE; }
-
-"=" { col_count += yyleng;
-return DEF_EQ; }
-"," { col_count += yyleng;
-return COMMA; }
+"+" { col_count += yyleng; return ADD_OP; }
+"-" { col_count += yyleng; return SUB_OP; }
+"*" { col_count += yyleng; return MULT_OP; }
+"/" { col_count += yyleng; return DIV_OP; }
+"%" { col_count += yyleng; return REM_OP; }
+"!" { col_count += yyleng; return NOT_OP; }
+"<" { col_count += yyleng; return LESSTHAN_OP; }
+"<=" { col_count += yyleng; return LESSEQUAL_OP; }
+">" { col_count += yyleng; return GREATERTHAN_OP; }
+">=" { col_count += yyleng; return GREATEREQUAl_OP; }
+"!=" { col_count += yyleng; return NOTEQUAL_OP; }
+"==" { col_count += yyleng; return COMPARISON_OP; }
+"||" { col_count += yyleng; return OR_OP; }
+"&&" { col_count += yyleng; return AND_OP; }
+"{" { col_count += yyleng; return LBRACE; }
+"}" { col_count += yyleng; return RBRACE; }
+"[" { col_count += yyleng; return LBRACKET; }
+"]" { col_count += yyleng; return RBRACKET; }
+"(" { col_count += yyleng; return LPARENTHESES; }
+")" { col_count += yyleng; return RPARENTHESES; }
+":" { col_count += yyleng; return COLON; }
+";" { col_count += yyleng; return SEMICOLON; }
+"|" { col_count += yyleng; return PIPE; }
+"=" { col_count += yyleng; return DEF_EQ; }
+"," { col_count += yyleng; return COMMA; }
 
  /* consts */
+{INTEGER} { col_count += yyleng; strcpy(yysval, yytext); return INTCONST; }
+{FLOAT} { col_count += yyleng; strcpy(yysval, yytext); return FLOATCONST; }
+{CHAR} { col_count += yyleng; strcpy(yysval, yytext); return CHARCONST; }
+{PATH} { col_count += yyleng; strcpy(yysval, yytext); return PATHCONST; }
+{STRING} { col_count += yyleng; strcpy(yysval, yytext); return STRINGCONST; }
+{SYMBOL} { col_count += yyleng; strcpy(yysval, yytext); return SYMBOL; }
+{IDENTIFIER} { col_count += yyleng; strcpy(yysval, yytext); return valid_id(); }
+{WHITESPACE}* { col_count += yyleng; }
 
-{INTEGER} {
-    col_count += yyleng;
-    strcpy(yysval, yytext);
-    return INTCONST;
-}
-
-{FLOAT} {
-    col_count += yyleng;
-    strcpy(yysval, yytext);
-    return FLOATCONST;
-}
-
-{CHAR} {
-    col_count += yyleng;
-    strcpy(yysval, yytext);
-    return CHARCONST;
-}
-
-{PATH} {
-    col_count += yyleng;
-    strcpy(yysval, yytext);
-    return PATHCONST;
-}
-
-{STRING} {
-    col_count += yyleng;
-    strcpy(yysval, yytext);
-    return STRINGCONST;
-}
-
-{SYMBOL} {
-    col_count += yyleng;
-    strcpy(yysval, yytext);
-    return SYMBOL;
-}
-
-{LSMALL}({LSMALL}|{LLARGE})* {
-    col_count += yyleng;
-    strcpy(yysval, yytext);
-    return valid_id();
-}
-
-{WHITECHAR}* {
-    col_count += yyleng;
-}
-
+ /*non matching*/
 . {
     col_count += yyleng;
     int error_num = errors.error_count;
@@ -261,54 +115,13 @@ return COMMA; }
 
 %%
 
+int has_error = 0;
+
 int yywrap(void) {
     return 1;
 }
 
-static enum yytokentype valid_id() {
-    if (yyleng <= 32) {
-        return IDENTIFIER;
-    } else {
-        return ERR_INVALID_ID;
-    }
-}
-
-int main(int argc, char **argv) {
-    ++argv, --argc;  /* skip over program name */
-    if ( argc > 0 )
-            yyin = fopen( argv[0], "r" );
-    else
-            yyin = stdin;
-
-    int tok;
-    errors.error_count = 0;
-
-    while((tok = yylex())) {
-        printf("%s", yytokenstring(tok));
-        if (tok == INTCONST)
-            printf(" = %s\n", yytext);
-        else if (tok == FLOATCONST)
-            printf(" = %s\n", yytext);
-        else if (tok == PATHCONST)
-            printf(" = %s\n", yytext);
-        else if (tok == STRINGCONST)
-            printf(" = %s\n", yytext);
-        else if (tok == CHARCONST)
-            printf(" = %s\n", yytext);
-        else if (tok == IDENTIFIER)
-            printf(" = %s\n", yytext);
-        else if (tok == SYMBOL)
-            printf(" = %s\n", yytext);
-        else
-            printf("\n");
-    }
-
-    for (int i = 0; i < errors.error_count; i++) {
-        printf("Error: Unrecognized character in line %d, position %d: %s\n",
-            errors.at_line[i], errors.at_column[i], errors.error_msg[i]);
-    }
-    print_table();
-    fclose(yyin);
-    yylex_destroy();
-    free_table();
+void yyerror(const char *s){
+  fprintf(stderr, "%d: %s\n", yylineno, s);
+  has_error = 1;
 }
