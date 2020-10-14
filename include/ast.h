@@ -6,10 +6,12 @@ struct ast {
     char *addr;
     int string_size;
 
-    union {
-        char *string;
+    union prop {
+        char *str;
         char *func_name;
-    };
+    } prop;
 };
 
 struct ast *newast(int, struct ast *, struct ast *);
+
+void printast(struct ast *, int);

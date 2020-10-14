@@ -1,5 +1,5 @@
 CC	     := gcc
-CFLAGS   := -std=c11 --pedantic -O3 -Wall -Wextra -Wpedantic
+CFLAGS   := -std=c99 --pedantic -O3 -Wall -Wextra -Wpedantic
 
 TARGETF  := bin
 TARGET   := $(TARGETF)/cruncher_lang
@@ -21,7 +21,7 @@ $(TARGET): $(OBJECTS)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo " flex src/cruncher_lex.l "; flex src/cruncher_lex.l
-	@echo " bison src/cruncher_syntax.y "; bison -d src/cruncher_syntax.y
+	@echo " bison -d src/cruncher_syntax.y "; bison -d src/cruncher_syntax.y
 	@mkdir -p $(BUILDDIR)
 	@mkdir -p $(TARGETF)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -43,4 +43,4 @@ test:
 	@echo "------------------------------"
 	@./$(TARGET) tests/test-invalid2.hs
 
-.PHONY: clean_all flex
+.PHONY: clean_all

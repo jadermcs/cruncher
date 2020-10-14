@@ -34,19 +34,13 @@ const char* yytokenstring(enum yytokentype tok_type) {
         case(CHARCONST): return "CHARCONST";
         case(STRINGCONST): return "STRINGCONST";
         case(PATHCONST): return "PATHCONST";
-        case(WHILE_KW): return "WHILE_KW";
-        case(FOR_KW): return "FOR_KW";
-        case(IN_KW): return "IN_KW";
-        case(IF_KW): return "IF_KW";
-        case(ELSE_KW): return "ELSE_KW";
-        case(RETURN_KW): return "RETURN_KW";
-        case(CRUNCH_KW): return "CRUNCH_KW";
-        case(CHAR_TYPE): return "CHAR_TYPE";
-        case(INT_TYPE): return "INT_TYPE";
-        case(FLOAT_TYPE): return "FLOAT_TYPE";
-        case(STRING_TYPE): return "STRING_TYPE";
-        case(PATH_TYPE): return "PATH_TYPE";
-        case(VOID_TYPE): return "VOID_TYPE";
+        case(WHILE): return "WHILE";
+        case(FOR): return "FOR";
+        case(IN): return "IN";
+        case(IF): return "IF";
+        case(ELSE): return "ELSE";
+        case(RETURN): return "RETURN";
+        case(CRUNCH): return "CRUNCH";
         case(ADD_OP): return "ADD_OP";
         case(SUB_OP): return "SUB_OP";
         case(MULT_OP): return "MULT_OP";
@@ -61,17 +55,10 @@ const char* yytokenstring(enum yytokentype tok_type) {
         case(COMPARISON_OP): return "COMPARISON_OP";
         case(OR_OP): return "OR_OP";
         case(AND_OP): return "AND_OP";
-        case(LBRACE): return "LBRACE";
-        case(RBRACE): return "RBRACE";
-        case(LBRACKET): return "LBRACKET";
-        case(RBRACKET): return "RBRACKET";
-        case(LPARENTHESES): return "LPARENTHESES";
-        case(RPARENTHESES): return "RPARENTHESES";
         case(COLON): return "COLON";
-        case(SEMICOLON): return "SEMICOLON";
         case(DEF_EQ): return "DEF_EQ";
-        case(COMMA): return "COMMA";
         case(PIPE): return "PIPE";
+        case(TYPE): return "TYPE";
         default: return "[Err] Unknown Token Type";
     }
 }

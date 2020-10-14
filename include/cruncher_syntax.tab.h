@@ -49,53 +49,59 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    SYMBOL = 258,
-    IDENTIFIER = 259,
-    INTCONST = 260,
-    FLOATCONST = 261,
-    CHARCONST = 262,
-    STRINGCONST = 263,
-    PATHCONST = 264,
-    WHILE = 265,
-    FOR = 266,
-    IN = 267,
-    IF = 268,
-    ELSE = 269,
-    CRUNCH = 270,
-    RETURN = 271,
-    TYPE = 272,
-    PARAMS = 273,
-    ADD_OP = 274,
-    SUB_OP = 275,
-    MULT_OP = 276,
-    DIV_OP = 277,
-    REM_OP = 278,
-    NOT_OP = 279,
-    LESSTHAN_OP = 280,
-    LESSEQUAL_OP = 281,
-    GREATERTHAN_OP = 282,
-    GREATEREQUAl_OP = 283,
-    NOTEQUAL_OP = 284,
-    COMPARISON_OP = 285,
-    OR_OP = 286,
-    AND_OP = 287,
-    LBRACE = 288,
-    RBRACE = 289,
-    LBRACKET = 290,
-    RBRACKET = 291,
-    LPARENTHESES = 292,
-    RPARENTHESES = 293,
-    COLON = 294,
-    SEMICOLON = 295,
-    DEF_EQ = 296,
-    COMMA = 297,
-    PIPE = 298
+    WHILE = 258,
+    FOR = 259,
+    IN = 260,
+    IF = 261,
+    ELSE = 262,
+    CRUNCH = 263,
+    RETURN = 264,
+    PARAMS = 265,
+    ADD_OP = 266,
+    SUB_OP = 267,
+    MULT_OP = 268,
+    DIV_OP = 269,
+    REM_OP = 270,
+    NOT_OP = 271,
+    LESSTHAN_OP = 272,
+    LESSEQUAL_OP = 273,
+    GREATERTHAN_OP = 274,
+    GREATEREQUAl_OP = 275,
+    NOTEQUAL_OP = 276,
+    COMPARISON_OP = 277,
+    OR_OP = 278,
+    AND_OP = 279,
+    COLON = 280,
+    DEF_EQ = 281,
+    PIPE = 282,
+    IDENTIFIER = 283,
+    INTCONST = 284,
+    FLOATCONST = 285,
+    CHARCONST = 286,
+    STRINGCONST = 287,
+    PATHCONST = 288,
+    TYPE = 289,
+    SYMBOL = 290
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+
+union YYSTYPE
+{
+#line 26 "src/cruncher_syntax.y" /* yacc.c:1921  */
+
+  char *id;
+  char *type;
+  char op;
+  char *str;
+  struct ast *node;
+
+#line 102 "include/cruncher_syntax.tab.h" /* yacc.c:1921  */
+};
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

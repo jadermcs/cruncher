@@ -13,12 +13,10 @@
 
 %{
 #include <cruncher.h>
-
-static enum yytokentype valid_id();
-
+extern char* strdup(const char*);
 lexErrors errors;
 int col_count = 1;
-enum yytokentype current_type=INT_TYPE;
+enum yytokentype current_type=1;
 int current_addr=0;
 %}
 
@@ -28,15 +26,15 @@ int current_addr=0;
 DIGIT       [0-9]
 INTEGER     [+-]?{DIGIT}+
 EXPON       [eE]{INTEGER}
-FLOAT       [+-]?({DIGIT}*\.{DIGIT}+|{DIGIT}+\.)
+FLOAT       [+-]?({DIGIT}*\.{DIGIT}+|{DIGIT}+\.){EXPON}
 
 LETTER      [a-zA-Z]
 IDENTIFIER  {LETTER}({LETTER}|{DIGIT}|_)*
 WHITESPACE  [\n\t ]+
-SYMBOL      [!#$%&*+\.\\\/;<=>?@^\|-~:]
+SYMBOL      [!#$%&*+\.\\\/;<=>?@^\|-~:\,\(\)\[\]\{\}]
 CHAR        '(\\.|[^\\'])+'
+PATH        (\.|_)\"({LETTER}|{SYMBOL}|{DIGIT})*\"
 STRING      \"(\\.|[^\\"])*\"
-PATH        ("."|_)\"(LETTER|SYMBOL)*\"
 
 %%
 
@@ -63,8 +61,8 @@ PATH        ("."|_)\"(LETTER|SYMBOL)*\"
 "crunch" { col_count += yyleng; return CRUNCH; }
 
     /* types */
-"char|path|string|int|float|void" {
-    yylval.id = (char *)strdup(yytext);
+char|path|string|int|float|void {
+    yylval.str = (char *)strdup(yytext);
     col_count += yyleng;
     return TYPE;
 }
@@ -87,13 +85,13 @@ PATH        ("."|_)\"(LETTER|SYMBOL)*\"
 "=" { col_count += yyleng; return DEF_EQ; }
 
  /* consts */
-{INTEGER} { col_count += yyleng; strcpy(yylval.str, yytext); return INTCONST; }
-{FLOAT} { col_count += yyleng; strcpy(yylval.str, yytext); return FLOATCONST; }
-{CHAR} { col_count += yyleng; strcpy(yylval.str, yytext); return CHARCONST; }
-{PATH} { col_count += yyleng; strcpy(yylval.str, yytext); return PATHCONST; }
-{STRING} { col_count += yyleng; strcpy(yylval.str, yytext); return STRINGCONST; }
-{SYMBOL} { col_count += yyleng; strcpy(yylval.str, yytext); return SYMBOL; }
-{IDENTIFIER} { col_count += yyleng; strcpy(yylval.str, yytext); return valid_id(); }
+{INTEGER} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return INTCONST; }
+{FLOAT} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return FLOATCONST; }
+{CHAR} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return CHARCONST; }
+{PATH} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return PATHCONST; }
+{STRING} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return STRINGCONST; }
+{SYMBOL} { yylval.op = yytext[0]; col_count += yyleng; return yytext[0]; }
+{IDENTIFIER} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return IDENTIFIER; }
 {WHITESPACE}* { col_count += yyleng; }
 
  /*non matching*/
@@ -118,3 +116,40 @@ void yyerror(const char *s){
   fprintf(stderr, "%d: %s\n", yylineno, s);
   has_error = 1;
 }
+
+/* int main(int argc, char **argv) { */
+/*     ++argv, --argc;  /1* skip over program name *1/ */
+/*     if ( argc > 0 ) */
+/*             yyin = fopen( argv[0], "r" ); */
+/*     else */
+/*             yyin = stdin; */
+/*     int tok; */
+/*     errors.error_count = 0; */
+/*     while((tok = yylex())) { */
+/*         printf("%s\n", yytokenstring(tok)); */
+/*         if (tok == INTCONST) */
+/*             printf(" = %s\n", yylval.str); */
+/*         else if (tok == FLOATCONST) */
+/*             printf(" = %s\n", yylval.str); */
+/*         else if (tok == PATHCONST) */
+/*             printf(" = %s\n", yylval.str); */
+/*         else if (tok == STRINGCONST) */
+/*             printf(" = %s\n", yylval.str); */
+/*         else if (tok == CHARCONST) */
+/*             printf(" = %s\n", yylval.str); */
+/*         else if (tok == IDENTIFIER) */
+/*             printf(" = %s\n", yylval.str); */
+/*         else if (tok == SYMBOL) */
+/*             printf(" = %s\n", yylval.str); */
+/*         else if (tok == TYPE) */
+/*             printf(" = %s\n", yylval.str); */
+/*     } */
+/*     for (int i = 0; i < errors.error_count; i++) { */
+/*         printf("Error: Unrecognized character in line %d, position %d: %s\n", */
+/*             errors.at_line[i], errors.at_column[i], errors.error_msg[i]); */
+/*     } */
+/*     print_table(); */
+/*     fclose(yyin); */
+/*     yylex_destroy(); */
+/*     free_table(); */
+/* } */
