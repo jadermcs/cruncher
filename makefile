@@ -20,8 +20,6 @@ $(TARGET): $(OBJECTS)
 	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@echo " flex src/cruncher_lex.l "; flex src/cruncher_lex.l
-	@echo " bison -d src/cruncher_syntax.y "; bison -d src/cruncher_syntax.y
 	@mkdir -p $(BUILDDIR)
 	@mkdir -p $(TARGETF)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -29,6 +27,10 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 clean:
 	@echo " Cleaning...";
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
+
+lang:
+	@echo " flex src/cruncher_lex.l "; flex src/cruncher_lex.l
+	@echo " bison -d src/cruncher_syntax.y "; bison -d src/cruncher_syntax.y
 
 test:
 	@echo " Running tests..."

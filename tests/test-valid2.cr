@@ -3,8 +3,9 @@ int main(){
     path output = .".";
     crunch (input $!("s/cat/dog/g") output);
 
-    for (path p in input) {
-        crunch(p $> _"/home/jader/files/alltxt.txt")
+    while (path p in input) {
+        int i = 1;
+        /*crunch(p $> _"/home/jader/files/alltxt.txt");*/
     }
     return 0;
 }

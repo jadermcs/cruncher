@@ -19,13 +19,55 @@ struct ast *newast(int nodetype, struct ast *l, struct ast *r) {
 }
 
 void printast(struct ast *t, int depth) {
-    for (int i = 0; i < depth*2; ++i) printf("-");
-    if (t == NULL)
-        printf(".\n");
+    if (t == NULL) return;
     else {
-        printf("%c\n", t->nodetype);
+        for (int i = 0; i < depth; ++i) printf("--");
+        astdict(t->nodetype);
         printast(t->l, depth+1);
         printast(t->r, depth+1);
     }
     return;
+}
+
+void astdict(char c) {
+    switch (c) {
+        case 'D':
+            printf("DECLARATIONS\n");
+            break;
+        case 'V':
+            printf("VARIABLE\n");
+            break;
+        case 'F':
+            printf("FUNCTION\n");
+            break;
+        case 'P':
+            printf("PARAMLIST\n");
+            break;
+        case 'A':
+            printf("PARAM\n");
+            break;
+        case 'S':
+            printf("INNER_DECLARATIONS\n");
+            break;
+        case 'I':
+            printf("IDENTIFIER\n");
+            break;
+        case 'p':
+            printf("PATHCONST\n");
+            break;
+        case 'c':
+            printf("CHARCONST\n");
+            break;
+        case 'i':
+            printf("INTCONST\n");
+            break;
+        case 's':
+            printf("STRINGCONST\n");
+            break;
+        case 'f':
+            printf("FLOATCONST\n");
+            break;
+        default:
+            printf("UNDEFINED [%c]\n", c);
+    }
 }

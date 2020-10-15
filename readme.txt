@@ -33,9 +33,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3. Compiling
 
-    * First run flex on `cruncher.l` to generate the lexical analyzer:
+    First compile the language's scanner and parser:
 
-        $ make flex
+        $ make lang
 
     Then compile the generated analyzer:
 

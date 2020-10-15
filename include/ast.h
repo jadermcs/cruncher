@@ -15,3 +15,5 @@ struct ast {
 struct ast *newast(int, struct ast *, struct ast *);
 
 void printast(struct ast *, int);
+
+void astdict(char);
