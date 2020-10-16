@@ -52,31 +52,31 @@ extern int yydebug;
     ELSE = 262,
     CRUNCH = 263,
     RETURN = 264,
-    PARAMS = 265,
-    ADD_OP = 266,
-    SUB_OP = 267,
-    MULT_OP = 268,
-    DIV_OP = 269,
-    REM_OP = 270,
-    NOT_OP = 271,
-    LESSTHAN_OP = 272,
-    LESSEQUAL_OP = 273,
-    GREATERTHAN_OP = 274,
-    GREATEREQUAl_OP = 275,
-    NOTEQUAL_OP = 276,
-    COMPARISON_OP = 277,
-    OR_OP = 278,
-    AND_OP = 279,
-    COLON = 280,
-    DEF_EQ = 281,
-    PIPE = 282,
-    IDENTIFIER = 283,
-    INTCONST = 284,
-    FLOATCONST = 285,
-    CHARCONST = 286,
-    STRINGCONST = 287,
-    PATHCONST = 288,
-    TYPE = 289,
+    ADD_OP = 265,
+    SUB_OP = 266,
+    MULT_OP = 267,
+    DIV_OP = 268,
+    REM_OP = 269,
+    NOT_OP = 270,
+    LESSTHAN_OP = 271,
+    LESSEQUAL_OP = 272,
+    GREATERTHAN_OP = 273,
+    GREATEREQUAl_OP = 274,
+    NOTEQUAL_OP = 275,
+    COMPARISON_OP = 276,
+    OR_OP = 277,
+    AND_OP = 278,
+    COLON = 279,
+    DEF_EQ = 280,
+    PIPE = 281,
+    IDENTIFIER = 282,
+    INTCONST = 283,
+    FLOATCONST = 284,
+    CHARCONST = 285,
+    STRINGCONST = 286,
+    PATHCONST = 287,
+    TYPE = 288,
+    CRUNCH_OP = 289,
     SYMBOL = 290
   };
 #endif
@@ -86,7 +86,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 26 "src/cruncher_syntax.y" /* yacc.c:1909  */
+#line 27 "src/cruncher_syntax.y" /* yacc.c:1909  */
 
   char *id;
   char *type;

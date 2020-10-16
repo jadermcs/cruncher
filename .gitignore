@@ -1,5 +1,7 @@
 *.o
 bin/
+*.output
+*.dot
 ## Core latex/pdflatex auxiliary files:
 *.pdf
 *.aux

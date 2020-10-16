@@ -18,6 +18,7 @@ extern int yylineno;
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
+extern char* strdup(const char*);
 
 extern void yyerror(const char* s);
 struct ast* syntax_tree = NULL;
@@ -35,16 +36,17 @@ struct ast* syntax_tree = NULL;
 %type <node> program declarations declaration
 %type <node> inner_declarations inner_declaration
 %type <node> func_definition var_definition
-%type <node> crunch_statement return_statement while_statement
-%type <node> params param term expression
+%type <node> crunch_statement return_statement while_statement exp_statement
+%type <node> selection_statement
+%type <node> for_statement sub_expression
+%type <node> params param term expression for_expression simple_expression
 %type <node> eq_expression relational_expression and_expression assignment_expression
 %type <node> conditional_expression mul_expression add_expression
-%type <node> file
+%type <node> file args args_list call identifier pathconst
 
-%type <op> crunch_op
 %type <str> options
 
-%token WHILE FOR IN IF ELSE CRUNCH RETURN PARAMS
+%token WHILE FOR IN IF ELSE CRUNCH RETURN
 %right ADD_OP SUB_OP MULT_OP DIV_OP REM_OP
 %right NOT_OP LESSTHAN_OP LESSEQUAL_OP GREATERTHAN_OP GREATEREQUAl_OP
 %right NOTEQUAL_OP COMPARISON_OP OR_OP AND_OP
@@ -53,7 +55,7 @@ struct ast* syntax_tree = NULL;
 %token <id> IDENTIFIER
 %token <str> INTCONST FLOATCONST CHARCONST STRINGCONST PATHCONST
 %token <type> TYPE
-%token <op> SYMBOL
+%token <op> CRUNCH_OP SYMBOL
 
 %%
 
@@ -72,12 +74,12 @@ declaration:
 ;
 
 var_definition:
-  TYPE IDENTIFIER ';' { $$ = newast('V', NULL, NULL); }
-| TYPE IDENTIFIER DEF_EQ term ';' { $$ = newast('V', NULL, NULL); }
+  TYPE identifier ';' { $$ = $2; }
+| TYPE identifier '=' expression ';' { $$ = newast('V', $2, $4); }
 ;
 
 func_definition:
-  TYPE IDENTIFIER '(' params ')' '{' inner_declarations '}' { $$ = newast('F', $4, $7); }
+  TYPE identifier '(' params ')' '{' inner_declarations '}' { $$ = newast('F', $2, newast('F', $4, $7)); }
 ;
 
 params:
@@ -87,7 +89,7 @@ params:
 ;
 
 param:
-  TYPE IDENTIFIER { $$ = newast('A', NULL, NULL); }
+  TYPE identifier { $$ = newast('A', $2, NULL); }
 ;
 
 inner_declarations:
@@ -98,9 +100,18 @@ inner_declarations:
 inner_declaration:
   return_statement { $$ = $1; }
 | while_statement { $$ = $1; }
+| selection_statement { $$ = $1; }
+| for_statement { $$ = $1; }
 | crunch_statement { $$ = $1; }
+| exp_statement { $$ = $1; }
 | var_definition {$$ = $1;}
 | func_definition {$$ = $1;}
+;
+
+selection_statement:
+  IF '(' expression ')' '{' inner_declarations '}' {$$ = newast('E', $3, $6); }
+| IF '(' expression ')' '{' inner_declarations '}' ELSE '{' inner_declarations '}' {
+    $$ = newast('E', $3, newast('E', $6, $10)); }
 ;
 
 return_statement:
@@ -109,20 +120,18 @@ return_statement:
 ;
 
 crunch_statement:
-  CRUNCH '(' file crunch_op options file ')' ';' {
+  CRUNCH '(' file CRUNCH_OP options file ')' ';' {
     $$ = newast('C', $3, $6);
     $$->dtype = $4;
-    $$->prop.str = $5;
+    if ($5) $$->value.str_ = (char *)strdup($5);
+    printf("%s\n",$5);
+    free($5);
 }
 ;
 
 file:
-  PATHCONST {$$ = newast('p', NULL, NULL); }
-| IDENTIFIER {$$ = newast('I', NULL, NULL); }
-;
-
-crunch_op:
-  '$' SYMBOL { $$ = yylval.op; }
+  pathconst {$$ = $1; }
+| identifier {$$ = $1; }
 ;
 
 options:
@@ -131,15 +140,48 @@ options:
 ;
 
 term:
-  INTCONST {$$ = newast('i', NULL, NULL);}
+  identifier {$$ = $1;}
+| INTCONST {$$ = newast('i', NULL, NULL); $$->value.int_ = atoi($1); free($1);}
 | FLOATCONST {$$ = newast('f', NULL, NULL);}
 | CHARCONST {$$ = newast('c', NULL, NULL);}
-| STRINGCONST {$$ = newast('s', NULL, NULL);}
-| PATHCONST {$$ = newast('p', NULL, NULL);}
+| STRINGCONST {$$ = newast('s', NULL, NULL); $$->value.str_ = strdup($1); free($1); }
+| pathconst {$$ = $1; }
+;
+
+pathconst:
+  PATHCONST {
+    $$ = newast('p', NULL, NULL);
+    $$->value.str_ = strdup($1);
+    $$->dtype = $1[0];
+    free($1);
+}
 ;
 
 while_statement:
   WHILE '(' expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); }
+;
+
+for_statement:
+  FOR '(' for_expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); }
+;
+
+for_expression:
+  simple_expression ';' expression ';' expression { $$ = newast('E', $1, newast('E', $3, $5));}
+| sub_expression IN file { $$ = newast('E', $1, $3); }
+;
+
+simple_expression:
+  simple_expression '=' term { $$ = newast('H', $1, $3); }
+| sub_expression { $$ = $1; }
+;
+
+sub_expression:
+  TYPE identifier { $$ = $2; }
+| identifier { $$ = $1; }
+;
+
+identifier:
+  IDENTIFIER { $$ = newast('I', NULL, NULL); $$->addr = strdup($1); free($1); }
 ;
 
 expression:
@@ -149,7 +191,7 @@ expression:
 
 assignment_expression:
   conditional_expression { $$ = $1; }
-| IDENTIFIER DEF_EQ assignment_expression { $$ = newast('A', NULL, $3); }
+| identifier '=' assignment_expression { $$ = newast('=', $1, $3); }
 ;
 
 conditional_expression:
@@ -170,23 +212,41 @@ eq_expression:
 
 relational_expression:
   add_expression {$$ = $1;}
-| relational_expression LESSTHAN_OP add_expression { $$ = newast('R', $1, $3); }
+| relational_expression '<' add_expression { $$ = newast('R', $1, $3); }
 | relational_expression LESSEQUAL_OP add_expression { $$ = newast('R', $1, $3); }
-| relational_expression GREATERTHAN_OP add_expression { $$ = newast('R', $1, $3); }
+| relational_expression '>' add_expression { $$ = newast('R', $1, $3); }
 | relational_expression GREATEREQUAl_OP add_expression { $$ = newast('R', $1, $3); }
 ;
 
 add_expression:
   mul_expression { $$ = $1; }
-| add_expression ADD_OP mul_expression { $$ = newast('+', $1, $3); }
-| add_expression SUB_OP mul_expression { $$ = newast('+', $1, $3); }
+| add_expression '+' mul_expression { $$ = newast('+', $1, $3); }
+| add_expression '-' mul_expression { $$ = newast('+', $1, $3); }
 ;
 
 mul_expression:
   term { $$ = $1; }
-| mul_expression MULT_OP term { $$ = newast('*', $1, $3); }
-| mul_expression DIV_OP term { $$ = newast('*', $1, $3); }
-| mul_expression REM_OP term { $$ = newast('*', $1, $3); }
+| mul_expression '*' term { $$ = newast('*', $1, $3); }
+| mul_expression '/' term { $$ = newast('*', $1, $3); }
+| mul_expression '%' term { $$ = newast('*', $1, $3); }
+;
+
+exp_statement:
+  expression ';' { $$ = $1; }
+| call ';' {$$ = $1; }
+;
+
+call:
+  identifier '(' args ')' { $$ = newast('T', $1, $3);}
+;
+
+args:
+ args_list {$$ = $1; }
+| {$$ = NULL; }
+;
+args_list:
+  args_list ',' term { $$ = newast('G', $1, $3); }
+| term {$$ = $1;}
 ;
 
 %%

@@ -59,6 +59,7 @@ const char* yytokenstring(enum yytokentype tok_type) {
         case(DEF_EQ): return "DEF_EQ";
         case(PIPE): return "PIPE";
         case(TYPE): return "TYPE";
+        case(CRUNCH_OP): return "CRUNCH_OP";
         default: return "[Err] Unknown Token Type";
     }
 }

@@ -22,15 +22,15 @@ void printast(struct ast *t, int depth) {
     if (t == NULL) return;
     else {
         for (int i = 0; i < depth; ++i) printf("--");
-        astdict(t->nodetype);
+        astdict(t);
         printast(t->l, depth+1);
         printast(t->r, depth+1);
     }
     return;
 }
 
-void astdict(char c) {
-    switch (c) {
+void astdict(struct ast *t) {
+    switch (t->nodetype) {
         case 'D':
             printf("DECLARATIONS\n");
             break;
@@ -39,6 +39,24 @@ void astdict(char c) {
             break;
         case 'F':
             printf("FUNCTION\n");
+            break;
+        case 'E':
+            printf("SELECTION\n");
+            break;
+        case 'C':
+            printf("CRUNCHER (dtype:%c options:%s)\n",t->dtype, t->value.str_ ? t->value.str_ : "NONE");
+            break;
+        case 'L':
+            printf("LOOPSTMT\n");
+            break;
+        case 'R':
+            printf("RELATIONEXP\n");
+            break;
+        case '=':
+            printf("ASSIGNMENT\n");
+            break;
+        case 'G':
+            printf("ARGS\n");
             break;
         case 'P':
             printf("PARAMLIST\n");
@@ -49,25 +67,31 @@ void astdict(char c) {
         case 'S':
             printf("INNER_DECLARATIONS\n");
             break;
+        case 'T':
+            printf("FCALL\n");
+            break;
         case 'I':
-            printf("IDENTIFIER\n");
+            printf("IDENTIFIER (id:%s)\n", t->addr);
             break;
         case 'p':
-            printf("PATHCONST\n");
+            printf("PATHCONST (value:%s dtype:%c)\n", t->value.str_, t->dtype);
             break;
         case 'c':
             printf("CHARCONST\n");
             break;
         case 'i':
-            printf("INTCONST\n");
+            printf("INTCONST (value:%d)\n", t->value.int_);
             break;
         case 's':
-            printf("STRINGCONST\n");
+            printf("STRINGCONST (value:%s)\n", t->value.str_);
             break;
         case 'f':
             printf("FLOATCONST\n");
             break;
+        case '+':
+            printf("ADDITIVEXP\n");
+            break;
         default:
-            printf("UNDEFINED [%c]\n", c);
+            printf("UNDEFINED [%c]\n", t->nodetype);
     }
 }

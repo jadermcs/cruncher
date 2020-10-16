@@ -4,16 +4,16 @@ struct ast {
     struct ast *r;
     char dtype;
     char *addr;
-    int string_size;
-
-    union prop {
-        char *str;
-        char *func_name;
-    } prop;
+    union {
+        char *str_;
+        float float_;
+        int int_;
+        char char_;
+    } value;
 };
 
 struct ast *newast(int, struct ast *, struct ast *);
 
 void printast(struct ast *, int);
 
-void astdict(char);
+void astdict(struct ast *);

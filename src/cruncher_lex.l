@@ -35,6 +35,7 @@ SYMBOL      [!#$%&*+\.\\\/;<=>?@^\|-~:\,\(\)\[\]\{\}]
 CHAR        '(\\.|[^\\'])+'
 PATH        (\.|_)\"({LETTER}|{SYMBOL}|{DIGIT})*\"
 STRING      \"(\\.|[^\\"])*\"
+CRUNCH_OP   ${SYMBOL}
 
 %%
 
@@ -68,21 +69,12 @@ char|path|string|int|float|void {
 }
 
         /* definition */
-"+" { col_count += yyleng; return ADD_OP; }
-"-" { col_count += yyleng; return SUB_OP; }
-"*" { col_count += yyleng; return MULT_OP; }
-"/" { col_count += yyleng; return DIV_OP; }
-"%" { col_count += yyleng; return REM_OP; }
-"!" { col_count += yyleng; return NOT_OP; }
-"<" { col_count += yyleng; return LESSTHAN_OP; }
 "<=" { col_count += yyleng; return LESSEQUAL_OP; }
-">" { col_count += yyleng; return GREATERTHAN_OP; }
 ">=" { col_count += yyleng; return GREATEREQUAl_OP; }
 "!=" { col_count += yyleng; return NOTEQUAL_OP; }
 "==" { col_count += yyleng; return COMPARISON_OP; }
 "||" { col_count += yyleng; return OR_OP; }
 "&&" { col_count += yyleng; return AND_OP; }
-"=" { col_count += yyleng; return DEF_EQ; }
 
  /* consts */
 {INTEGER} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return INTCONST; }
@@ -90,7 +82,8 @@ char|path|string|int|float|void {
 {CHAR} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return CHARCONST; }
 {PATH} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return PATHCONST; }
 {STRING} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return STRINGCONST; }
-{SYMBOL} { yylval.op = yytext[0]; col_count += yyleng; return yytext[0]; }
+{CRUNCH_OP} { yylval.op = yytext[1]; col_count += yyleng; return CRUNCH_OP; }
+{SYMBOL} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return yytext[0]; }
 {IDENTIFIER} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return IDENTIFIER; }
 {WHITESPACE}* { col_count += yyleng; }
 
