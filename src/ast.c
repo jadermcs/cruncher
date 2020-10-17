@@ -40,17 +40,23 @@ void astdict(struct ast *t) {
         case 'F':
             printf("FUNCTION\n");
             break;
+        case 'J':
+            printf("JUMP (dtype:%c)\n", t->dtype);
+            break;
         case 'E':
-            printf("SELECTION\n");
+            printf("SELECTION (dtype:%c)\n", t->dtype);
+            break;
+        case 'H':
+            printf("EXPRESSION (dtype:%c)\n", t->dtype);
             break;
         case 'C':
             printf("CRUNCHER (dtype:%c options:%s)\n",t->dtype, t->value.str_ ? t->value.str_ : "NONE");
             break;
         case 'L':
-            printf("LOOPSTMT\n");
+            printf("LOOPSTMT (dtype:%c)\n", t->dtype);
             break;
         case 'R':
-            printf("RELATIONEXP\n");
+            printf("RELATIONEXP (dtype:%c)\n", t->dtype);
             break;
         case '=':
             printf("ASSIGNMENT\n");
@@ -89,7 +95,10 @@ void astdict(struct ast *t) {
             printf("FLOATCONST\n");
             break;
         case '+':
-            printf("ADDITIVEXP\n");
+            printf("ADDITIVEXP (dtype:%c)\n", t->dtype);
+            break;
+        case '*':
+            printf("MULTIPLICATIVEXP (dtype:%c)\n", t->dtype);
             break;
         default:
             printf("UNDEFINED [%c]\n", t->nodetype);

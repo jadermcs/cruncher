@@ -39,6 +39,8 @@ test:
 	@./$(TARGET) tests/test-valid1.hs
 	@echo "------------------------------"
 	@./$(TARGET) tests/test-valid2.hs
+	@echo "------------------------------"
+	@./$(TARGET) tests/test-valid3.hs
 	@echo "\n\n Invalid files..."
 	@echo "------------------------------"
 	@./$(TARGET) tests/test-invalid1.hs

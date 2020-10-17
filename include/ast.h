@@ -1,3 +1,6 @@
+#ifndef AST_H
+#define AST_H
+
 struct ast {
     int nodetype;
     struct ast *l;
@@ -17,3 +20,4 @@ struct ast *newast(int, struct ast *, struct ast *);
 void printast(struct ast *, int);
 
 void astdict(struct ast *);
+#endif

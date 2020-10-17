@@ -19,8 +19,10 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 extern char* strdup(const char*);
-
 extern void yyerror(const char* s);
+extern void add_table(char *, char *);
+extern void print_table();
+extern void free_table();
 struct ast* syntax_tree = NULL;
 %}
 
@@ -74,12 +76,15 @@ declaration:
 ;
 
 var_definition:
-  TYPE identifier ';' { $$ = $2; }
-| TYPE identifier '=' expression ';' { $$ = newast('V', $2, $4); }
+  TYPE identifier ';' { $$ = $2; add_table($2->addr, $1); }
+| TYPE identifier '=' expression ';' { $$ = newast('V', $2, $4); add_table($2->addr, $1); }
 ;
 
 func_definition:
-  TYPE identifier '(' params ')' '{' inner_declarations '}' { $$ = newast('F', $2, newast('F', $4, $7)); }
+  TYPE identifier '(' params ')' '{' inner_declarations '}' {
+    $$ = newast('F', $2, newast('F', $4, $7));
+    add_table($2->addr, $1);
+  }
 ;
 
 params:
@@ -89,7 +94,7 @@ params:
 ;
 
 param:
-  TYPE identifier { $$ = newast('A', $2, NULL); }
+  TYPE identifier { $$ = newast('A', $2, NULL); add_table($2->addr, $1); }
 ;
 
 inner_declarations:
@@ -109,14 +114,18 @@ inner_declaration:
 ;
 
 selection_statement:
-  IF '(' expression ')' '{' inner_declarations '}' {$$ = newast('E', $3, $6); }
+  IF '(' expression ')' '{' inner_declarations '}' {$$ = newast('E', $3, $6); $$->dtype = 'i'; }
 | IF '(' expression ')' '{' inner_declarations '}' ELSE '{' inner_declarations '}' {
-    $$ = newast('E', $3, newast('E', $6, $10)); }
+    struct ast *tmp = newast('E', $3, $6);
+    tmp->dtype = 'i';
+    $$ = newast('E', tmp, $10);
+    $$->dtype = 'e';
+  }
 ;
 
 return_statement:
-  RETURN term ';' { $$ = $2; }
-| RETURN ';' { $$ = NULL; }
+  RETURN term ';' { $$ = newast('J', $2, NULL); $$->dtype = 'r'; }
+| RETURN ';' { $$ = newast('J', NULL, NULL); $$->dtype = 'r'; }
 ;
 
 crunch_statement:
@@ -158,16 +167,19 @@ pathconst:
 ;
 
 while_statement:
-  WHILE '(' expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); }
+  WHILE '(' expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); $$->dtype = 'w'; }
 ;
 
 for_statement:
-  FOR '(' for_expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); }
+  FOR '(' for_expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); $$->dtype = 'f'; }
 ;
 
 for_expression:
-  simple_expression ';' expression ';' expression { $$ = newast('E', $1, newast('E', $3, $5));}
-| sub_expression IN file { $$ = newast('E', $1, $3); }
+  simple_expression ';' expression ';' expression {
+    $$ = newast('E', $1, newast('E', $3, $5));
+    $$->dtype = '3';
+  }
+| sub_expression IN file { $$ = newast('E', $1, $3);  $$->dtype = 'i'; }
 ;
 
 simple_expression:
@@ -176,7 +188,7 @@ simple_expression:
 ;
 
 sub_expression:
-  TYPE identifier { $$ = $2; }
+  TYPE identifier { $$ = $2; add_table($2->addr, $1); }
 | identifier { $$ = $1; }
 ;
 
@@ -185,7 +197,7 @@ identifier:
 ;
 
 expression:
-  expression ',' assignment_expression { $$ = newast('E', $1, $3); }
+  expression ',' assignment_expression { $$ = newast('H', $1, $3); }
 | assignment_expression {$$ = $1; }
 ;
 
@@ -212,23 +224,23 @@ eq_expression:
 
 relational_expression:
   add_expression {$$ = $1;}
-| relational_expression '<' add_expression { $$ = newast('R', $1, $3); }
-| relational_expression LESSEQUAL_OP add_expression { $$ = newast('R', $1, $3); }
-| relational_expression '>' add_expression { $$ = newast('R', $1, $3); }
-| relational_expression GREATEREQUAl_OP add_expression { $$ = newast('R', $1, $3); }
+| relational_expression '<' add_expression { $$ = newast('R', $1, $3); $$->dtype = '<'; }
+| relational_expression LESSEQUAL_OP add_expression { $$ = newast('R', $1, $3); $$->dtype = '2'; }
+| relational_expression '>' add_expression { $$ = newast('R', $1, $3); $$->dtype = '>'; }
+| relational_expression GREATEREQUAl_OP add_expression { $$ = newast('R', $1, $3); $$->dtype = '4'; }
 ;
 
 add_expression:
   mul_expression { $$ = $1; }
-| add_expression '+' mul_expression { $$ = newast('+', $1, $3); }
-| add_expression '-' mul_expression { $$ = newast('+', $1, $3); }
+| add_expression '+' mul_expression { $$ = newast('+', $1, $3); $$->dtype = '+'; }
+| add_expression '-' mul_expression { $$ = newast('+', $1, $3); $$->dtype = '-'; }
 ;
 
 mul_expression:
   term { $$ = $1; }
-| mul_expression '*' term { $$ = newast('*', $1, $3); }
-| mul_expression '/' term { $$ = newast('*', $1, $3); }
-| mul_expression '%' term { $$ = newast('*', $1, $3); }
+| mul_expression '*' term { $$ = newast('*', $1, $3); $$->dtype = '*'; }
+| mul_expression '/' term { $$ = newast('*', $1, $3); $$->dtype = '/'; }
+| mul_expression '%' term { $$ = newast('*', $1, $3); $$->dtype = '%'; }
 ;
 
 exp_statement:
@@ -259,5 +271,7 @@ int main(int argc, char **argv) {
             yyin = stdin;
     yyparse();
     printast(syntax_tree, 0);
+    print_table();
+    free_table();
     return 0;
 }

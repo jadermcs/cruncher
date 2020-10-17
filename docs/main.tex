@@ -140,35 +140,6 @@ These notations convention are used for presenting syntax:
 \alt "long"
 \alt "float"
 \alt "path"
-\alt <struct-or-union-specifier>
-\alt <enum-specifier>
-\alt <typedef-name>
-
-<struct-or-union-specifier> ::= <struct-or-union> <identifier> { {<struct-declaration>}+ }
-\alt <struct-or-union> { {<struct-declaration>}+ }
-\alt <struct-or-union> <identifier>
-
-<struct-or-union> ::= struct | union
-
-<struct-declaration> ::= {<specifier-qualifier>}* <struct-declarator-list>
-
-<specifier-qualifier> ::= <type-specifier> | <type-qualifier>
-
-<struct-declarator-list> ::= <struct-declarator> | <struct-declarator-list> , <struct-declarator>
-
-<struct-declarator> ::= <declarator>
-\alt <declarator> : <constant-expression>
-\alt : <constant-expression>
-
-<declarator> ::= {<pointer>}? <direct-declarator>
-
-<pointer> ::= "*" {<pointer>}?
-
-<direct-declarator> ::= <identifier>
-\alt ( <declarator> )
-\alt <direct-declarator> [ {<constant-expression>}? ]
-\alt <direct-declarator> ( <parameter-type-list> )
-\alt <direct-declarator> ( {<identifier>}* )
 
 <constant-expression> ::= <conditional-expression>
 
@@ -181,15 +152,6 @@ These notations convention are used for presenting syntax:
 <logical-and-expression> ::= <inclusive-or-expression>
 \alt <logical-and-expression> "&&" <inclusive-or-expression>
 
-<inclusive-or-expression> ::= <exclusive-or-expression>
-\alt <inclusive-or-expression> "|" <exclusive-or-expression>
-
-<exclusive-or-expression> ::= <and-expression>
-\alt <exclusive-or-expression> "\string^" <and-expression>
-
-<and-expression> ::= <equality-expression>
-                   | <and-expression> "&" <equality-expression>
-
 <equality-expression> ::= <relational-expression>
 \alt <equality-expression> "==" <relational-expression>
 \alt <equality-expression> "!=" <relational-expression>
@@ -200,10 +162,6 @@ These notations convention are used for presenting syntax:
 \alt <relational-expression> "<=" <shift-expression>
 \alt <relational-expression> ">=" <shift-expression>
 
-<shift-expression> ::= <additive-expression>
-\alt <shift-expression> "<""<" <additive-expression>
-\alt <shift-expression> ">"">" <additive-expression>
-
 <additive-expression> ::= <multiplicative-expression>
 \alt <additive-expression> "+" <multiplicative-expression>
 \alt <additive-expression> "-" <multiplicative-expression>
@@ -213,29 +171,11 @@ These notations convention are used for presenting syntax:
 \alt <multiplicative-expression> "/" <cast-expression>
 \alt <multiplicative-expression> "\%" <cast-expression>
 
-<cast-expression> ::= <unary-expression> | ( <type-name> ) <cast-expression>
-
-<unary-expression> ::= <postfix-expression>
-\alt "++" <unary-expression>
-\alt "-""-" <unary-expression>
-\alt <unary-operator> <cast-expression>
-\alt "sizeof" <unary-expression>
-\alt "sizeof" <type-name>
-
-<postfix-expression> ::= <primary-expression>
-\alt <postfix-expression> [ <expression> ]
-\alt <postfix-expression> ( {<assignment-expression>}* )
-\alt <postfix-expression> "." <identifier>
-\alt <postfix-expression> "->" <identifier>
-\alt <postfix-expression> "++"
-\alt <postfix-expression> "-""-"
-
 <primary-expression> ::= <identifier> | <constant> | <string> | ( <expression> )
 
 <constant> ::= <integer-constant>
 \alt <character-constant>
 \alt <floating-constant>
-\alt <enumeration-constant>
 
 <expression> ::= <assignment-expression> | <expression> , <assignment-expression>
 
@@ -243,8 +183,6 @@ These notations convention are used for presenting syntax:
 \alt <unary-expression> <assignment-operator> <assignment-expression>
 
 <assignment-operator> ::= "="
-
-<unary-operator> ::= "&" | "*" | "+" | "-" | "~" | "!"
 
 <type-name> ::= {<specifier-qualifier>}+ {<abstract-declarator>}?
 
@@ -258,23 +196,9 @@ These notations convention are used for presenting syntax:
                           | {<type-specifier>}+ <abstract-declarator>
                           | {<type-specifier>}+
 
-<abstract-declarator> ::= <pointer>
-\alt <pointer> <direct-abstract-declarator>
-\alt <direct-abstract-declarator>
-
 <direct-abstract-declarator> ::=  ( <abstract-declarator> )
 \alt {<direct-abstract-declarator>}? [ {<constant-expression>}? ]
 \alt {<direct-abstract-declarator>}? ( {<parameter-type-list>}? )
-
-<enum-specifier> ::= enum <identifier> { <enumerator-list> }
-\alt enum { <enumerator-list> }
-\alt enum <identifier>
-
-<enumerator-list> ::= <enumerator> | <enumerator-list> , <enumerator>
-
-<enumerator> ::= <identifier> | <identifier> = <constant-expression>
-
-<typedef-name> ::= <identifier>
 
 <declaration> ::=  {<type-specifier>}+ {<init-declarator>}* ;
 
@@ -471,9 +395,9 @@ is defined with local definitions.
   \begin{tabular}{ccc}
           type & id & value_pointer\\\hline
           int   & func1 & *1\\
-          path & var2 & "/home"\\
+          path & var2 & \\
           float & func3 & *3\\
-          int   & var 1& 123
+          int   & var 1& 
            \end{tabular}
   \end{allintypewriter}
  \end{tabular}
@@ -489,7 +413,7 @@ is defined with local definitions.
   \begin{allintypewriter}
   \begin{tabular}{ccc}
           type & id & local_table\\\hline
-          int   & var1 & 1234 \\
+          int   & var1 & \\
           int   & funcl2 & *2
            \end{tabular}
   \end{allintypewriter}
@@ -505,7 +429,7 @@ is defined with local definitions.
   \begin{allintypewriter}
   \begin{tabular}{ccc}
           type & id & local_table\\\hline
-          float & var2 & 123.123
+          float & var2 &
            \end{tabular}
   \end{allintypewriter}
  \end{tabular}
@@ -520,9 +444,9 @@ is defined with local definitions.
   \textbf{Local Table 3}\\
   \begin{allintypewriter}
   \begin{tabular}{ccc}
-          type & id & local_table\\\hline
-          int   & var1 & NULL\\
-          float & var2 & 213.32
+      type & id & local_table\\\hline
+      int   & var1 \\
+      float & var2
            \end{tabular}
   \end{allintypewriter}
  \end{tabular}
@@ -536,10 +460,30 @@ is defined with local definitions.
 \caption{Example of symbol table.}
 \end {figure}
 
+So for a given identifier the symbol is searched in the possible stacked scope
+until it reaches the end, returning and error of finding the symbol type.
+
 \section{Syntax Tree}%
 \label{sec:syntax}
-The syntax tree for the cruncher language is based on LR(1) it was built using
-unions handling the node values and structs to handle the growing tree.
+The syntax tree for the cruncher language is based on LALR, it was built using
+structs with extra variables to handle the node values. The following code
+presents this struct:
+\begin{verbatim}
+struct ast {
+    int nodetype;
+    struct ast *l;
+    struct ast *r;
+    char dtype;
+    char *addr;
+    union {
+        char *str_;
+        float float_;
+        int int_;
+        char char_;
+    } value;
+};
+
+\end{verbatim}
 
 
 \section{Test files}
@@ -552,8 +496,7 @@ valid ones have the \texttt{test-valid} prefix, and the invalid,
 This project provides a Makefile for compiling and testing, to compile run the
 following commands in terminal:
 \begin{verbatim}
-    $ make flex
-    $ make bison
+    $ make lang
     $ make
 \end{verbatim}
 

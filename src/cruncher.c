@@ -2,18 +2,17 @@
 
 symbolTable *s, *tmp, *symbol_table = NULL;
 
-void add_table(char *id, int address, enum yytokentype type) {
+void add_table(char *id, char *type) {
     s = (symbolTable *)malloc(sizeof *s);
     strcpy(s->id, id);
-    s->address = address;
-    s->type = type;
+    strcpy(s->type, type);
     HASH_ADD_STR(symbol_table, id, s);
 }
 
 void print_table() {
-    printf("\n\tSymbol Table\n-------------------------\nid\taddress\ttype\n");
+    printf("\n\tSymbol Table\n-------------------------\nid\ttype\n");
     HASH_ITER(hh, symbol_table, s, tmp) {
-        printf("%s\t%d\t%d\n", s->id, s->address, s->type);
+        printf("%s\t%s\n", s->id, s->type);
     }
 
 }
