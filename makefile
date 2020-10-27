@@ -36,15 +36,15 @@ test:
 	@echo " Running tests..."
 	@echo " Valid files:"
 	@echo "------------------------------"
-	@./$(TARGET) tests/test-valid1.hs
+	@./$(TARGET) tests/test-valid1.cr
 	@echo "------------------------------"
-	@./$(TARGET) tests/test-valid2.hs
+	@./$(TARGET) tests/test-valid2.cr
 	@echo "------------------------------"
-	@./$(TARGET) tests/test-valid3.hs
-	@echo "\n\n Invalid files..."
+	@./$(TARGET) tests/test-valid3.cr
+	@echo "\n\n Invalid files:"
 	@echo "------------------------------"
-	@./$(TARGET) tests/test-invalid1.hs
+	@./$(TARGET) tests/test-invalid1.cr
 	@echo "------------------------------"
-	@./$(TARGET) tests/test-invalid2.hs
+	@./$(TARGET) tests/test-invalid2.cr
 
 .PHONY: clean_all

@@ -83,7 +83,7 @@ char|path|string|int|float|void {
 {PATH} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return PATHCONST; }
 {STRING} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return STRINGCONST; }
 {CRUNCH_OP} { yylval.op = yytext[1]; col_count += yyleng; return CRUNCH_OP; }
-{SYMBOL} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return yytext[0]; }
+{SYMBOL} { col_count += yyleng; return yytext[0]; }
 {IDENTIFIER} { yylval.str = (char *)strdup(yytext); col_count += yyleng; return IDENTIFIER; }
 {WHITESPACE}* { col_count += yyleng; }
 
@@ -106,7 +106,8 @@ int yywrap(void) {
 }
 
 void yyerror(const char *s){
-  fprintf(stderr, "%d: %s\n", yylineno, s);
+  fprintf(stderr, "line %d column %d has an error: %s\n",
+            yylineno, yyleng, s);
   has_error = 1;
 }
 

@@ -7,6 +7,7 @@ struct ast {
     struct ast *r;
     char dtype;
     char *addr;
+    int flag;
     union {
         char *str_;
         float float_;
@@ -17,7 +18,9 @@ struct ast {
 
 struct ast *newast(int, struct ast *, struct ast *);
 
-void printast(struct ast *, int);
+void print_ast(struct ast *, int);
+
+void free_ast(struct ast *);
 
 void astdict(struct ast *);
 #endif

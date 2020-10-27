@@ -91,9 +91,9 @@ besides not being so trivial to describe any computation in this paradigm
 
 This paper proposes a language designed for \textbf{data processing} in
 shell, specifically files, and folder processing in a standardized syntax,
-it resembles the \textit{bash} language but it adds a semantically
-consistent operation for external tools with an intuitive syntax. It is
-organized in the following manner, Section \ref{sec:formal} describes the
+it resembles the \textit{C} language but it adds a data type ``path'' and a
+semantically consistent operation for external tools with an intuitive syntax.
+It is organized in the following manner, Section \ref{sec:formal} describes the
 formal grammar for Cruncher language, \ref{sec:semantics} presents the
 semantics of principal keywords in the language, and finally, Section
 \ref{sec:conclusion} concludes the paper.
@@ -239,19 +239,15 @@ These notations convention are used for presenting syntax:
 In the first version, the lexical syntax presented errors as advanced structures
 were recognized at this step, but those more complex structures should be
 recognized in the parser phase by a free context grammar. The second version
-corrected major problems but as a purelly functional language it would require
-extra steps, resulting in extra work. The new grammar is based on C so many
-changes were applied.
-
+corrected major problems. The new grammar is based on C, instead of Haskell
+which was the previous base language, so many changes were applied.
 
 
 \section{Semantics}
 \label{sec:semantics}
 The language's main feature is inspired in the MapReduce paradigm, which is a
 popular design for data processing frameworks, so this language uses C
-structural paradigm as his basis semantic. To facilitate the implementation
-many of the types will not be implemented, only a subset of those (to have the
-basics functionality) will be implemented. In this section we discuss the
+structured paradigm as his basis semantic. In this section we discuss the
 semantics and exemplify the usage:
 
 First, we begin exemplifying the <crunch> keyword:
@@ -259,8 +255,8 @@ First, we begin exemplifying the <crunch> keyword:
 \begin{verbatim}
 /* replaces every occurrence of cat word in the files inplace.*/
 int main() {
-    path input = "/home/jader/files/*.txt";
-    path output = ".";
+    path input = ."/home/jader/files/*.txt";
+    path output = .".";
     crunch (input $!("s/cat/dog/g") output);
     return 0;
 }
@@ -268,8 +264,8 @@ int main() {
 
 /*moves every content from those .txt files to a single .json file in json folder.*/
 int main() {
-    path input = "/home/jader/files/*.txt";
-    path output = "_/home/jader/json/file.json";
+    path input = ."/home/jader/files/*.txt";
+    path output = _"/home/jader/json/file.json";
     crunch (input $> output);
     return 0;
 }
@@ -283,24 +279,22 @@ the following Unix shell commands: \texttt{mv}, \texttt{rename}, \texttt{sed},
 
 The type of operation alternates the kind of matching between files, some have
 a direct mapping, some perform an aggregation, and others both. For in-place
-mapping, the output files can be implicitly defined by ``.'' if aggregation is
-we must specify the  ``\_'' to be performed.
+mapping, the output files can be implicitly defined by ``.'', if an aggregation
+is performed, we must specify the  ``\_'' to be performed.
 
 \begin{table}[ht]
-\centering
-\caption{Operations description}
-\label{tab:operations}
-\begin{tabular}{|c|c|l|}
-\hline
-Operation   & Symbol & Description\\ \hline
-Move        & >      & Move given files or directories \\
-Rename      & \&     & Renames given files or directories \\
-Edit        & !      & Stream editor operations \\
-Compression & @      & Compress files and/or directories using tar \\
-Hash        & *     & Calculates the hash \\
-Copy        & +     & Copy given files or directories \\
-\hline
-\end{tabular}
+    \centering
+    \caption{Operations description}
+    \label{tab:operations}
+    \begin{tabular}{|c|c|l|} \hline
+        Operation   & Symbol & Description\\ \hline
+        Move        & >      & Move given files or directories \\
+        Rename      & \&     & Renames given files or directories \\
+        Edit        & !      & Stream editor operations \\
+        Compression & @      & Compress files and/or directories using tar \\
+        Hash        & *     & Calculates the hash \\
+        Copy        & +     & Copy given files or directories \\ \hline
+    \end{tabular}
 \end{table}
 
 % \begin{table}[ht]
@@ -365,8 +359,8 @@ defined in the following manner:
 \end{verbatim}
 
 When an error occurs in the scanning phase, the scanner saves those pieces of
-information in a struct and continues the scanning process. In the end, those
-errors are reported. Here is an example:
+information in a \texttt{struct} and continues the scanning process. In the
+end, those errors are reported. Here is an example:
 
 \begin{verbatim}
 typedef struct {
@@ -377,6 +371,9 @@ typedef struct {
      int at_column[64];
 } lexErrors;
 \end{verbatim}
+
+When an error occurs in the parsing phase, the parser outputs the line and the
+kind of error.
 
 \section{Symbol Table}
 In Figure \ref{fig:symboltable} is shown an example of references in symbol
@@ -393,11 +390,11 @@ is defined with local definitions.
   \textbf{Global Table}\\
   \begin{allintypewriter}
   \begin{tabular}{ccc}
-          type & id & value_pointer\\\hline
+          type & id & local_table\\\hline
           int   & func1 & *1\\
           path & var2 & \\
           float & func3 & *3\\
-          int   & var 1& 
+          int   & var 1&
            \end{tabular}
   \end{allintypewriter}
  \end{tabular}

@@ -989,7 +989,7 @@ YY_RULE_SETUP
 case 24:
 YY_RULE_SETUP
 #line 86 "src/cruncher_lex.l"
-{ yylval.str = (char *)strdup(yytext); col_count += yyleng; return yytext[0]; }
+{ col_count += yyleng; return yytext[0]; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
@@ -2007,7 +2007,8 @@ int yywrap(void) {
 }
 
 void yyerror(const char *s){
-  fprintf(stderr, "%d: %s\n", yylineno, s);
+  fprintf(stderr, "line %d column %d has an error: %s\n",
+            yylineno, yyleng, s);
   has_error = 1;
 }
 

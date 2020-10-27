@@ -18,14 +18,30 @@ struct ast *newast(int nodetype, struct ast *l, struct ast *r) {
     return a;
 }
 
-void printast(struct ast *t, int depth) {
+void print_ast(struct ast *t, int depth) {
     if (t == NULL) return;
-    else {
-        for (int i = 0; i < depth; ++i) printf("--");
-        astdict(t);
-        printast(t->l, depth+1);
-        printast(t->r, depth+1);
+    for (int i = 0; i < depth; ++i) printf("--");
+    astdict(t);
+    print_ast(t->l, depth+1);
+    print_ast(t->r, depth+1);
+    return;
+}
+
+void free_ast(struct ast *t) {
+    if (t == NULL) return;
+    free_ast(t->l);
+    free_ast(t->r);
+    switch (t->nodetype) {
+        case 'C':
+        case 's':
+        case 'p':
+            free(t->value.str_);
+            break;
+        case 'I':
+            free(t->addr);
+            break;
     }
+    free(t);
     return;
 }
 
@@ -50,7 +66,10 @@ void astdict(struct ast *t) {
             printf("EXPRESSION (dtype:%c)\n", t->dtype);
             break;
         case 'C':
-            printf("CRUNCHER (dtype:%c options:%s)\n",t->dtype, t->value.str_ ? t->value.str_ : "NONE");
+            if (t->value.str_)
+                printf("CRUNCHER (dtype:%c options:%s)\n",t->dtype, t->value.str_);
+            else
+                printf("CRUNCHER (dtype:%c options:%s)\n",t->dtype, "NONE");
             break;
         case 'L':
             printf("LOOPSTMT (dtype:%c)\n", t->dtype);
@@ -102,5 +121,7 @@ void astdict(struct ast *t) {
             break;
         default:
             printf("UNDEFINED [%c]\n", t->nodetype);
+            break;
     }
+    return;
 }

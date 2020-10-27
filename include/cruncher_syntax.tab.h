@@ -76,8 +76,7 @@ extern int yydebug;
     STRINGCONST = 286,
     PATHCONST = 287,
     TYPE = 288,
-    CRUNCH_OP = 289,
-    SYMBOL = 290
+    CRUNCH_OP = 289
   };
 #endif
 
@@ -86,7 +85,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 29 "src/cruncher_syntax.y" /* yacc.c:1909  */
+#line 30 "src/cruncher_syntax.y" /* yacc.c:1909  */
 
   char *id;
   char *type;
@@ -94,7 +93,7 @@ union YYSTYPE
   char *str;
   struct ast *node;
 
-#line 98 "include/cruncher_syntax.tab.h" /* yacc.c:1909  */
+#line 97 "include/cruncher_syntax.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

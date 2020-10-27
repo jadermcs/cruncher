@@ -19,6 +19,7 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 extern char* strdup(const char*);
+extern int yylex_destroy();
 extern void yyerror(const char* s);
 extern void add_table(char *, char *);
 extern void print_table();
@@ -49,15 +50,16 @@ struct ast* syntax_tree = NULL;
 %type <str> options
 
 %token WHILE FOR IN IF ELSE CRUNCH RETURN
-%right ADD_OP SUB_OP MULT_OP DIV_OP REM_OP
-%right NOT_OP LESSTHAN_OP LESSEQUAL_OP GREATERTHAN_OP GREATEREQUAl_OP
-%right NOTEQUAL_OP COMPARISON_OP OR_OP AND_OP
-%left COLON DEF_EQ PIPE
+%token ADD_OP SUB_OP MULT_OP DIV_OP REM_OP
+%token NOT_OP LESSTHAN_OP LESSEQUAL_OP GREATERTHAN_OP GREATEREQUAl_OP
+%token NOTEQUAL_OP COMPARISON_OP
+%right OR_OP AND_OP
+%token COLON DEF_EQ PIPE
 
 %token <id> IDENTIFIER
 %token <str> INTCONST FLOATCONST CHARCONST STRINGCONST PATHCONST
 %token <type> TYPE
-%token <op> CRUNCH_OP SYMBOL
+%token <op> CRUNCH_OP
 
 %%
 
@@ -76,25 +78,26 @@ declaration:
 ;
 
 var_definition:
-  TYPE identifier ';' { $$ = $2; add_table($2->addr, $1); }
-| TYPE identifier '=' expression ';' { $$ = newast('V', $2, $4); add_table($2->addr, $1); }
+  TYPE identifier ';' { $$ = $2; add_table($2->addr, $1); free($1); }
+| TYPE identifier '=' expression ';' { $$ = newast('V', $2, $4); add_table($2->addr, $1); free($1); }
 ;
 
 func_definition:
   TYPE identifier '(' params ')' '{' inner_declarations '}' {
     $$ = newast('F', $2, newast('F', $4, $7));
     add_table($2->addr, $1);
+    free($1);
   }
 ;
 
 params:
   params ',' param { $$ = newast('P', $1, $3);}
 | param { $$ = $1; }
-| { $$ = NULL; }
+| %empty { $$ = NULL; }
 ;
 
 param:
-  TYPE identifier { $$ = newast('A', $2, NULL); add_table($2->addr, $1); }
+  TYPE identifier { $$ = newast('A', $2, NULL); add_table($2->addr, $1); free($1);}
 ;
 
 inner_declarations:
@@ -133,7 +136,7 @@ crunch_statement:
     $$ = newast('C', $3, $6);
     $$->dtype = $4;
     if ($5) $$->value.str_ = (char *)strdup($5);
-    printf("%s\n",$5);
+    else $$->value.str_ = NULL;
     free($5);
 }
 ;
@@ -145,14 +148,14 @@ file:
 
 options:
   '(' STRINGCONST ')' { $$ = $2; }
-| { $$ = NULL; }
+| %empty { $$ = NULL; }
 ;
 
 term:
   identifier {$$ = $1;}
-| INTCONST {$$ = newast('i', NULL, NULL); $$->value.int_ = atoi($1); free($1);}
-| FLOATCONST {$$ = newast('f', NULL, NULL);}
-| CHARCONST {$$ = newast('c', NULL, NULL);}
+| INTCONST {$$ = newast('i', NULL, NULL); $$->value.int_ = atoi($1); free($1); }
+| FLOATCONST {$$ = newast('f', NULL, NULL); $$->value.float_ = atof($1); free($1); }
+| CHARCONST {$$ = newast('c', NULL, NULL); $$->value.char_ = $1[0]; free($1); }
 | STRINGCONST {$$ = newast('s', NULL, NULL); $$->value.str_ = strdup($1); free($1); }
 | pathconst {$$ = $1; }
 ;
@@ -188,7 +191,7 @@ simple_expression:
 ;
 
 sub_expression:
-  TYPE identifier { $$ = $2; add_table($2->addr, $1); }
+  TYPE identifier { $$ = $2; add_table($2->addr, $1); free($1);}
 | identifier { $$ = $1; }
 ;
 
@@ -254,7 +257,7 @@ call:
 
 args:
  args_list {$$ = $1; }
-| {$$ = NULL; }
+| %empty {$$ = NULL; }
 ;
 args_list:
   args_list ',' term { $$ = newast('G', $1, $3); }
@@ -270,8 +273,11 @@ int main(int argc, char **argv) {
     else
             yyin = stdin;
     yyparse();
-    printast(syntax_tree, 0);
+    print_ast(syntax_tree, 0);
     print_table();
     free_table();
+    free_ast(syntax_tree);
+    fclose(yyin);
+    yylex_destroy();
     return 0;
 }
