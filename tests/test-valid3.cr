@@ -1,8 +1,11 @@
 void hello(){
+    int hello_var = 2;
+    path hello_path;
     return;
 }
 
 int main() {
     int a = 1;
+    int b = 2;
     return 0;
 }

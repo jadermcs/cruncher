@@ -9,16 +9,12 @@
 %output  "src/cruncher_syntax.tab.c"
 %defines "include/cruncher_syntax.tab.h"
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "uthash.h"
+#include "cruncher.h"
 #include "ast.h"
 extern int yylineno;
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
-extern char* strdup(const char*);
 extern int yylex_destroy();
 extern void yyerror(const char* s);
 extern void add_table(char *, char *);
@@ -86,6 +82,8 @@ func_definition:
   TYPE identifier '(' params ')' '{' inner_declarations '}' {
     $$ = newast('F', $2, newast('F', $4, $7));
     add_table($2->addr, $1);
+    push_addr($2->addr);
+    push_st();
     free($1);
   }
 ;

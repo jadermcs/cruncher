@@ -465,6 +465,7 @@ until it reaches the end, returning and error of finding the symbol type.
 The syntax tree for the cruncher language is based on LALR, it was built using
 structs with extra variables to handle the node values. The following code
 presents this struct:
+
 \begin{verbatim}
 struct ast {
     int nodetype;
@@ -479,8 +480,10 @@ struct ast {
         char char_;
     } value;
 };
-
 \end{verbatim}
+
+The grammar is constructed with a binary tree, if a single rule needs more than
+two nodes it expands left-recursive in nodes.
 
 
 \section{Test files}
