@@ -61,18 +61,18 @@
 The Unix Shell is a general denomination for a command-line interpreter
 (and a scripting language) that provides for users and systems admins an
 interface to control the execution of operating system task's in Unix-like
-environments \cite{negus2010linux}, this name comes from earlier times
+environments \cite{negus2010linux}. This name comes from earlier times
 when OS had this only interface covering the user interaction (like a shell
 protecting the pearl). The Shell provides a way to create executable scripts,
 execute programs, manage file-systems, compile code, and other general computer
 manipulation tasks \cite{negus2010linux,blum2008linux}.
 
-Although Shell is a very old computer technology later being replaced by
+Although shells are a very old computer technology, later being replaced by
 graphical interfaces, many users (specially super-users) prefer this less
 intuitive interface \cite{newham2005learning} for daily tasks. The \textit{sh}
 is the precursor project and the default shell in many Unix distributions but
 many other shells were also developed with similar behavior but distinct
-orientation, to cite a few, the most popular ones are \textit{bash}
+orientation. To cite a few, the most popular ones are \textit{bash}
 \cite{bash}, \textit{zsh} \cite{zsh}, and \textit{fish} \cite{fish}.
 
 Allied with the Shell, many external tools were developed to supply the needs
@@ -81,22 +81,28 @@ any of those shell scripting languages resulting in an inconsistent language for
 file handling and operations. Tools like tar, sed, md5, etc, each has a
 distinct parameter handling paradigm.
 
-In modern \textbf{data processing}, a computing paradigm presented himself
-as a suitable and intuitive way to describe massive computations and is
-adopted by major frameworks like Hadoop, Spark, and Kafka. The MapReduce
-is a computational paradigm that decomposes computations in a Maps and
-Reduction operations, it has a clear and efficient model of computation
-besides not being so trivial to describe any computation in this paradigm
+In modern \textbf{data processing}, a computing paradigm presented itself as a
+suitable and intuitive way to describe massive computations and is adopted by
+major frameworks like Hadoop \cite{white2012hadoop}, Spark
+\cite{chambers2018spark}, and Kafka \cite{narkhede2017kafka}. The MapReduce is
+a computational paradigm that decomposes computations in Maps and Reduction
+operations. It has a clear and efficient model of computation besides not being
+so trivial to describe any computation in this paradigm
 \cite{afrati2012vision}.
 
-This paper proposes a language designed for \textbf{data processing} in
-shell, specifically files, and folder processing in a standardized syntax,
-it resembles the \textit{C} language but it adds a data type ``path'' and a
+This paper proposes a language designed for \textbf{data processing} in shell,
+specifically files, and folder processing in a standardized syntax, it
+resembles the \textit{C} language but it adds a data type ``path'' and a
 semantically consistent operation for external tools with an intuitive syntax.
-It is organized in the following manner, Section \ref{sec:formal} describes the
-formal grammar for Cruncher language, \ref{sec:semantics} presents the
-semantics of principal keywords in the language, and finally, Section
-\ref{sec:conclusion} concludes the paper.
+It is organized in the following manner: Section \ref{sec:formal} describes the
+formal grammar for Cruncher language, Section \ref{sec:semantics} presents the
+semantics of principal keywords in the language, Section \ref{sec:error}
+describes how it deals with erros, \ref{sec:proc} describes some procedures
+applied by the scanner, \ref{sec:symtable} presents how it deals with
+symbols , Section \ref{sec:syntax} presents how the Abstract Syntax Tree was
+built, Sections \ref{sec:test} and \ref{sec:compiling} presents compiling and
+testing the language, and finally, Section \ref{sec:conclusion} concludes the
+paper.
 
 \section{Formal Description}
 \label{sec:formal}
@@ -247,7 +253,7 @@ which was the previous base language, so many changes were applied.
 \label{sec:semantics}
 The language's main feature is inspired in the MapReduce paradigm, which is a
 popular design for data processing frameworks, so this language uses C
-structured paradigm as his basis semantic. In this section we discuss the
+structured paradigm as his basis semantics. In this section we discuss the
 semantics and exemplify the usage:
 
 First, we begin exemplifying the <crunch> keyword:
@@ -314,6 +320,7 @@ is performed, we must specify the  ``\_'' to be performed.
 % \end{table}
 
 \section{Error Handling}
+\label{sec:error}
 For the scanner phase, only local structures are recognized, so we use counters,
 for line and column, to track locations of points with unrecognized tokens,
 i.e., \texttt{line_count} and \texttt{line_count}, respectively. The
@@ -345,6 +352,7 @@ If any other pattern is unrecognized it is captured by the `.', and reported
 latter.
 
 \section{Procedures}
+\label{sec:proc}
 The Flex scanner provides many directives and variables to help in the scanning
 process, four directives of this tool was used, \texttt{yyleng},
 \texttt{yytext}, \texttt{yyin} and \texttt{yylineno}. The \texttt{yyleng}
@@ -376,9 +384,11 @@ When an error occurs in the parsing phase, the parser outputs the line and the
 kind of error.
 
 \section{Symbol Table}
+\label{sec:symtable}
 In Figure \ref{fig:symboltable} is shown an example of references in symbol
-table, initially a global table is created and for each function a local table
-is defined with local definitions.
+table, the symbol table is based on a hash map provided by \texttt{uthash} lib
+\cite{hanson2013uthash}, initially a global table is created and for each
+function a local table is defined with local definitions.
 
 \begin{figure}[ht]
 \label{fig:symboltable}
@@ -487,7 +497,8 @@ two nodes it expands left-recursive in nodes.
 
 
 \section{Test files}
-There are two files for valid code examples and two for invalid codes, the
+\label{sec:test}
+There are two files for valid code examples and two for invalid codes. The
 valid ones have the \texttt{test-valid} prefix, and the invalid,
 \texttt{test-invalid} prefix.
 
