@@ -14,10 +14,7 @@
 %{
 #include <cruncher.h>
 extern char* strdup(const char*);
-lexErrors errors;
 int col_count = 1;
-enum yytokentype current_type=1;
-int current_addr=0;
 %}
 
 %x          COMMENTLINE
@@ -43,11 +40,7 @@ CRUNCH_OP   ${SYMBOL}
 <COMMENTBLOCK>"*/" { col_count += yyleng; BEGIN(INITIAL); }
 <COMMENTBLOCK>. { col_count += yyleng; }
 <COMMENTBLOCK><<EOF>> {
-    int error_num = errors.error_count;
-    strcpy(errors.error_msg[error_num], "Unexpected end of file while in comment.");
-    errors.at_line[error_num] = yylineno;
-    errors.at_column[error_num] = col_count;
-    errors.error_count++;
+    fprintf(stderr, "unexpected end of file while in comment.");
     BEGIN(INITIAL);
     yyterminate();
 }
@@ -90,11 +83,8 @@ char|path|string|int|float|void {
  /*non matching*/
 . {
     col_count += yyleng;
-    int error_num = errors.error_count;
-    strcpy(errors.error_msg[error_num], yytext);
-    errors.at_line[error_num] = yylineno;
-    errors.at_column[error_num] = col_count;
-    errors.error_count++;
+    fprintf(stderr, "scanning error in line %d column %d: %s\n",
+            yylineno, yyleng, yytext);
 }
 
 %%
@@ -106,7 +96,7 @@ int yywrap(void) {
 }
 
 void yyerror(const char *s){
-  fprintf(stderr, "line %d column %d has an error: %s\n",
+  fprintf(stderr, "parsing error in line %d column %d: %s\n",
             yylineno, yyleng, s);
   has_error = 1;
 }

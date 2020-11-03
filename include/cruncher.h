@@ -13,13 +13,6 @@
                                 (type), yylineno, yytext);
 
 typedef struct {
-    char error_msg[64][128];
-    int error_count;
-    int at_line[64];
-    int at_column[64];
-} lexErrors;
-
-typedef struct {
     char id[64];
     char type[8];
     UT_hash_handle hh;

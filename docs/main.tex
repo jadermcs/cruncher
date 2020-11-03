@@ -242,11 +242,11 @@ These notations convention are used for presenting syntax:
 \end{grammar}
 
 \subsection{Changes and Updates}
-In the first version, the lexical syntax presented errors as advanced structures
-were recognized at this step, but those more complex structures should be
-recognized in the parser phase by a free context grammar. The second version
-corrected major problems. The new grammar is based on C, instead of Haskell
-which was the previous base language, so many changes were applied.
+In the first version, the lexical syntax presented errors as complex structures
+(e.g. context free grammars) were trying to be recognized at this step, but
+those more complex structures should be recognized in the parser phase. The
+second version corrected major problems. The new grammar is based on C, instead
+of Haskell which was the previous base language, so many changes were applied.
 
 
 \section{Semantics}
@@ -366,22 +366,14 @@ defined in the following manner:
                                 (type), yytext, line_count);
 \end{verbatim}
 
-When an error occurs in the scanning phase, the scanner saves those pieces of
-information in a \texttt{struct} and continues the scanning process. In the
-end, those errors are reported. Here is an example:
+There are two possible errors for scanning phase, (i) file ending in an
+non terminated comment and (ii) a token not being recognized, generally given by
+an special character in an non comment/string token. When an error occurs in the
+scanning phase, this error is immediately reported and the scanning continues.
 
-\begin{verbatim}
-typedef struct {
-     char error_type[64][16];
-     char error_msg[64][128];
-     int error_count;
-     int at_line[64];
-     int at_column[64];
-} lexErrors;
-\end{verbatim}
-
-When an error occurs in the parsing phase, the parser outputs the line and the
-kind of error.
+When an error occurs in the parsing phase (bad grammar construction), the
+parser outputs the line and the kind of error and immediately terminates the
+parsing.
 
 \section{Symbol Table}
 \label{sec:symtable}
@@ -493,8 +485,35 @@ struct ast {
 \end{verbatim}
 
 The grammar is constructed with a binary tree, if a single rule needs more than
-two nodes it expands left-recursive in nodes.
+two nodes it expands left-recursive in nodes. For each node, if it is a
+variable its type is set in dtype variable, if it is a crunch operation its
+arguments are stored in addr.
 
+\section{Semantic Analysis}
+After the abstract tree was built in the semantic analysis are verified if the
+types are adequate to applied operations and if some type conversion should be
+executed.
+
+In the node assignment and/or operations, the tree search every operand if it
+matches the expected type, if not it tries to convert to the expected type, if
+is not possible (e.g. string to float) it return an error.
+
+In the case when operations are applied under an id, we search for the id type
+in the symbol table to perform the same operation as above.
+
+There are two kinds of type conversion, between numerical types (e.g. bool,
+float, int) and between alphanumerical (e.g. char, string, path). The numerical
+type type we convert bool to int by his binary representation (e.g. 0, 1), for
+the opposite conversion we check if the integer is positive for true or
+zero/negative for false. The float to int is just truncated to the upper
+integer, the opposite conversion just represents it as in IEEE 754
+\cite{ieee754}. By this process we can convert bool to float or float to bool
+as explained above.
+
+The alphanumerical types
+
+Additionally, char can be converted to integer with his bits representation
+directly.
 
 \section{Test files}
 \label{sec:test}
