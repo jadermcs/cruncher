@@ -80,6 +80,9 @@ void astdict(struct ast *t) {
         case '=':
             printf("ASSIGNMENT\n");
             break;
+        case 'B':
+            printf("BOOLEXP\n");
+            break;
         case 'G':
             printf("ARGS\n");
             break;
@@ -98,26 +101,11 @@ void astdict(struct ast *t) {
         case 'I':
             printf("IDENTIFIER (id:%s)\n", t->addr);
             break;
-        case 'p':
-            printf("PATHCONST (value:%s dtype:%c)\n", t->value.str_, t->dtype);
-            break;
         case 'c':
-            printf("CHARCONST\n");
+            printf("CONST (dtype:%c)\n", t->dtype);
             break;
-        case 'i':
-            printf("INTCONST (value:%d)\n", t->value.int_);
-            break;
-        case 's':
-            printf("STRINGCONST (value:%s)\n", t->value.str_);
-            break;
-        case 'f':
-            printf("FLOATCONST\n");
-            break;
-        case '+':
-            printf("ADDITIVEXP (dtype:%c)\n", t->dtype);
-            break;
-        case '*':
-            printf("MULTIPLICATIVEXP (dtype:%c)\n", t->dtype);
+        case 'Z':
+            printf("ARITHMETICEXP (dtype:%c)\n", t->dtype);
             break;
         default:
             printf("UNDEFINED [%c]\n", t->nodetype);

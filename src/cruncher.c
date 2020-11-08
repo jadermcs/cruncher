@@ -2,6 +2,8 @@
 
 symbolTable *s, *tmp, *symbol_table = NULL;
 addr_stack *a_stack = NULL;
+extern int yylineno;
+extern int yyleng;
 st_stack *s_stack = NULL;
 
 void add_table(char *id, char *type) {
@@ -86,4 +88,22 @@ const char* yytokenstring(enum yytokentype tok_type) {
         case(CRUNCH_OP): return "CRUNCH_OP";
         default: return "[Err] Unknown Token Type";
     }
+}
+
+int type_match(char f_dtype, char s_dtype) {
+    switch (f_dtype) {
+        case 'i':
+            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 1;
+            else return 0;
+        case 'f':
+            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 1;
+            else return 0;
+        default:
+            return 0;
+    }
+}
+
+void error_type() {
+    fprintf(stderr, "type error in line %d column %d.", yylineno, yyleng);
+    exit(1);
 }

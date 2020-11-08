@@ -151,18 +151,38 @@ options:
 
 term:
   identifier {$$ = $1;}
-| INTCONST {$$ = newast('i', NULL, NULL); $$->value.int_ = atoi($1); free($1); }
-| FLOATCONST {$$ = newast('f', NULL, NULL); $$->value.float_ = atof($1); free($1); }
-| CHARCONST {$$ = newast('c', NULL, NULL); $$->value.char_ = $1[0]; free($1); }
-| STRINGCONST {$$ = newast('s', NULL, NULL); $$->value.str_ = strdup($1); free($1); }
+| INTCONST {
+    $$ = newast('c', NULL, NULL);
+    $$->dtype = 'i';
+    $$->value.int_ = atoi($1);
+    free($1);
+  }
+| FLOATCONST {
+    $$ = newast('c', NULL, NULL);
+    $$->dtype = 'f';
+    $$->value.float_ = atof($1);
+    free($1);
+  }
+| CHARCONST {
+    $$ = newast('c', NULL, NULL);
+    $$->dtype = 'c';
+    $$->value.char_ = $1[0];
+    free($1);
+  }
+| STRINGCONST {
+    $$ = newast('c', NULL, NULL);
+    $$->dtype = 's';
+    $$->value.str_ = strdup($1);
+    free($1); }
 | pathconst {$$ = $1; }
 ;
 
 pathconst:
   PATHCONST {
-    $$ = newast('p', NULL, NULL);
+    $$ = newast('c', NULL, NULL);
     $$->value.str_ = strdup($1);
-    $$->dtype = $1[0];
+    $$->dtype = 'p';
+    $$->flag = $1[0];
     free($1);
 }
 ;
@@ -209,39 +229,91 @@ assignment_expression:
 
 conditional_expression:
   and_expression { $$ = $1; }
-| conditional_expression OR_OP conditional_expression {$$ = newast('|', $1, $3);}
+| conditional_expression OR_OP conditional_expression {
+    $$ = newast('B', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
 ;
 
 and_expression:
   eq_expression { $$ = $1; }
-| and_expression AND_OP and_expression { $$ = newast('&', $1, $3); }
+| and_expression AND_OP and_expression {
+    $$ = newast('B', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
 ;
 
 eq_expression:
   relational_expression { $$ = $1; }
-| eq_expression COMPARISON_OP relational_expression { $$ = newast('=', $1, $3); }
-| eq_expression NOTEQUAL_OP relational_expression { $$ = newast('=', $1, $3); }
+| eq_expression COMPARISON_OP relational_expression {
+    $$ = newast('R', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
+| eq_expression NOTEQUAL_OP relational_expression {
+    $$ = newast('R', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
 ;
 
 relational_expression:
   add_expression {$$ = $1;}
-| relational_expression '<' add_expression { $$ = newast('R', $1, $3); $$->dtype = '<'; }
-| relational_expression LESSEQUAL_OP add_expression { $$ = newast('R', $1, $3); $$->dtype = '2'; }
-| relational_expression '>' add_expression { $$ = newast('R', $1, $3); $$->dtype = '>'; }
-| relational_expression GREATEREQUAl_OP add_expression { $$ = newast('R', $1, $3); $$->dtype = '4'; }
+| relational_expression '<' add_expression {
+    $$ = newast('R', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
+| relational_expression LESSEQUAL_OP add_expression {
+    $$ = newast('R', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
+| relational_expression '>' add_expression {
+    $$ = newast('R', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
+| relational_expression GREATEREQUAl_OP add_expression {
+    $$ = newast('R', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
 ;
 
 add_expression:
   mul_expression { $$ = $1; }
-| add_expression '+' mul_expression { $$ = newast('+', $1, $3); $$->dtype = '+'; }
-| add_expression '-' mul_expression { $$ = newast('+', $1, $3); $$->dtype = '-'; }
+| add_expression '+' mul_expression {
+    $$ = newast('Z', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
+| add_expression '-' mul_expression {
+    $$ = newast('Z', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
 ;
 
 mul_expression:
   term { $$ = $1; }
-| mul_expression '*' term { $$ = newast('*', $1, $3); $$->dtype = '*'; }
-| mul_expression '/' term { $$ = newast('*', $1, $3); $$->dtype = '/'; }
-| mul_expression '%' term { $$ = newast('*', $1, $3); $$->dtype = '%'; }
+| mul_expression '*' term {
+    $$ = newast('Z', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
+| mul_expression '/' term {
+    $$ = newast('Z', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
+| mul_expression '%' term {
+    $$ = newast('Z', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
 ;
 
 exp_statement:

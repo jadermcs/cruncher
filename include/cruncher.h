@@ -35,6 +35,8 @@ void push_st();
 void add_table(char *, char *);
 void print_table();
 void free_table();
+int type_match(char, char);
+void error_type();
 
 const char* yytokenstring(enum yytokentype);
 

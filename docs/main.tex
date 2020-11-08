@@ -496,10 +496,9 @@ executed.
 
 In the node assignment and/or operations, the tree search every operand if it
 matches the expected type, if not it tries to convert to the expected type, if
-is not possible (e.g. string to float) it return an error.
-
-In the case when operations are applied under an id, we search for the id type
-in the symbol table to perform the same operation as above.
+is not possible (e.g. string to float) it return an error.  In the case when
+operations are applied under an id, we search for the id type in the symbol
+table to perform the same operation as above.
 
 There are two kinds of type conversion, between numerical types (e.g. bool,
 float, int) and between alphanumerical (e.g. char, string, path). The numerical
@@ -510,10 +509,13 @@ integer, the opposite conversion just represents it as in IEEE 754
 \cite{ieee754}. By this process we can convert bool to float or float to bool
 as explained above.
 
-The alphanumerical types
-
-Additionally, char can be converted to integer with his bits representation
-directly.
+The alphanumerical types has a more complicated conversion, char can be
+converted to string directly, but string only can be converted when the string
+has size 1.  The path type can also be directly converted to string, but string
+to be converted to path should start with a dot (.) or an underline (_), and
+also it should be well formatted path. Additionally, char can be converted to
+integer with his bits representation directly as a cardinal ascii, not a
+literal interpretation.
 
 \section{Test files}
 \label{sec:test}
