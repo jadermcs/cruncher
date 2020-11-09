@@ -483,10 +483,10 @@ static const yytype_uint16 yyrline[] =
      104,   105,   106,   110,   118,   119,   123,   124,   125,   126,
      127,   128,   129,   130,   134,   135,   144,   145,   149,   159,
      160,   164,   165,   169,   170,   176,   182,   188,   193,   197,
-     207,   211,   215,   219,   223,   228,   232,   233,   237,   246,
-     247,   251,   252,   256,   257,   265,   266,   274,   275,   280,
-     288,   289,   294,   299,   304,   312,   313,   318,   326,   327,
-     332,   337,   345,   346,   350,   354,   355,   358,   359
+     207,   211,   215,   219,   223,   228,   232,   233,   241,   249,
+     250,   254,   255,   259,   260,   268,   269,   277,   278,   283,
+     291,   292,   297,   302,   307,   315,   316,   321,   329,   330,
+     335,   340,   348,   349,   353,   361,   362,   365,   366
 };
 #endif
 
@@ -1431,10 +1431,10 @@ yyreduce:
 #line 92 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     add_table((yyvsp[-6].node)->addr, 'F', (yyvsp[-7].type)[0], current_scope);
-    push_addr(current_scope);
     current_scope = (char *) strdup((yyvsp[-6].node)->addr);
+    push_addr(current_scope);
     (yyval.node) = newast('F', (yyvsp[-6].node), newast('F', (yyvsp[-4].node), (yyvsp[-1].node)));
-    current_scope = pop_addr();
+    /* current_scope = pop_addr(); */
     push_st();
     free((yyvsp[-7].type));
   }
@@ -1712,255 +1712,262 @@ yyreduce:
 
   case 47:
 #line 233 "src/cruncher_syntax.y" /* yacc.c:1646  */
-    { (yyval.node) = (yyvsp[0].node);}
-#line 1717 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+    {
+    (yyval.node) = (yyvsp[0].node);
+    symbolTable *s = find_symbol((yyvsp[0].node)->addr);
+    if (s == NULL) error_scope();
+  }
+#line 1721 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 237 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 241 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('I', NULL, NULL);
-    /* symbolTable *s = find_symbol($1); */
     (yyval.node)->addr = strdup((yyvsp[0].id));
     free((yyvsp[0].id));
   }
-#line 1728 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1731 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 246 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 249 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = newast('H', (yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1734 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1737 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 247 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 250 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = (yyvsp[0].node); }
-#line 1740 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1743 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 251 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 254 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[0].node); }
-#line 1746 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1749 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 252 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 255 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = newast('=', (yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1752 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1755 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 256 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 259 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[0].node); }
-#line 1758 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1761 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 257 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 260 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('B', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1768 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1771 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 265 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 268 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[0].node); }
-#line 1774 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1777 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 266 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 269 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('B', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1784 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1787 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 274 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 277 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[0].node); }
-#line 1790 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1793 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 275 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 278 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('R', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1800 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1803 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 280 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 283 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('R', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1810 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1813 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 288 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 291 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = (yyvsp[0].node);}
-#line 1816 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1819 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 289 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 292 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('R', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1826 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1829 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 294 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 297 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('R', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1836 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1839 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 299 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 302 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('R', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1846 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1849 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 304 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 307 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('R', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1856 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1859 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 312 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 315 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[0].node); }
-#line 1862 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1865 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 313 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 316 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('Z', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype) == 0) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1872 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1875 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 318 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 321 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('Z', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1882 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1885 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 326 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 329 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[0].node); }
-#line 1888 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1891 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 327 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 330 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('Z', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1898 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1901 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 332 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 335 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('Z', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1908 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1911 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 337 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 340 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('Z', (yyvsp[-2].node), (yyvsp[0].node));
     if (type_match((yyvsp[-2].node)->dtype, (yyvsp[0].node)->dtype)) error_type();
     else (yyval.node)->dtype = (yyvsp[-2].node)->dtype;
   }
-#line 1918 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1921 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 345 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 348 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[-1].node); }
-#line 1924 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1927 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 346 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 349 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = (yyvsp[-1].node); }
-#line 1930 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1933 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 350 "src/cruncher_syntax.y" /* yacc.c:1646  */
-    { (yyval.node) = newast('T', (yyvsp[-3].node), (yyvsp[-1].node));}
-#line 1936 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 353 "src/cruncher_syntax.y" /* yacc.c:1646  */
+    {
+    (yyval.node) = newast('T', (yyvsp[-3].node), (yyvsp[-1].node));
+    symbolTable *s = find_symbol((yyvsp[-3].node)->addr);
+    if (s == NULL) error_scope();
+  }
+#line 1943 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 354 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 361 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = (yyvsp[0].node); }
-#line 1942 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1949 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 355 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 362 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = NULL; }
-#line 1948 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1955 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 358 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 365 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = newast('G', (yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1954 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1961 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 359 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 366 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = (yyvsp[0].node);}
-#line 1960 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1967 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1964 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1971 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2188,7 +2195,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 362 "src/cruncher_syntax.y" /* yacc.c:1906  */
+#line 369 "src/cruncher_syntax.y" /* yacc.c:1906  */
 
 
 int main(int argc, char **argv) {

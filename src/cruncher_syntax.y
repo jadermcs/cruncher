@@ -91,10 +91,10 @@ func_definition:
   '(' params ')'
   '{' inner_declarations '}' {
     add_table($2->addr, 'F', $1[0], current_scope);
-    push_addr(current_scope);
     current_scope = (char *) strdup($2->addr);
+    push_addr(current_scope);
     $$ = newast('F', $2, newast('F', $4, $7));
-    current_scope = pop_addr();
+    /* current_scope = pop_addr(); */
     push_st();
     free($1);
   }
@@ -230,13 +230,16 @@ simple_expression:
 
 sub_expression:
   TYPE identifier { $$ = $2; add_table($2->addr, 'E', $1[0], current_scope); free($1);}
-| identifier { $$ = $1;}
+| identifier {
+    $$ = $1;
+    symbolTable *s = find_symbol($1->addr);
+    if (s == NULL) error_scope();
+  }
 ;
 
 identifier:
   IDENTIFIER {
     $$ = newast('I', NULL, NULL);
-    /* symbolTable *s = find_symbol($1); */
     $$->addr = strdup($1);
     free($1);
   }
@@ -347,7 +350,11 @@ exp_statement:
 ;
 
 call:
-  identifier '(' args ')' { $$ = newast('T', $1, $3);}
+  identifier '(' args ')' {
+    $$ = newast('T', $1, $3);
+    symbolTable *s = find_symbol($1->addr);
+    if (s == NULL) error_scope();
+  }
 ;
 
 args:

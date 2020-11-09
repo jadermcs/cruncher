@@ -45,7 +45,7 @@
 \newenvironment{allintypewriter}{\ttfamily}{\par}
 
 \title{Cruncher:\\
-\large A Functional Language for Handling Files and Folders}
+\large A Language for Handling Files and Folders}
 \author{Jáder M. Camboim de Sá \\
         Department of Computer Science\\
         University of Brasília, Brazil \\
@@ -67,18 +67,18 @@ protecting the pearl). The Shell provides a way to create executable scripts,
 execute programs, manage file-systems, compile code, and other general computer
 manipulation tasks \cite{negus2010linux,blum2008linux}.
 
-Although shells are a very old computer technology, later being replaced by
+Although shells are very ancient computer technology, later being replaced by
 graphical interfaces, many users (specially super-users) prefer this less
 intuitive interface \cite{newham2005learning} for daily tasks. The \textit{sh}
-is the precursor project and the default shell in many Unix distributions but
+is the precursor project and the default shell in many Unix distributions, but
 many other shells were also developed with similar behavior but distinct
 orientation. To cite a few, the most popular ones are \textit{bash}
 \cite{bash}, \textit{zsh} \cite{zsh}, and \textit{fish} \cite{fish}.
 
 Allied with the Shell, many external tools were developed to supply the needs
-of Unix users \cite{negus2010linux} but those were not integrated natively in
-any of those shell scripting languages resulting in an inconsistent language for
-file handling and operations. Tools like tar, sed, md5, etc, each has a
+of Unix users \cite{negus2010linux}. Still, those were not integrated natively
+in any of those shell scripting languages resulting in an inconsistent language
+for file handling and operations. Tools like tar, sed, md5, etc, each has a
 distinct parameter handling paradigm.
 
 In modern \textbf{data processing}, a computing paradigm presented itself as a
@@ -86,7 +86,7 @@ suitable and intuitive way to describe massive computations and is adopted by
 major frameworks like Hadoop \cite{white2012hadoop}, Spark
 \cite{chambers2018spark}, and Kafka \cite{narkhede2017kafka}. The MapReduce is
 a computational paradigm that decomposes computations in Maps and Reduction
-operations. It has a clear and efficient model of computation besides not being
+operations. It has a clear and efficient computation model besides not being
 so trivial to describe any computation in this paradigm
 \cite{afrati2012vision}.
 
@@ -97,7 +97,7 @@ semantically consistent operation for external tools with an intuitive syntax.
 It is organized in the following manner: Section \ref{sec:formal} describes the
 formal grammar for Cruncher language, Section \ref{sec:semantics} presents the
 semantics of principal keywords in the language, Section \ref{sec:error}
-describes how it deals with erros, \ref{sec:proc} describes some procedures
+describes how it deals with errors, \ref{sec:proc} describes some procedures
 applied by the scanner, \ref{sec:symtable} presents how it deals with
 symbols , Section \ref{sec:syntax} presents how the Abstract Syntax Tree was
 built, Sections \ref{sec:test} and \ref{sec:compiling} presents compiling and
@@ -120,13 +120,13 @@ These notations convention are used for presenting syntax:
 
 \item ( \textit{pattern} )* - zero or more repetitions of the pattern.
 
-\item ( \textit{pattern} )? - zero or one of the pattern.
+\item ( \textit{pattern} )? - zero or one of the patterns.
 
 \item \textit{symbol1} "..." \textit{symbol2} - a choice from symbol1 to symbol2.
 
 \item <\textit{definition}> - definition for a statement.
 
-\item "\textvisiblespace" - in some points the space is made visible to
+\item "\textvisiblespace" - in some points, the space is made visible to
     emphasize his existence.
 \end{grammar}
 
@@ -243,7 +243,7 @@ These notations convention are used for presenting syntax:
 
 \subsection{Changes and Updates}
 In the first version, the lexical syntax presented errors as complex structures
-(e.g. context free grammars) were trying to be recognized at this step, but
+(e.g., context free grammars) were trying to be recognized at this step, but
 those more complex structures should be recognized in the parser phase. The
 second version corrected major problems. The new grammar is based on C, instead
 of Haskell which was the previous base language, so many changes were applied.
@@ -324,7 +324,7 @@ is performed, we must specify the  ``\_'' to be performed.
 For the scanner phase, only local structures are recognized, so we use counters,
 for line and column, to track locations of points with unrecognized tokens,
 i.e., \texttt{line_count} and \texttt{line_count}, respectively. The
-code bellow has exemplified this operation.
+code below has exemplified this operation.
 
 \begin{lstlisting}[language=C, caption=Example of code monitoring lines and columns.]
     %{
@@ -460,7 +460,8 @@ function a local table is defined with local definitions.
 \end {figure}
 
 So for a given identifier the symbol is searched in the possible stacked scope
-until it reaches the end, returning and error of finding the symbol type.
+until it reaches the end, returning if it exists or giving an error if the
+symbol was not declared.
 
 \section{Syntax Tree}%
 \label{sec:syntax}
@@ -494,11 +495,11 @@ After the abstract tree was built in the semantic analysis are verified if the
 types are adequate to applied operations and if some type conversion should be
 executed.
 
-In the node assignment and/or operations, the tree search every operand if it
-matches the expected type, if not it tries to convert to the expected type, if
-is not possible (e.g. string to float) it return an error.  In the case when
-operations are applied under an id, we search for the id type in the symbol
-table to perform the same operation as above.
+In the node assignment arithmetic or booleand operations, the tree search every
+operand if it matches the expected type, if not it tries to convert to the
+expected type, if is not possible (e.g. string to float) it return an error.
+In the case when operations are applied under an id, we search for the id type
+in the symbol table to perform the same operation as above.
 
 There are two kinds of type conversion, between numerical types (e.g. bool,
 float, int) and between alphanumerical (e.g. char, string, path). The numerical
@@ -516,6 +517,11 @@ to be converted to path should start with a dot (.) or an underline (_), and
 also it should be well formatted path. Additionally, char can be converted to
 integer with his bits representation directly as a cardinal ascii, not a
 literal interpretation.
+
+The semantic step also checks if there is a \texttt{main} function and if every
+invoked ID is present in the symbol table. If it is a function being declared
+it can't overwrite a previously declared function, different from variables,
+which can overwrite. The function parameters are passed by copy.
 
 \section{Test files}
 \label{sec:test}

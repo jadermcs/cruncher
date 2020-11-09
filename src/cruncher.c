@@ -40,12 +40,17 @@ void print_table() {
     printf("------------------------------\n");
     st_stack *item;
     addr_stack *item2;
+    int has_main = 0;
     while (!STACK_EMPTY(s_stack)) {
         STACK_POP(s_stack, item);
-        /* STACK_POP(a_stack, item2); */
-        /* printf("%s\n", item2->id); */
+        STACK_POP(a_stack, item2);
+        if (strcmp(item2->id, "main") == 0)
+            has_main = 1;
         HASH_ITER(hh, item->st, s, tmp) {
-            printf("%-10s\t%c\t%c\t%s\n", s->id, s->type, s->dtype, s->scope);
+            if (strcmp(item2->id, s->id) == 0)
+                printf("%-10s\t%c\t%c\t%s\n", s->id, s->type, s->dtype, "global");
+            else
+                printf("%-10s\t%c\t%c\t%s\n", s->id, s->type, s->dtype, item2->id);
         }
         // Clean table
         HASH_ITER(hh, item->st, s, tmp) {
@@ -54,10 +59,11 @@ void print_table() {
         }
         free(item->st);
         free(item);
-        /* free(item2->id); */
-        /* free(item2); */
+        free(item2->id);
+        free(item2);
         printf("------------------------------\n");
     }
+    printf("has_main: %d\n", has_main);
 }
 
 void free_table() {
@@ -122,5 +128,10 @@ symbolTable *find_symbol(char *key) {
 
 void error_type() {
     fprintf(stderr, "[ERROR] type error in line %d.\n", yylineno);
+    has_error = 1;
+}
+
+void error_scope() {
+    fprintf(stderr, "[ERROR] undefined symbol in line %d.\n", yylineno);
     has_error = 1;
 }

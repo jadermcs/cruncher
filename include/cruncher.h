@@ -40,6 +40,7 @@ void print_table();
 void free_table();
 int type_match(char, char);
 void error_type();
+void error_scope();
 
 const char* yytokenstring(enum yytokentype);
 
