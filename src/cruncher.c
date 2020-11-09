@@ -4,12 +4,15 @@ symbolTable *s, *tmp, *symbol_table = NULL;
 addr_stack *a_stack = NULL;
 extern int yylineno;
 extern int yyleng;
+extern int has_error;
 st_stack *s_stack = NULL;
 
-void add_table(char *id, char *type) {
+void add_table(char *id, char type, char dtype, char *scope) {
     s = (symbolTable *)malloc(sizeof *s);
     strcpy(s->id, id);
-    strcpy(s->type, type);
+    strcpy(s->scope, scope);
+    s->type = type;
+    s->dtype = dtype;
     HASH_ADD_STR(symbol_table, id, s);
 }
 
@@ -17,6 +20,12 @@ void push_addr(char *id) {
     addr_stack *item = malloc(sizeof *item);
     item->id = (char *)strdup(id);
     STACK_PUSH(a_stack, item);
+}
+
+char *pop_addr() {
+    addr_stack *item = malloc(sizeof *item);
+    STACK_POP(a_stack, item);
+    return item->id;
 }
 
 void push_st() {
@@ -27,15 +36,16 @@ void push_st() {
 }
 
 void print_table() {
-    printf("\n\tSymbol Table\n==============================\n%-10s\ttype\tscope\n", "id");
+    printf("\n\tSymbol Table\n==============================\n%-10s\ttype\tdtype\tscope\n", "id");
     printf("------------------------------\n");
     st_stack *item;
     addr_stack *item2;
     while (!STACK_EMPTY(s_stack)) {
         STACK_POP(s_stack, item);
-        STACK_POP(a_stack, item2);
+        /* STACK_POP(a_stack, item2); */
+        /* printf("%s\n", item2->id); */
         HASH_ITER(hh, item->st, s, tmp) {
-            printf("%-10s\t%s\t%s\n", s->id, s->type, item2->id);
+            printf("%-10s\t%c\t%c\t%s\n", s->id, s->type, s->dtype, s->scope);
         }
         // Clean table
         HASH_ITER(hh, item->st, s, tmp) {
@@ -44,8 +54,9 @@ void print_table() {
         }
         free(item->st);
         free(item);
-        free(item2->id);
-        free(item2);
+        /* free(item2->id); */
+        /* free(item2); */
+        printf("------------------------------\n");
     }
 }
 
@@ -103,7 +114,13 @@ int type_match(char f_dtype, char s_dtype) {
     }
 }
 
+symbolTable *find_symbol(char *key) {
+    symbolTable *s;
+    HASH_FIND_STR(symbol_table, key, s);
+    return s;
+}
+
 void error_type() {
-    fprintf(stderr, "type error in line %d column %d.", yylineno, yyleng);
-    exit(1);
+    fprintf(stderr, "[ERROR] type error in line %d.\n", yylineno);
+    has_error = 1;
 }

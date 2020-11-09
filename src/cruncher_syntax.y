@@ -17,10 +17,12 @@ extern int yyparse();
 extern FILE* yyin;
 extern int yylex_destroy();
 extern void yyerror(const char* s);
-extern void add_table(char *, char *);
+extern void add_table(char *, char, char, char *);
 extern void print_table();
 extern void free_table();
+extern symbolTable *find_symbol(char *);
 struct ast* syntax_tree = NULL;
+char *current_scope = "global";
 %}
 
 %union {
@@ -32,12 +34,10 @@ struct ast* syntax_tree = NULL;
 }
 
 %start program
-%type <node> program declarations declaration
-%type <node> inner_declarations inner_declaration
+%type <node> program declarations declaration inner_declarations inner_declaration
 %type <node> func_definition var_definition
 %type <node> crunch_statement return_statement while_statement exp_statement
-%type <node> selection_statement
-%type <node> for_statement sub_expression
+%type <node> selection_statement for_statement sub_expression
 %type <node> params param term expression for_expression simple_expression
 %type <node> eq_expression relational_expression and_expression assignment_expression
 %type <node> conditional_expression mul_expression add_expression
@@ -74,15 +74,27 @@ declaration:
 ;
 
 var_definition:
-  TYPE identifier ';' { $$ = $2; add_table($2->addr, $1); free($1); }
-| TYPE identifier '=' expression ';' { $$ = newast('V', $2, $4); add_table($2->addr, $1); free($1); }
+  TYPE identifier ';' {
+    $$ = $2;
+    add_table($2->addr, 'V', $1[0], current_scope);
+    free($1);
+  }
+| TYPE identifier '=' expression ';' {
+    $$ = newast('V', $2, $4);
+    add_table($2->addr, 'V', $1[0], current_scope);
+    free($1);
+  }
 ;
 
 func_definition:
-  TYPE identifier '(' params ')' '{' inner_declarations '}' {
+  TYPE identifier
+  '(' params ')'
+  '{' inner_declarations '}' {
+    add_table($2->addr, 'F', $1[0], current_scope);
+    push_addr(current_scope);
+    current_scope = (char *) strdup($2->addr);
     $$ = newast('F', $2, newast('F', $4, $7));
-    add_table($2->addr, $1);
-    push_addr($2->addr);
+    current_scope = pop_addr();
     push_st();
     free($1);
   }
@@ -95,7 +107,11 @@ params:
 ;
 
 param:
-  TYPE identifier { $$ = newast('A', $2, NULL); add_table($2->addr, $1); free($1);}
+  TYPE identifier {
+    $$ = newast('A', $2, NULL);
+    add_table($2->addr, 'P', $1[0], current_scope);
+    free($1);
+  }
 ;
 
 inner_declarations:
@@ -200,21 +216,30 @@ for_expression:
     $$ = newast('E', $1, newast('E', $3, $5));
     $$->dtype = '3';
   }
-| sub_expression IN file { $$ = newast('E', $1, $3);  $$->dtype = 'i'; }
+| sub_expression IN file { $$ = newast('E', $1, $3);  $$->dtype = 'p'; }
 ;
 
 simple_expression:
-  simple_expression '=' term { $$ = newast('H', $1, $3); }
+  simple_expression '=' term {
+    $$ = newast('H', $1, $3);
+    if (type_match($1->dtype, $3->dtype)) error_type();
+    else $$->dtype = $1->dtype;
+  }
 | sub_expression { $$ = $1; }
 ;
 
 sub_expression:
-  TYPE identifier { $$ = $2; add_table($2->addr, $1); free($1);}
-| identifier { $$ = $1; }
+  TYPE identifier { $$ = $2; add_table($2->addr, 'E', $1[0], current_scope); free($1);}
+| identifier { $$ = $1;}
 ;
 
 identifier:
-  IDENTIFIER { $$ = newast('I', NULL, NULL); $$->addr = strdup($1); free($1); }
+  IDENTIFIER {
+    $$ = newast('I', NULL, NULL);
+    /* symbolTable *s = find_symbol($1); */
+    $$->addr = strdup($1);
+    free($1);
+  }
 ;
 
 expression:
@@ -287,7 +312,7 @@ add_expression:
   mul_expression { $$ = $1; }
 | add_expression '+' mul_expression {
     $$ = newast('Z', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype) == 0) error_type();
     else $$->dtype = $1->dtype;
   }
 | add_expression '-' mul_expression {

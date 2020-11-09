@@ -96,7 +96,7 @@ int yywrap(void) {
 }
 
 void yyerror(const char *s){
-  fprintf(stderr, "parsing error in line %d column %d: %s\n",
+  fprintf(stderr, "[ERROR] parsing error in line %d column %d: %s\n",
             yylineno, yyleng, s);
   has_error = 1;
 }

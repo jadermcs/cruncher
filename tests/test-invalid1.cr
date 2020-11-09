@@ -1,4 +1,3 @@
-main = printLn "alo
-
-
-func arg1 = arg2 1
+int main() {
+    int x =  "alo" + 13;
+}
