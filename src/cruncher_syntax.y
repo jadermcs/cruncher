@@ -17,12 +17,12 @@ extern int yyparse();
 extern FILE* yyin;
 extern int yylex_destroy();
 extern void yyerror(const char* s);
-extern void add_table(char *, char, char, char *);
+extern void add_symbol(char *, char, char);
+extern void add_table(char *, char, char);
 extern void print_table();
 extern void free_table();
 extern symbolTable *find_symbol(char *);
 struct ast* syntax_tree = NULL;
-char *current_scope = "global";
 %}
 
 %union {
@@ -35,7 +35,7 @@ char *current_scope = "global";
 
 %start program
 %type <node> program declarations declaration inner_declarations inner_declaration
-%type <node> func_definition var_definition
+%type <node> func_definition var_definition local_var_definition
 %type <node> crunch_statement return_statement while_statement exp_statement
 %type <node> selection_statement for_statement sub_expression
 %type <node> params param term expression for_expression simple_expression
@@ -76,12 +76,12 @@ declaration:
 var_definition:
   TYPE identifier ';' {
     $$ = $2;
-    add_table($2->addr, 'V', $1[0], current_scope);
+    add_table($2->addr, 'V', $1[0]);
     free($1);
   }
 | TYPE identifier '=' expression ';' {
     $$ = newast('V', $2, $4);
-    add_table($2->addr, 'V', $1[0], current_scope);
+    add_table($2->addr, 'V', $1[0]);
     free($1);
   }
 ;
@@ -90,12 +90,8 @@ func_definition:
   TYPE identifier
   '(' params ')'
   '{' inner_declarations '}' {
-    add_table($2->addr, 'F', $1[0], current_scope);
-    current_scope = (char *) strdup($2->addr);
-    push_addr(current_scope);
+    add_table($2->addr, 'F', $1[0]);
     $$ = newast('F', $2, newast('F', $4, $7));
-    /* current_scope = pop_addr(); */
-    push_st();
     free($1);
   }
 ;
@@ -109,7 +105,7 @@ params:
 param:
   TYPE identifier {
     $$ = newast('A', $2, NULL);
-    add_table($2->addr, 'P', $1[0], current_scope);
+    add_symbol($2->addr, 'P', $1[0]);
     free($1);
   }
 ;
@@ -126,8 +122,20 @@ inner_declaration:
 | for_statement { $$ = $1; }
 | crunch_statement { $$ = $1; }
 | exp_statement { $$ = $1; }
-| var_definition {$$ = $1;}
-| func_definition {$$ = $1;}
+| local_var_definition {$$ = $1;}
+;
+
+local_var_definition:
+  TYPE identifier ';' {
+    $$ = $2;
+    add_symbol($2->addr, 'V', $1[0]);
+    free($1);
+  }
+| TYPE identifier '=' expression ';' {
+    $$ = newast('V', $2, $4);
+    add_symbol($2->addr, 'V', $1[0]);
+    free($1);
+  }
 ;
 
 selection_statement:
@@ -229,7 +237,7 @@ simple_expression:
 ;
 
 sub_expression:
-  TYPE identifier { $$ = $2; add_table($2->addr, 'E', $1[0], current_scope); free($1);}
+  TYPE identifier { $$ = $2; add_symbol($2->addr, 'E', $1[0]); free($1);}
 | identifier {
     $$ = $1;
     symbolTable *s = find_symbol($1->addr);
@@ -354,6 +362,7 @@ call:
     $$ = newast('T', $1, $3);
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
+    free(s);
   }
 ;
 

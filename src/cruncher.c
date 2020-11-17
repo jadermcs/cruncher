@@ -1,72 +1,61 @@
 #include <cruncher.h>
 
-symbolTable *s, *tmp, *symbol_table = NULL;
-addr_stack *a_stack = NULL;
+symbolTable *s, *symbol_table = NULL;
+addrStack *a_stack, *head = NULL;
 extern int yylineno;
 extern int yyleng;
 extern int has_error;
-st_stack *s_stack = NULL;
 
-void add_table(char *id, char type, char dtype, char *scope) {
+void add_symbol(char *id, char type, char dtype) {
     s = (symbolTable *)malloc(sizeof *s);
     strcpy(s->id, id);
-    strcpy(s->scope, scope);
     s->type = type;
     s->dtype = dtype;
     HASH_ADD_STR(symbol_table, id, s);
 }
 
-void push_addr(char *id) {
-    addr_stack *item = malloc(sizeof *item);
-    item->id = (char *)strdup(id);
-    STACK_PUSH(a_stack, item);
-}
-
-char *pop_addr() {
-    addr_stack *item = malloc(sizeof *item);
-    STACK_POP(a_stack, item);
-    return item->id;
-}
-
-void push_st() {
-    st_stack *item = malloc(sizeof *item);
-    item->st = symbol_table;
-    STACK_PUSH(s_stack, item);
+void add_table(char *id, char type, char dtype) {
+    a_stack = (addrStack *)malloc(sizeof *a_stack);
+    strcpy(a_stack->id, id);
+    a_stack->type = type;
+    a_stack->dtype = dtype;
+    a_stack->st = symbol_table;
+    DL_APPEND(head, a_stack);
     symbol_table = NULL;
 }
 
 void print_table() {
     printf("\n\tSymbol Table\n==============================\n%-10s\ttype\tdtype\tscope\n", "id");
     printf("------------------------------\n");
-    st_stack *item;
-    addr_stack *item2;
+    addrStack *item;
+    symbolTable *tmp;
     int has_main = 0;
-    while (!STACK_EMPTY(s_stack)) {
-        STACK_POP(s_stack, item);
-        STACK_POP(a_stack, item2);
-        if (strcmp(item2->id, "main") == 0)
-            has_main = 1;
+    DL_FOREACH(head, item) {
+        if (strcmp(item->id, "main") == 0 && item->type == 'F')
+            has_main++;
+        printf("%-10s\t%c\t%c\t%s\n", item->id, item->type, item->dtype, "global");
         HASH_ITER(hh, item->st, s, tmp) {
-            if (strcmp(item2->id, s->id) == 0)
-                printf("%-10s\t%c\t%c\t%s\n", s->id, s->type, s->dtype, "global");
-            else
-                printf("%-10s\t%c\t%c\t%s\n", s->id, s->type, s->dtype, item2->id);
+                printf("%-10s\t%c\t%c\t%s\n", s->id, s->type, s->dtype, item->id);
         }
-        // Clean table
-        HASH_ITER(hh, item->st, s, tmp) {
-            HASH_DEL(item->st, s);
-            free(s);
-        }
-        free(item->st);
-        free(item);
-        free(item2->id);
-        free(item2);
         printf("------------------------------\n");
     }
-    printf("has_main: %d\n", has_main);
+    if (has_main == 1)
+        printf("Has a valid main function.\n");
+    else
+        printf("Has an invalid main definition, %s.\n", has_main>1?"multiple mains":"no main definition");
 }
 
 void free_table() {
+    addrStack *item, *tmp;
+    symbolTable *tmp2;
+    DL_FOREACH_SAFE(head, item, tmp) {
+        HASH_ITER(hh, item->st, s, tmp2) {
+            HASH_DEL(item->st, s);
+            free(s);
+        }
+        DL_DELETE(head, item);
+        free(item);
+    }
 }
 
 const char* yytokenstring(enum yytokentype tok_type) {
@@ -120,10 +109,29 @@ int type_match(char f_dtype, char s_dtype) {
     }
 }
 
+int compareid(addrStack *a, addrStack *b) {
+    return strcmp(a->id,b->id);
+}
+
 symbolTable *find_symbol(char *key) {
     symbolTable *s;
+    addrStack *item, etmp;
     HASH_FIND_STR(symbol_table, key, s);
-    return s;
+    if (s == NULL) {
+        DL_SEARCH(head, item, &etmp, compareid);
+        if (item == NULL)
+            return NULL;
+        else {
+            s = malloc(sizeof s);
+            strcpy(s->id, item->id);
+            s->type = item->type;
+            s->dtype = item->dtype;
+            free(item);
+            return s;
+        }
+    }
+    else
+        return s;
 }
 
 void error_type() {
