@@ -37,9 +37,6 @@ void free_ast(struct ast *t) {
         case 'p':
             free(t->value.str_);
             break;
-        case 'I':
-            free(t->addr);
-            break;
     }
     free(t);
     return;

@@ -26,7 +26,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 
 clean:
 	@echo " Cleaning...";
-	@echo " $(RM) -r $(TARGETF) $(TARGET)"; $(RM) -r $(TARGETF) $(TARGET)
+	@echo " $(RM) -r $(TARGETF) $(TARGET) $(BUILDDIR)"; $(RM) -r $(TARGETF) $(TARGET) $(BUILDDIR)
 
 lang:
 	@echo " flex src/cruncher_lex.l "; flex src/cruncher_lex.l

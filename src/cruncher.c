@@ -41,8 +41,10 @@ void print_table() {
     }
     if (has_main == 1)
         printf("Has a valid main function.\n");
-    else
+    else {
         printf("Has an invalid main definition, %s.\n", has_main>1?"multiple mains":"no main definition");
+        has_error = 1;
+    }
 }
 
 void free_table() {
@@ -110,28 +112,27 @@ int type_match(char f_dtype, char s_dtype) {
 }
 
 int compareid(addrStack *a, addrStack *b) {
-    return strcmp(a->id,b->id);
+    return strcmp(a->id, b->id);
 }
 
 symbolTable *find_symbol(char *key) {
-    symbolTable *s;
+    symbolTable *tmp;
     addrStack *item, etmp;
-    HASH_FIND_STR(symbol_table, key, s);
-    if (s == NULL) {
+    strcpy(etmp.id, key);
+    HASH_FIND_STR(symbol_table, key, tmp);
+    if (tmp == NULL) {
         DL_SEARCH(head, item, &etmp, compareid);
-        if (item == NULL)
+        if (!item) {
             return NULL;
+        }
         else {
-            s = malloc(sizeof s);
-            strcpy(s->id, item->id);
-            s->type = item->type;
-            s->dtype = item->dtype;
-            free(item);
-            return s;
+            tmp = malloc(sizeof tmp);
+            strcpy(tmp->id, item->id);
+            tmp->type = item->type;
+            tmp->dtype = item->dtype;
         }
     }
-    else
-        return s;
+    return tmp;
 }
 
 void error_type() {

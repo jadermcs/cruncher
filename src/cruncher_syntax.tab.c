@@ -486,7 +486,7 @@ static const yytype_uint16 yyrline[] =
      205,   215,   219,   223,   227,   231,   236,   240,   241,   249,
      257,   258,   262,   263,   267,   268,   276,   277,   285,   286,
      291,   299,   300,   305,   310,   315,   323,   324,   329,   337,
-     338,   343,   348,   356,   357,   361,   370,   371,   374,   375
+     338,   343,   348,   356,   357,   361,   369,   370,   373,   374
 };
 #endif
 
@@ -1740,7 +1740,7 @@ yyreduce:
 #line 249 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {
     (yyval.node) = newast('I', NULL, NULL);
-    (yyval.node)->addr = strdup((yyvsp[0].id));
+    strcpy((yyval.node)->addr, (yyvsp[0].id));
     free((yyvsp[0].id));
   }
 #line 1747 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
@@ -1954,37 +1954,36 @@ yyreduce:
     (yyval.node) = newast('T', (yyvsp[-3].node), (yyvsp[-1].node));
     symbolTable *s = find_symbol((yyvsp[-3].node)->addr);
     if (s == NULL) error_scope();
-    free(s);
   }
-#line 1960 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1959 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 370 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 369 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = (yyvsp[0].node); }
-#line 1966 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1965 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 371 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 370 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = NULL; }
-#line 1972 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1971 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 374 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 373 "src/cruncher_syntax.y" /* yacc.c:1646  */
     { (yyval.node) = newast('G', (yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1978 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1977 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 375 "src/cruncher_syntax.y" /* yacc.c:1646  */
+#line 374 "src/cruncher_syntax.y" /* yacc.c:1646  */
     {(yyval.node) = (yyvsp[0].node);}
-#line 1984 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1983 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1988 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
+#line 1987 "src/cruncher_syntax.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2212,7 +2211,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 378 "src/cruncher_syntax.y" /* yacc.c:1906  */
+#line 377 "src/cruncher_syntax.y" /* yacc.c:1906  */
 
 
 int main(int argc, char **argv) {

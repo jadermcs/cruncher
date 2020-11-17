@@ -248,7 +248,7 @@ sub_expression:
 identifier:
   IDENTIFIER {
     $$ = newast('I', NULL, NULL);
-    $$->addr = strdup($1);
+    strcpy($$->addr, $1);
     free($1);
   }
 ;
@@ -362,7 +362,6 @@ call:
     $$ = newast('T', $1, $3);
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
-    free(s);
   }
 ;
 

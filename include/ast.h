@@ -6,7 +6,7 @@ struct ast {
     struct ast *l;
     struct ast *r;
     char dtype;
-    char *addr;
+    char addr[64];
     int flag;
     union {
         char *str_;
