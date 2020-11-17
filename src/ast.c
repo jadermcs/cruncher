@@ -42,6 +42,30 @@ void free_ast(struct ast *t) {
     return;
 }
 
+void convert_to(struct ast *t, char type) {
+    if (t->dtype == type)
+        return;
+    else {
+        
+    }
+}
+
+void annotate_ast(struct ast *t) {
+    if (t == NULL) return;
+    switch (t->nodetype)
+    {
+    case '=':
+    case 'V':
+        convert_to(t->r, t->dtype);
+        break;    
+    default:
+        break;
+    }
+    annotate_ast(t->l);
+    annotate_ast(t->r);
+
+}
+
 void astdict(struct ast *t) {
     switch (t->nodetype) {
         case 'D':

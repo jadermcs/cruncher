@@ -76,11 +76,13 @@ declaration:
 var_definition:
   TYPE identifier ';' {
     $$ = $2;
+    $$->dtype = $1[0];
     add_table($2->addr, 'V', $1[0]);
     free($1);
   }
 | TYPE identifier '=' expression ';' {
     $$ = newast('V', $2, $4);
+    $$->dtype = $1[0];
     add_table($2->addr, 'V', $1[0]);
     free($1);
   }
@@ -128,11 +130,13 @@ inner_declaration:
 local_var_definition:
   TYPE identifier ';' {
     $$ = $2;
+    $$->dtype = $1[0];
     add_symbol($2->addr, 'V', $1[0]);
     free($1);
   }
 | TYPE identifier '=' expression ';' {
     $$ = newast('V', $2, $4);
+    $$->dtype = $1[0];
     add_symbol($2->addr, 'V', $1[0]);
     free($1);
   }
@@ -231,7 +235,6 @@ simple_expression:
   simple_expression '=' term {
     $$ = newast('H', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 | sub_expression { $$ = $1; }
 ;
@@ -260,7 +263,11 @@ expression:
 
 assignment_expression:
   conditional_expression { $$ = $1; }
-| identifier '=' assignment_expression { $$ = newast('=', $1, $3); }
+| identifier '=' assignment_expression {
+    $$ = newast('=', $1, $3);
+    symbolTable *s = find_symbol($1->addr);
+    if (s == NULL) error_scope();
+  }
 ;
 
 conditional_expression:
@@ -268,7 +275,6 @@ conditional_expression:
 | conditional_expression OR_OP conditional_expression {
     $$ = newast('B', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -277,7 +283,6 @@ and_expression:
 | and_expression AND_OP and_expression {
     $$ = newast('B', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -286,12 +291,10 @@ eq_expression:
 | eq_expression COMPARISON_OP relational_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 | eq_expression NOTEQUAL_OP relational_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -300,22 +303,18 @@ relational_expression:
 | relational_expression '<' add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 | relational_expression LESSEQUAL_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 | relational_expression '>' add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 | relational_expression GREATEREQUAl_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -324,12 +323,10 @@ add_expression:
 | add_expression '+' mul_expression {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype) == 0) error_type();
-    else $$->dtype = $1->dtype;
   }
 | add_expression '-' mul_expression {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -338,17 +335,14 @@ mul_expression:
 | mul_expression '*' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 | mul_expression '/' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 | mul_expression '%' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type();
-    else $$->dtype = $1->dtype;
   }
 ;
 
