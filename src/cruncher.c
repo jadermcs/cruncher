@@ -101,11 +101,11 @@ const char* yytokenstring(enum yytokentype tok_type) {
 int type_match(char f_dtype, char s_dtype) {
     switch (f_dtype) {
         case 'i':
-            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 1;
-            else return 0;
+            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 0;
+            else return 1;
         case 'f':
-            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 1;
-            else return 0;
+            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 0;
+            else return 1;
         default:
             return 0;
     }
@@ -135,8 +135,8 @@ symbolTable *find_symbol(char *key) {
     return tmp;
 }
 
-void error_type() {
-    fprintf(stderr, "[ERROR] type error in line %d.\n", yylineno);
+void error_type(char l, char r) {
+    fprintf(stderr, "[ERROR] type error in line %d, ltype:%c rtype:%c.\n", yylineno, l, r);
     has_error = 1;
 }
 

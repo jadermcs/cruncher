@@ -23,7 +23,7 @@ int col_count = 1;
 DIGIT       [0-9]
 INTEGER     [+-]?{DIGIT}+
 EXPON       [eE]{INTEGER}
-FLOAT       [+-]?({DIGIT}*\.{DIGIT}+|{DIGIT}+\.){EXPON}
+FLOAT       [+-]?({DIGIT}*\.{DIGIT}+|{DIGIT}+\.){EXPON}?
 
 LETTER      [a-zA-Z]
 IDENTIFIER  {LETTER}({LETTER}|{DIGIT}|_)*

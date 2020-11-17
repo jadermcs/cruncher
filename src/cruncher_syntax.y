@@ -178,7 +178,12 @@ options:
 ;
 
 term:
-  identifier {$$ = $1;}
+  identifier {
+    $$ = $1;
+    symbolTable *s = find_symbol($1->addr);
+    if (s == NULL) error_scope();
+    $$->dtype = s->dtype;
+  }
 | INTCONST {
     $$ = newast('c', NULL, NULL);
     $$->dtype = 'i';
@@ -234,17 +239,23 @@ for_expression:
 simple_expression:
   simple_expression '=' term {
     $$ = newast('H', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | sub_expression { $$ = $1; }
 ;
 
 sub_expression:
-  TYPE identifier { $$ = $2; add_symbol($2->addr, 'E', $1[0]); free($1);}
+  TYPE identifier {
+    $$ = $2;
+    add_symbol($2->addr, 'E', $1[0]);
+    $$->dtype = $1[0];
+    free($1);
+  }
 | identifier {
     $$ = $1;
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
+    $$->dtype = s->dtype;
   }
 ;
 
@@ -267,6 +278,7 @@ assignment_expression:
     $$ = newast('=', $1, $3);
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
+    $$->dtype = s->dtype;
   }
 ;
 
@@ -274,7 +286,7 @@ conditional_expression:
   and_expression { $$ = $1; }
 | conditional_expression OR_OP conditional_expression {
     $$ = newast('B', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 ;
 
@@ -282,7 +294,7 @@ and_expression:
   eq_expression { $$ = $1; }
 | and_expression AND_OP and_expression {
     $$ = newast('B', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 ;
 
@@ -290,11 +302,11 @@ eq_expression:
   relational_expression { $$ = $1; }
 | eq_expression COMPARISON_OP relational_expression {
     $$ = newast('R', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | eq_expression NOTEQUAL_OP relational_expression {
     $$ = newast('R', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 ;
 
@@ -302,19 +314,19 @@ relational_expression:
   add_expression {$$ = $1;}
 | relational_expression '<' add_expression {
     $$ = newast('R', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | relational_expression LESSEQUAL_OP add_expression {
     $$ = newast('R', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | relational_expression '>' add_expression {
     $$ = newast('R', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | relational_expression GREATEREQUAl_OP add_expression {
     $$ = newast('R', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 ;
 
@@ -322,11 +334,11 @@ add_expression:
   mul_expression { $$ = $1; }
 | add_expression '+' mul_expression {
     $$ = newast('Z', $1, $3);
-    if (type_match($1->dtype, $3->dtype) == 0) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | add_expression '-' mul_expression {
     $$ = newast('Z', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 ;
 
@@ -334,15 +346,15 @@ mul_expression:
   term { $$ = $1; }
 | mul_expression '*' term {
     $$ = newast('Z', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | mul_expression '/' term {
     $$ = newast('Z', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 | mul_expression '%' term {
     $$ = newast('Z', $1, $3);
-    if (type_match($1->dtype, $3->dtype)) error_type();
+    if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
   }
 ;
 
@@ -355,7 +367,7 @@ call:
   identifier '(' args ')' {
     $$ = newast('T', $1, $3);
     symbolTable *s = find_symbol($1->addr);
-    if (s == NULL) error_scope();
+    if (s == NULL || s->type != 'F') error_scope();
   }
 ;
 
@@ -377,6 +389,7 @@ int main(int argc, char **argv) {
     else
             yyin = stdin;
     yyparse();
+    annotate_ast(syntax_tree);
     print_ast(syntax_tree, 0);
     print_table();
     free_table();

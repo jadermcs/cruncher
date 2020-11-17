@@ -42,11 +42,21 @@ void free_ast(struct ast *t) {
     return;
 }
 
-void convert_to(struct ast *t, char type) {
-    if (t->dtype == type)
-        return;
+struct ast *convert_to(struct ast *t, char type) {
+    if (t == NULL) return NULL;
+    if (t->nodetype == 'c'){
+        if (t->dtype == type) return t;
+        else {
+            struct ast *tmp = newast('K', t, NULL);
+            tmp->dtype = type;
+            return tmp;
+        }
+    }
     else {
-        
+        t->l = convert_to(t->l, type);
+        t->r = convert_to(t->r, type);
+        t->dtype = type;
+        return t;
     }
 }
 
@@ -56,14 +66,13 @@ void annotate_ast(struct ast *t) {
     {
     case '=':
     case 'V':
-        convert_to(t->r, t->dtype);
-        break;    
+        t->r = convert_to(t->r, t->dtype);
+        return;    
     default:
-        break;
+        annotate_ast(t->l);
+        annotate_ast(t->r);
+        return;
     }
-    annotate_ast(t->l);
-    annotate_ast(t->r);
-
 }
 
 void astdict(struct ast *t) {
@@ -99,7 +108,7 @@ void astdict(struct ast *t) {
             printf("RELATIONEXP (dtype:%c)\n", t->dtype);
             break;
         case '=':
-            printf("ASSIGNMENT\n");
+            printf("ASSIGNMENT (dtype:%c)\n", t->dtype);
             break;
         case 'B':
             printf("BOOLEXP\n");
@@ -127,6 +136,9 @@ void astdict(struct ast *t) {
             break;
         case 'Z':
             printf("ARITHMETICEXP (dtype:%c)\n", t->dtype);
+            break;
+        case 'K':
+            printf("CONVERTIONNODE (dtype:%c)\n", t->dtype);
             break;
         default:
             printf("UNDEFINED [%c]\n", t->nodetype);
