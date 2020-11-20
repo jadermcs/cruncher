@@ -8,6 +8,9 @@
 */
 %output  "src/cruncher_syntax.tab.c"
 %defines "include/cruncher_syntax.tab.h"
+%define parse.error verbose
+%define parse.trace
+%locations
 %{
 #include "cruncher.h"
 #include "ast.h"
@@ -171,8 +174,7 @@ options:
 
 term:
   '(' assignment_expression ')' { $$ = $2; }
-|
-  identifier {
+| identifier {
     $$ = $1;
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
@@ -201,7 +203,8 @@ term:
     $$->dtype = 's';
     $$->value.str_ = strdup($1);
     free($1); }
-| pathconst {$$ = $1; }
+| pathconst { $$ = $1; }
+| call { $$ = $1;}
 ;
 
 pathconst:
@@ -354,7 +357,7 @@ mul_expression:
 
 exp_statement:
   expression ';' { $$ = $1; }
-| call ';' {$$ = $1; }
+| error ';' {$$ = NULL; }
 ;
 
 call:

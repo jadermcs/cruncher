@@ -1996,45 +1996,8 @@ int yywrap(void) {
 }
 
 void yyerror(const char *s){
-  fprintf(stderr, "[ERROR] parsing error in line %d column %d: %s\n",
-            yylineno, yyleng, s);
+  fprintf(stderr, "[ERROR] error in line %d: %s\n",
+            yylineno, s);
   has_error = 1;
 }
-
-/* int main(int argc, char **argv) { */
-/*     ++argv, --argc;  /1* skip over program name *1/ */
-/*     if ( argc > 0 ) */
-/*             yyin = fopen( argv[0], "r" ); */
-/*     else */
-/*             yyin = stdin; */
-/*     int tok; */
-/*     errors.error_count = 0; */
-/*     while((tok = yylex())) { */
-/*         printf("%s\n", yytokenstring(tok)); */
-/*         if (tok == INTCONST) */
-/*             printf(" = %s\n", yylval.str); */
-/*         else if (tok == FLOATCONST) */
-/*             printf(" = %s\n", yylval.str); */
-/*         else if (tok == PATHCONST) */
-/*             printf(" = %s\n", yylval.str); */
-/*         else if (tok == STRINGCONST) */
-/*             printf(" = %s\n", yylval.str); */
-/*         else if (tok == CHARCONST) */
-/*             printf(" = %s\n", yylval.str); */
-/*         else if (tok == IDENTIFIER) */
-/*             printf(" = %s\n", yylval.str); */
-/*         else if (tok == SYMBOL) */
-/*             printf(" = %s\n", yylval.str); */
-/*         else if (tok == TYPE) */
-/*             printf(" = %s\n", yylval.str); */
-/*     } */
-/*     for (int i = 0; i < errors.error_count; i++) { */
-/*         printf("Error: Unrecognized character in line %d, position %d: %s\n", */
-/*             errors.at_line[i], errors.at_column[i], errors.error_msg[i]); */
-/*     } */
-/*     print_table(); */
-/*     fclose(yyin); */
-/*     yylex_destroy(); */
-/*     free_table(); */
-/* } */
 

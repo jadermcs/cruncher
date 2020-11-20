@@ -374,6 +374,10 @@ When an error occurs in the parsing phase (bad grammar construction), the
 parser outputs the line and the kind of error and immediately terminates the
 parsing.
 
+The Bison is responsible for parsing, in a \texttt{.y} file we specify the
+cruncher grammar which is later compiled in a parser to generate the abstract
+syntax tree and the following intermediate code.
+
 \section{Symbol Table}
 \label{sec:symtable}
 In Figure \ref{fig:symboltable} is shown an example of references in symbol
@@ -521,7 +525,8 @@ literal interpretation.
 The semantic step also checks if there is a \texttt{main} function and if every
 invoked ID is present in the symbol table. If it is a function being declared
 it can't overwrite a previously declared function, different from variables,
-which can overwrite. The function parameters are passed by copy.
+which can be overwriten. The function parameters are passed by copy through a
+stack.
 
 \section{Test files}
 \label{sec:test}
