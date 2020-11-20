@@ -37,6 +37,9 @@ void free_ast(struct ast *t) {
         case 'p':
             free(t->value.str_);
             break;
+        case 'c':
+            if (t->dtype == 'p' || t->dtype == 's') free(t->value.str_);
+            break;
     }
     free(t);
     return;

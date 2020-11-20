@@ -1,3 +1,4 @@
 int main() {
     int x =  "alo" + 13;
+    x(3);
 }

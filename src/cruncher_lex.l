@@ -28,7 +28,7 @@ FLOAT       [+-]?({DIGIT}*\.{DIGIT}+|{DIGIT}+\.){EXPON}?
 LETTER      [a-zA-Z]
 IDENTIFIER  {LETTER}({LETTER}|{DIGIT}|_)*
 WHITESPACE  [\n\t ]+
-SYMBOL      [!#$%&*+\.\\\/;<=>?@^\|-~:\,\(\)\[\]\{\}]
+SYMBOL      [!#$%&*+\.\\\/;<=>?@^\|\-~:\,\(\)\[\]\{\}]
 CHAR        '(\\.|[^\\'])+'
 PATH        (\.|_)\"({LETTER}|{SYMBOL}|{DIGIT})*\"
 STRING      \"(\\.|[^\\"])*\"

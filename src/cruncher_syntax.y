@@ -17,11 +17,6 @@ extern int yyparse();
 extern FILE* yyin;
 extern int yylex_destroy();
 extern void yyerror(const char* s);
-extern void add_symbol(char *, char, char);
-extern void add_table(char *, char, char);
-extern void print_table();
-extern void free_table();
-extern symbolTable *find_symbol(char *);
 struct ast* syntax_tree = NULL;
 %}
 
@@ -46,11 +41,8 @@ struct ast* syntax_tree = NULL;
 %type <str> options
 
 %token WHILE FOR IN IF ELSE CRUNCH RETURN
-%token ADD_OP SUB_OP MULT_OP DIV_OP REM_OP
-%token NOT_OP LESSTHAN_OP LESSEQUAL_OP GREATERTHAN_OP GREATEREQUAl_OP
-%token NOTEQUAL_OP COMPARISON_OP
-%right OR_OP AND_OP
-%token COLON DEF_EQ PIPE
+%token NOTEQUAL_OP COMPARISON_OP LESSEQUAL_OP GREATEREQUAl_OP
+%left OR_OP AND_OP
 
 %token <id> IDENTIFIER
 %token <str> INTCONST FLOATCONST CHARCONST STRINGCONST PATHCONST
@@ -178,6 +170,8 @@ options:
 ;
 
 term:
+  '(' assignment_expression ')' { $$ = $2; }
+|
   identifier {
     $$ = $1;
     symbolTable *s = find_symbol($1->addr);

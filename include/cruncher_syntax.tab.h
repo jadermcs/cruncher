@@ -52,31 +52,20 @@ extern int yydebug;
     ELSE = 262,
     CRUNCH = 263,
     RETURN = 264,
-    ADD_OP = 265,
-    SUB_OP = 266,
-    MULT_OP = 267,
-    DIV_OP = 268,
-    REM_OP = 269,
-    NOT_OP = 270,
-    LESSTHAN_OP = 271,
-    LESSEQUAL_OP = 272,
-    GREATERTHAN_OP = 273,
-    GREATEREQUAl_OP = 274,
-    NOTEQUAL_OP = 275,
-    COMPARISON_OP = 276,
-    OR_OP = 277,
-    AND_OP = 278,
-    COLON = 279,
-    DEF_EQ = 280,
-    PIPE = 281,
-    IDENTIFIER = 282,
-    INTCONST = 283,
-    FLOATCONST = 284,
-    CHARCONST = 285,
-    STRINGCONST = 286,
-    PATHCONST = 287,
-    TYPE = 288,
-    CRUNCH_OP = 289
+    NOTEQUAL_OP = 265,
+    COMPARISON_OP = 266,
+    LESSEQUAL_OP = 267,
+    GREATEREQUAl_OP = 268,
+    OR_OP = 269,
+    AND_OP = 270,
+    IDENTIFIER = 271,
+    INTCONST = 272,
+    FLOATCONST = 273,
+    CHARCONST = 274,
+    STRINGCONST = 275,
+    PATHCONST = 276,
+    TYPE = 277,
+    CRUNCH_OP = 278
   };
 #endif
 
@@ -85,7 +74,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 28 "src/cruncher_syntax.y" /* yacc.c:1909  */
+#line 23 "src/cruncher_syntax.y" /* yacc.c:1909  */
 
   char *id;
   char *type;
@@ -93,7 +82,7 @@ union YYSTYPE
   char *str;
   struct ast *node;
 
-#line 97 "include/cruncher_syntax.tab.h" /* yacc.c:1909  */
+#line 86 "include/cruncher_syntax.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
