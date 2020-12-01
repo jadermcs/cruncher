@@ -528,6 +528,15 @@ it can't overwrite a previously declared function, different from variables,
 which can be overwriten. The function parameters are passed by copy through a
 stack.
 
+\section{Intermediate Code}
+In the last step of the compiling procedure, the cruncher compiler generates a
+three address code (TAC) based on the type checked abstract syntax tree (AST)
+obtained from the previous step.  Then, the TAC, base on Aho \textit{et al.}
+\cite{aho1986compilers}, is constructed by performing depth-first-search on the
+AST, an for each node (depending on the type of node) a sequence of
+instructions is appended to the final code. After that it can be interpreted in
+the TAC Interpreter \cite{santos2020tac}.
+
 \section{Test files}
 \label{sec:test}
 There are two files for valid code examples and two for invalid codes. The
