@@ -1,5 +1,6 @@
 *.o
 bin/
+.vscode/
 *.output
 *.dot
 ## Core latex/pdflatex auxiliary files:
