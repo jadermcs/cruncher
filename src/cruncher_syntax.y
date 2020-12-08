@@ -148,8 +148,16 @@ selection_statement:
 ;
 
 return_statement:
-  RETURN term ';' { $$ = newast('J', $2, NULL); $$->dtype = 'r'; }
-| RETURN ';' { $$ = newast('J', NULL, NULL); $$->dtype = 'r'; }
+  RETURN term ';' {
+    $$ = newast('J', $2, NULL);
+    $$->dtype = 'r';
+    gen1("return", $2->addr);
+  }
+| RETURN ';' {
+    $$ = newast('J', NULL, NULL);
+    $$->dtype = 'r';
+    gen0("return");
+  }
 ;
 
 crunch_statement:
@@ -284,6 +292,7 @@ conditional_expression:
 | conditional_expression OR_OP conditional_expression {
     $$ = newast('B', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -292,6 +301,7 @@ and_expression:
 | and_expression AND_OP and_expression {
     $$ = newast('B', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -300,10 +310,12 @@ eq_expression:
 | eq_expression COMPARISON_OP relational_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | eq_expression NOTEQUAL_OP relational_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -312,18 +324,22 @@ relational_expression:
 | relational_expression '<' add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | relational_expression LESSEQUAL_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | relational_expression '>' add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | relational_expression GREATEREQUAl_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -332,10 +348,12 @@ add_expression:
 | add_expression '+' mul_expression {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | add_expression '-' mul_expression {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 ;
 
@@ -344,14 +362,17 @@ mul_expression:
 | mul_expression '*' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | mul_expression '/' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | mul_expression '%' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 ;
 

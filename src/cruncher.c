@@ -2,6 +2,7 @@
 
 symbolTable *s, *symbol_table = NULL;
 addrStack *a_stack, *head = NULL;
+tacCode *tac_code = NULL;
 extern int yylineno;
 extern int yyleng;
 extern int has_error;
@@ -132,4 +133,20 @@ void error_type(char l, char r) {
 void error_scope() {
     fprintf(stderr, "[ERROR] undefined symbol in line %d.\n", yylineno);
     has_error = 1;
+}
+
+void gen0(char *op) {
+    gen_macro("%s\n", op);
+}
+
+void gen1(char *op, char *t1) {
+    gen_macro("%s %s\n", op, t1);
+}
+
+void gen2(char *op, char *t1, char *t2) {
+    gen_macro("%s %s %s\n", op, t1, t2);
+}
+
+void gen3(char *op, char *t1, char *t2, char *t3) {
+    gen_macro("%s %s %s %s\n", op, t1, t2, t3);
 }
