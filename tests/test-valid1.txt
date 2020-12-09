@@ -3,8 +3,12 @@ void printf(string a) {
     return;
 }
 
-int hal(int b) {
-    return b;
+int hal(int b, int a) {
+    return (b + a);
+}
+
+int tres() {
+    return 3;
 }
 
 int ab = 3;
@@ -12,6 +16,6 @@ int ab = 3;
 int main(int argc, char argv) {
     float a = 123.123e123;
     printf("Hello World\n");
-    int b = hal(3) + 2;
+    int b = hal(3, 2) + 2 + tres();
     return 0;
 }

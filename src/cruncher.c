@@ -1,6 +1,6 @@
 #include <cruncher.h>
 
-symbolTable *s, *symbol_table = NULL;
+symbolTable *symbol_table = NULL;
 addrStack *a_stack, *head = NULL;
 tacCode *tac_code = NULL;
 extern int yylineno;
@@ -8,7 +8,7 @@ extern int yyleng;
 extern int has_error;
 
 void add_symbol(char *id, char type, char dtype) {
-    s = (symbolTable *)malloc(sizeof *s);
+    symbolTable *s = (symbolTable *)malloc(sizeof *s);
     strcpy(s->id, id);
     s->type = type;
     s->dtype = dtype;
@@ -29,7 +29,7 @@ void print_table() {
     printf("\n\tSymbol Table\n==============================\n%-10s\ttype\tdtype\tscope\n", "id");
     printf("------------------------------\n");
     addrStack *item;
-    symbolTable *tmp;
+    symbolTable *s, *tmp;
     int has_main = 0;
     DL_FOREACH(head, item) {
         if (strcmp(item->id, "main") == 0 && item->type == 'F')
@@ -50,7 +50,7 @@ void print_table() {
 
 void free_table() {
     addrStack *item, *tmp;
-    symbolTable *tmp2;
+    symbolTable *s, *tmp2;
     DL_FOREACH_SAFE(head, item, tmp) {
         HASH_ITER(hh, item->st, s, tmp2) {
             HASH_DEL(item->st, s);
@@ -149,4 +149,21 @@ void gen2(char *op, char *t1, char *t2) {
 
 void gen3(char *op, char *t1, char *t2, char *t3) {
     gen_macro("%s %s %s %s\n", op, t1, t2, t3);
+}
+
+void gen_label(char *id) {
+    gen_macro("\n%s:\n", id);
+}
+
+void print_tac() {
+    tacCode *item, *tmp;
+    printf("\n\tTAC CODE:\n");
+    printf(".table\n");
+    printf(".code\n");
+    DL_FOREACH_SAFE(tac_code, item, tmp) {
+        printf("%s", utstring_body(item->code));
+        DL_DELETE(tac_code, item);
+        utstring_free(item->code);
+        free(item);
+    }
 }
