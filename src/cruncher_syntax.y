@@ -14,12 +14,26 @@
 %{
 #include "cruncher.h"
 #include "ast.h"
+#define new_addr(dest) \
+    UT_string *tmp; \
+    utstring_new(tmp); \
+    utstring_printf(tmp, "$%d", addr_counter); \
+    addr_counter++; \
+    strcpy(dest, utstring_body(tmp)); \
+    utstring_free(tmp);
+#define utstring_fromint(value) \
+    UT_string * tmp; \
+    utstring_new(tmp); \
+    utstring_printf(tmp, "%d", value);
+
 extern int yylineno;
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 extern int yylex_destroy();
 extern void yyerror(const char* s);
+int addr_counter;
+int param_counter;
 struct ast* syntax_tree = NULL;
 %}
 
@@ -84,11 +98,15 @@ var_definition:
 ;
 
 func_definition:
-  TYPE identifier
-  '(' params ')'
-  '{' inner_declarations '}' {
+  TYPE identifier {
+    addr_counter = 0;
+    param_counter = 0;
     add_table($2->addr, 'F', $1[0]);
-    $$ = newast('F', $2, newast('F', $4, $7));
+    gen_label($2->addr);
+  }
+  '(' params ')' {;}
+  '{' inner_declarations '}' {
+    $$ = newast('F', NULL, $9);
     free($1);
   }
 ;
@@ -150,12 +168,12 @@ selection_statement:
 return_statement:
   RETURN term ';' {
     $$ = newast('J', $2, NULL);
-    $$->dtype = 'r';
+    $$->dtype = $2->dtype;
     gen1("return", $2->addr);
   }
 | RETURN ';' {
     $$ = newast('J', NULL, NULL);
-    $$->dtype = 'r';
+    $$->dtype = 'v';
     gen0("return");
   }
 ;
@@ -167,6 +185,7 @@ crunch_statement:
     if ($5) $$->value.str_ = (char *)strdup($5);
     else $$->value.str_ = NULL;
     free($5);
+    gen0("nop // crunch operation here"); /*TODO: implement when possible*/
 }
 ;
 
@@ -193,24 +212,29 @@ term:
     $$->dtype = 'i';
     $$->value.int_ = atoi($1);
     free($1);
+    new_addr($$->addr);
   }
 | FLOATCONST {
     $$ = newast('c', NULL, NULL);
     $$->dtype = 'f';
     $$->value.float_ = atof($1);
     free($1);
+    new_addr($$->addr);
   }
 | CHARCONST {
     $$ = newast('c', NULL, NULL);
     $$->dtype = 'c';
     $$->value.char_ = $1[0];
     free($1);
+    new_addr($$->addr);
   }
 | STRINGCONST {
     $$ = newast('c', NULL, NULL);
     $$->dtype = 's';
     $$->value.str_ = strdup($1);
-    free($1); }
+    free($1);
+    new_addr($$->addr);
+  }
 | pathconst { $$ = $1; }
 | call { $$ = $1;}
 ;
@@ -293,6 +317,8 @@ conditional_expression:
     $$ = newast('B', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("or", $$->addr, $1->addr, $3->addr);
   }
 ;
 
@@ -302,6 +328,8 @@ and_expression:
     $$ = newast('B', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("and", $$->addr, $1->addr, $3->addr);
   }
 ;
 
@@ -311,11 +339,16 @@ eq_expression:
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("seq", $$->addr, $1->addr, $3->addr);
   }
 | eq_expression NOTEQUAL_OP relational_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("seq", $$->addr, $1->addr, $3->addr);
+    gen2("not", $$->addr, $$->addr);
   }
 ;
 
@@ -325,21 +358,31 @@ relational_expression:
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("slt", $$->addr, $1->addr, $3->addr);
   }
 | relational_expression LESSEQUAL_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("sleq", $$->addr, $1->addr, $3->addr);
   }
 | relational_expression '>' add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("sleq", $$->addr, $1->addr, $3->addr);
+    gen2("not", $$->addr, $$->addr);
   }
 | relational_expression GREATEREQUAl_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("slt", $$->addr, $1->addr, $3->addr);
+    gen2("not", $$->addr, $$->addr);
   }
 ;
 
@@ -349,11 +392,15 @@ add_expression:
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("add", $$->addr, $1->addr, $3->addr);
   }
 | add_expression '-' mul_expression {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("sub", $$->addr, $1->addr, $3->addr);
   }
 ;
 
@@ -363,16 +410,22 @@ mul_expression:
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("mul", $$->addr, $1->addr, $3->addr);
   }
 | mul_expression '/' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("div", $$->addr, $1->addr, $3->addr);
   }
 | mul_expression '%' term {
     $$ = newast('Z', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    new_addr($$->addr);
+    gen3("mod", $$->addr, $1->addr, $3->addr);
   }
 ;
 
@@ -386,6 +439,15 @@ call:
     $$ = newast('T', $1, $3);
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL || s->type != 'F') error_scope();
+    else if (param_counter > 0) {
+      /*utstring_fromint(param_counter);
+      gen2("call", $1->addr, utstring_body(tmp));
+      utstring_free(tmp);*/
+    }
+    else gen1("call", $1->addr);
+    param_counter = 0;
+    new_addr($$->addr);
+    if(s->type != 'v') gen1("pop", $$->addr);
   }
 ;
 
@@ -394,8 +456,16 @@ args:
 | %empty {$$ = NULL; }
 ;
 args_list:
-  args_list ',' term { $$ = newast('G', $1, $3); }
-| term {$$ = $1;}
+  args_list ',' term {
+    $$ = newast('G', $1, $3);
+    param_counter++;
+    gen1("param", $3->addr);
+  }
+| term {
+    $$ = $1;
+    param_counter++;
+    gen1("param", $1->addr);
+  }
 ;
 
 %%
@@ -410,6 +480,7 @@ int main(int argc, char **argv) {
     annotate_ast(syntax_tree);
     print_ast(syntax_tree, 0);
     print_table();
+    print_tac();
     free_table();
     free_ast(syntax_tree);
     fclose(yyin);

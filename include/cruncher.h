@@ -11,8 +11,9 @@
 #include <utstring.h>
 #include <cruncher_syntax.tab.h>
 
-#define printlexeme(type, mod) printf(((mod)==0)?"A %s at line %d: \"%s\"\n":"A %s at line %d: %s",\
-                                (type), yylineno, yytext);
+#define printlexeme(type, mod) \
+        printf(((mod)==0)?"A %s at line %d: \"%s\"\n":"A %s at line %d: %s", \
+        (type), yylineno, yytext);
 
 #define gen_macro(fmt, ...) \
         tacCode *instruction = (tacCode *)malloc(sizeof *instruction); \
@@ -50,14 +51,16 @@ int type_match(char, char);
 void error_type(char, char);
 void error_scope();
 
-const char* yytokenstring(enum yytokentype);
+const char *yytokenstring(enum yytokentype);
 
 symbolTable *find_symbol(char *);
-extern char* strdup(const char*);
+extern char *strdup(const char*);
 
 void gen0(char *);
 void gen1(char *, char *);
 void gen2(char *, char *, char *);
 void gen3(char *, char *, char *, char *);
+void gen_label(char *);
 
+void print_tac();
 #endif
