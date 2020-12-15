@@ -281,7 +281,9 @@ It has an input folder or file and an output folder or file, depending on the
 kind of operation.  In Table \ref{tab:operations} some extra references for
 additional symbols are shown, every operation has a single symbol. It replaces
 the following Unix shell commands: \texttt{mv}, \texttt{rename}, \texttt{sed},
-\texttt{tar} and \texttt{shaXsum}.
+\texttt{tar} and \texttt{shaXsum}. As the language is in a premature stage,
+only six crunch operations will be implemented in this phase, but later it
+should support more than 32 shell operations.
 
 The type of operation alternates the kind of matching between files, some have
 a direct mapping, some perform an aggregation, and others both. For in-place
@@ -302,22 +304,6 @@ is performed, we must specify the  ``\_'' to be performed.
         Copy        & +     & Copy given files or directories \\ \hline
     \end{tabular}
 \end{table}
-
-% \begin{table}[ht]
-% \centering
-% \caption{Maps description}
-% \label{tab:maps}
-% \begin{tabular}{|r|c|l|}
-% \hline
-% Mapping   & Symbol & Description\\ \hline
-% Identity  & ..     & Return same given value \\
-% Filter    & ff     & Filter a given pattern \\
-% Replace   & rr     & Replace a given pattern \\
-% Cut       & cc     & Remove a substring \\
-% Concat    & ++     & Concatenate strings \\
-% \hline
-% \end{tabular}
-% \end{table}
 
 \section{Error Handling}
 \label{sec:error}

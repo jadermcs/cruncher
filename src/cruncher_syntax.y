@@ -101,12 +101,12 @@ func_definition:
   TYPE identifier {
     addr_counter = 0;
     param_counter = 0;
-    add_table($2->addr, 'F', $1[0]);
     gen_label($2->addr);
   }
   '(' params ')' {;}
   '{' inner_declarations '}' {
     $$ = newast('F', NULL, $9);
+    add_table($2->addr, 'F', $1[0]);
     free($1);
   }
 ;
@@ -211,15 +211,13 @@ term:
     $$ = newast('c', NULL, NULL);
     $$->dtype = 'i';
     $$->value.int_ = atoi($1);
-    free($1);
-    new_addr($$->addr);
+    strcpy($$->addr, $1);
   }
 | FLOATCONST {
     $$ = newast('c', NULL, NULL);
     $$->dtype = 'f';
     $$->value.float_ = atof($1);
-    free($1);
-    new_addr($$->addr);
+    strcpy($$->addr, $1);
   }
 | CHARCONST {
     $$ = newast('c', NULL, NULL);
@@ -284,7 +282,7 @@ sub_expression:
     $$ = $1;
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
-    $$->dtype = s->dtype;
+    else $$->dtype = s->dtype;
   }
 ;
 
@@ -307,7 +305,7 @@ assignment_expression:
     $$ = newast('=', $1, $3);
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
-    $$->dtype = s->dtype;
+    else $$->dtype = s->dtype;
   }
 ;
 
@@ -431,7 +429,7 @@ mul_expression:
 
 exp_statement:
   expression ';' { $$ = $1; }
-| error ';' {$$ = NULL; }
+| error ';' { $$ = NULL; }
 ;
 
 call:
@@ -481,6 +479,7 @@ int main(int argc, char **argv) {
     print_ast(syntax_tree, 0);
     print_table();
     print_tac();
+    free_tac();
     free_table();
     free_ast(syntax_tree);
     fclose(yyin);

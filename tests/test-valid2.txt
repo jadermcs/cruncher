@@ -1,10 +1,17 @@
-int main(int argv, char argc){
+int process(){
     path input = ."/home/jader/files/*.txt";
     path output = .".";
     crunch (input $!("s/cat/dog/g") output);
-    int i = 0.0;
+    int i = 2 + 3;
+    return i;
+}
+
+int main(int argv, char argc){
+    float i = 0.0;
     float a = 3.4e-3;
     string str="abcde";
+
+    path input = ."/home/jader/files/*.txt";
 
     i = i + 1;
 

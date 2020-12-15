@@ -1,22 +1,30 @@
 #include <cruncher.h>
 
 symbolTable *symbol_table = NULL;
-addrStack *a_stack, *head = NULL;
+addrStack *head = NULL;
 tacCode *tac_code = NULL;
 extern int yylineno;
 extern int yyleng;
 extern int has_error;
 
 void add_symbol(char *id, char type, char dtype) {
-    symbolTable *s = (symbolTable *)malloc(sizeof *s);
-    strcpy(s->id, id);
-    s->type = type;
-    s->dtype = dtype;
-    HASH_ADD_STR(symbol_table, id, s);
+    symbolTable *s;
+    HASH_FIND_STR(symbol_table, id, s);
+    if (s == NULL) {
+        s = (symbolTable *)malloc(sizeof *s);
+        strcpy(s->id, id);
+        s->type = type;
+        s->dtype = dtype;
+        HASH_ADD_STR(symbol_table, id, s);
+    }
+    else {
+        fprintf(stderr, "[ERROR] conflict types %d.\n", yylineno);
+        has_error = 1;
+    }
 }
 
 void add_table(char *id, char type, char dtype) {
-    a_stack = (addrStack *)malloc(sizeof *a_stack);
+    addrStack *a_stack = (addrStack *)malloc(sizeof *a_stack);
     strcpy(a_stack->id, id);
     a_stack->type = type;
     a_stack->dtype = dtype;
@@ -156,14 +164,30 @@ void gen_label(char *id) {
 }
 
 void print_tac() {
-    tacCode *item, *tmp;
+    tacCode *item2, *tmp2;
+    addrStack *item;
+    symbolTable *s, *tmp;
     printf("\n\tTAC CODE:\n");
+
     printf(".table\n");
-    printf(".code\n");
-    DL_FOREACH_SAFE(tac_code, item, tmp) {
-        printf("%s", utstring_body(item->code));
-        DL_DELETE(tac_code, item);
-        utstring_free(item->code);
-        free(item);
+    DL_FOREACH(head, item) {
+        HASH_ITER(hh, item->st, s, tmp) {
+            if (s->type == 'P')
+                printf("%s = 1\n", s->id);
+        }
+    }
+
+    printf("\n.code\n");
+    DL_FOREACH_SAFE(tac_code, item2, tmp2) {
+        printf("%s", utstring_body(item2->code));
+    }
+}
+
+void free_tac() {
+    tacCode *item2, *tmp2;
+    DL_FOREACH_SAFE(tac_code, item2, tmp2) {
+        DL_DELETE(tac_code, item2);
+        utstring_free(item2->code);
+        free(item2);
     }
 }

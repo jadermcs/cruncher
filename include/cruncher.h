@@ -36,12 +36,17 @@ typedef struct addrStack {
     struct addrStack *prev, *next;
 } addrStack;
 
+typedef struct labelStack {
+    char label[5];
+    struct labelStack *prev, *next;
+} labelStack;
+
 typedef struct tacCode {
     UT_string *code;
     struct tacCode *prev, *next;
 } tacCode;
 
-int fileno(FILE *);
+extern int fileno(FILE *);
 
 void add_symbol(char *, char, char);
 void add_table(char *, char, char);
@@ -63,4 +68,5 @@ void gen3(char *, char *, char *, char *);
 void gen_label(char *);
 
 void print_tac();
+void free_tac();
 #endif
