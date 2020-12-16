@@ -21,6 +21,13 @@
     addr_counter++; \
     strcpy(dest, utstring_body(tmp)); \
     utstring_free(tmp);
+#define new_label(dest) \
+    UT_string *tmp; \
+    utstring_new(tmp); \
+    utstring_printf(tmp, "L%d", label_counter); \
+    label_counter++; \
+    strcpy(dest, utstring_body(tmp)); \
+    utstring_free(tmp);
 #define utstring_fromint(value) \
     UT_string * tmp; \
     utstring_new(tmp); \
@@ -32,7 +39,9 @@ extern int yyparse();
 extern FILE* yyin;
 extern int yylex_destroy();
 extern void yyerror(const char* s);
+extern labelStack *lhead;
 int addr_counter;
+int label_counter;
 int param_counter;
 struct ast* syntax_tree = NULL;
 %}
@@ -100,6 +109,7 @@ var_definition:
 func_definition:
   TYPE identifier {
     addr_counter = 0;
+    label_counter = 0;
     param_counter = 0;
     gen_label($2->addr);
   }
@@ -156,14 +166,43 @@ local_var_definition:
 ;
 
 selection_statement:
-  IF '(' expression ')' '{' inner_declarations '}' {$$ = newast('E', $3, $6); $$->dtype = 'i'; }
-| IF '(' expression ')' '{' inner_declarations '}' ELSE '{' inner_declarations '}' {
-    struct ast *tmp = newast('E', $3, $6);
-    tmp->dtype = 'i';
-    $$ = newast('E', tmp, $10);
-    $$->dtype = 'e';
+  if_block '(' expression ')' '{' inner_declarations '}' {
+    $$ = newast('E', newast('E', $3, $6), NULL);
+    
+    labelStack *tmp;
+    STACK_POP(lhead, tmp);
+    gen_label(tmp->label);
+  }
+| if_block '(' expression ')' '{' inner_declarations '}' {
+
+    char tmp_label[5];
+    new_label(tmp_label);
+    gen1("jump", tmp_label);
+
+    labelStack *a_tmp;
+    STACK_POP(lhead, a_tmp);
+    gen_label(a_tmp->label);
+
+    labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
+    strcpy(ltmp->label, tmp_label);
+    STACK_PUSH(lhead, ltmp);
+  }
+  ELSE '{' inner_declarations '}' {
+    $$ = newast('E', newast('E', $3, $6), $11);
+    labelStack *tmp;
+    STACK_POP(lhead, tmp);
+    gen_label(tmp->label);
   }
 ;
+
+if_block:
+  IF {
+    char tmp_label[5];
+    new_label(tmp_label);
+    labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
+    strcpy(ltmp->label, tmp_label);
+    STACK_PUSH(lhead, ltmp);
+  };
 
 return_statement:
   RETURN term ';' {
@@ -338,15 +377,18 @@ eq_expression:
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
     new_addr($$->addr);
+    labelStack *top_label = STACK_TOP(lhead);
     gen3("seq", $$->addr, $1->addr, $3->addr);
+    gen2("brz", top_label->label, $$->addr);
   }
 | eq_expression NOTEQUAL_OP relational_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
     new_addr($$->addr);
+    labelStack *top_label = STACK_TOP(lhead);
     gen3("seq", $$->addr, $1->addr, $3->addr);
-    gen2("not", $$->addr, $$->addr);
+    gen2("brnz", top_label->label, $$->addr);
   }
 ;
 
@@ -357,30 +399,36 @@ relational_expression:
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
     new_addr($$->addr);
+    labelStack *top_label = STACK_TOP(lhead);
     gen3("slt", $$->addr, $1->addr, $3->addr);
+    gen2("brz", top_label->label, $$->addr);
   }
 | relational_expression LESSEQUAL_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
     new_addr($$->addr);
+    labelStack *top_label = STACK_TOP(lhead);
     gen3("sleq", $$->addr, $1->addr, $3->addr);
+    gen2("brz", top_label->label, $$->addr);
   }
 | relational_expression '>' add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
     new_addr($$->addr);
+    labelStack *top_label = STACK_TOP(lhead);
     gen3("sleq", $$->addr, $1->addr, $3->addr);
-    gen2("not", $$->addr, $$->addr);
+    gen2("brnz", top_label->label, $$->addr);
   }
 | relational_expression GREATEREQUAl_OP add_expression {
     $$ = newast('R', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
     new_addr($$->addr);
+    labelStack *top_label = STACK_TOP(lhead);
     gen3("slt", $$->addr, $1->addr, $3->addr);
-    gen2("not", $$->addr, $$->addr);
+    gen2("brnz", top_label->label, $$->addr);
   }
 ;
 

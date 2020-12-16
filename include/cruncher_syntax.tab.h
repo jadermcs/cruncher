@@ -74,7 +74,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 40 "src/cruncher_syntax.y" /* yacc.c:1909  */
+#line 49 "src/cruncher_syntax.y" /* yacc.c:1909  */
 
   char *id;
   char *type;

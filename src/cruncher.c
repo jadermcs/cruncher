@@ -2,6 +2,7 @@
 
 symbolTable *symbol_table = NULL;
 addrStack *head = NULL;
+labelStack *lhead = NULL;
 tacCode *tac_code = NULL;
 extern int yylineno;
 extern int yyleng;
