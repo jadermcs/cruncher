@@ -18,5 +18,9 @@ int main(int argv, char argc){
         float a;
         a = 2 * 2;
     }
+
+    while (b > 3) {
+        b = b - 1;
+    }
     return 0;
 }

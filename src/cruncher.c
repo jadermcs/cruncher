@@ -7,6 +7,8 @@ tacCode *tac_code = NULL;
 extern int yylineno;
 extern int yyleng;
 extern int has_error;
+extern int label_counter;
+extern int addr_counter;
 
 void add_symbol(char *id, char type, char dtype) {
     symbolTable *s;
@@ -161,7 +163,29 @@ void gen3(char *op, char *t1, char *t2, char *t3) {
 }
 
 void gen_label(char *id) {
-    gen_macro("\n%s:\n", id);
+    gen_macro("%s:\n", id);
+}
+
+void gen_fmt(char *fmt) {
+    gen_macro("%s", fmt);
+}
+
+void new_label(char *dest) {
+    UT_string *tmp;
+    utstring_new(tmp);
+    utstring_printf(tmp, "L%d", label_counter);
+    label_counter++;
+    strcpy(dest, utstring_body(tmp));
+    utstring_free(tmp);
+}
+
+void new_addr(char *dest) {
+    UT_string *tmp;
+    utstring_new(tmp);
+    utstring_printf(tmp, "$%d", addr_counter);
+    addr_counter++;
+    strcpy(dest, utstring_body(tmp));
+    utstring_free(tmp);
 }
 
 void print_tac() {

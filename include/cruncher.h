@@ -66,6 +66,9 @@ void gen1(char *, char *);
 void gen2(char *, char *, char *);
 void gen3(char *, char *, char *, char *);
 void gen_label(char *);
+void new_label(char *);
+void new_addr(char *);
+void gen_fmt(char *);
 
 void print_tac();
 void free_tac();

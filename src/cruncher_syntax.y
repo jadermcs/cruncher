@@ -14,20 +14,6 @@
 %{
 #include "cruncher.h"
 #include "ast.h"
-#define new_addr(dest) \
-    UT_string *tmp; \
-    utstring_new(tmp); \
-    utstring_printf(tmp, "$%d", addr_counter); \
-    addr_counter++; \
-    strcpy(dest, utstring_body(tmp)); \
-    utstring_free(tmp);
-#define new_label(dest) \
-    UT_string *tmp; \
-    utstring_new(tmp); \
-    utstring_printf(tmp, "L%d", label_counter); \
-    label_counter++; \
-    strcpy(dest, utstring_body(tmp)); \
-    utstring_free(tmp);
 #define utstring_fromint(value) \
     UT_string * tmp; \
     utstring_new(tmp); \
@@ -111,6 +97,7 @@ func_definition:
     addr_counter = 0;
     label_counter = 0;
     param_counter = 0;
+    gen_fmt("\n");
     gen_label($2->addr);
   }
   '(' params ')' {;}
@@ -287,25 +274,75 @@ pathconst:
 ;
 
 while_statement:
-  WHILE '(' expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); $$->dtype = 'w'; }
+  WHILE {
+    char tmp_label[5];
+    new_label(tmp_label);
+    gen_label(tmp_label);
+    labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
+    strcpy(ltmp->label, tmp_label);
+    STACK_PUSH(lhead, ltmp);
+
+    new_label(tmp_label);
+    labelStack *a_tmp = (labelStack *)malloc(sizeof *a_tmp);
+    strcpy(a_tmp->label, tmp_label);
+    STACK_PUSH(lhead, a_tmp);
+  }
+  '(' expression ')' '{' inner_declarations '}' {
+    $$ = newast('L', $4, $7);
+    labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
+    STACK_POP(lhead, ltmp);
+
+    labelStack *a_tmp = (labelStack *)malloc(sizeof *a_tmp);
+    STACK_POP(lhead, a_tmp);
+    gen1("jump", a_tmp->label);
+
+    gen_label(ltmp->label);
+    free(a_tmp);
+    free(ltmp);
+  }
 ;
 
 for_statement:
-  FOR '(' for_expression ')' '{' inner_declarations '}' { $$ = newast('L', $3, $6); $$->dtype = 'f'; }
+  FOR {
+    char tmp_label[5];
+    new_label(tmp_label);
+    gen_label(tmp_label);
+    labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
+    strcpy(ltmp->label, tmp_label);
+    STACK_PUSH(lhead, ltmp);
+
+    new_label(tmp_label);
+    labelStack *a_tmp = (labelStack *)malloc(sizeof *a_tmp);
+    strcpy(a_tmp->label, tmp_label);
+    STACK_PUSH(lhead, a_tmp);
+  }
+  '(' for_expression ')' '{' inner_declarations '}' {
+    $$ = newast('L', $4, $7);
+    labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
+    STACK_POP(lhead, ltmp);
+
+    labelStack *a_tmp = (labelStack *)malloc(sizeof *a_tmp);
+    STACK_POP(lhead, a_tmp);
+    gen1("jump", a_tmp->label);
+
+    gen_label(ltmp->label);
+    free(a_tmp);
+    free(ltmp);
+  }
 ;
 
 for_expression:
   simple_expression ';' expression ';' expression {
     $$ = newast('E', $1, newast('E', $3, $5));
-    $$->dtype = '3';
   }
-| sub_expression IN file { $$ = newast('E', $1, $3);  $$->dtype = 'p'; }
+| sub_expression IN file { $$ = newast('E', $1, $3); }
 ;
 
 simple_expression:
   simple_expression '=' term {
     $$ = newast('H', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
+    else $$->dtype = $1->dtype;
   }
 | sub_expression { $$ = $1; }
 ;
