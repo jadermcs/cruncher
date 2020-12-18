@@ -212,8 +212,7 @@ void print_tac() {
     tacCode *item2, *tmp2;
     FILE *fp = fopen("output.tac", "w");
     if (has_error){
-        printf("Can't generate TAC, code has errors.");
-        return;
+        printf("Can't generate a valid TAC, code has errors.");
     }
     fprintf(fp, ".table\n");
     DL_FOREACH_SAFE(tac_table, item2, tmp2) {
