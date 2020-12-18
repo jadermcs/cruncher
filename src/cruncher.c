@@ -4,13 +4,15 @@ symbolTable *symbol_table = NULL;
 addrStack *head = NULL;
 labelStack *lhead = NULL;
 tacCode *tac_code = NULL;
+tacCode *tac_table = NULL;
 extern int yylineno;
 extern int yyleng;
 extern int has_error;
 extern int label_counter;
 extern int addr_counter;
+extern int var_counter;
 
-void add_symbol(char *id, char type, char dtype) {
+void add_symbol(char *id, char type, char dtype, char *symbol) {
     symbolTable *s;
     HASH_FIND_STR(symbol_table, id, s);
     if (s == NULL) {
@@ -18,6 +20,7 @@ void add_symbol(char *id, char type, char dtype) {
         strcpy(s->id, id);
         s->type = type;
         s->dtype = dtype;
+        strcpy(s->symbol, symbol);
         HASH_ADD_STR(symbol_table, id, s);
     }
     else {
@@ -100,16 +103,8 @@ const char* yytokenstring(enum yytokentype tok_type) {
 }
 
 int type_match(char f_dtype, char s_dtype) {
-    switch (f_dtype) {
-        case 'i':
-            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 0;
-            else return 1;
-        case 'f':
-            if (s_dtype == 'i' || s_dtype == 'f' || s_dtype == 'c') return 0;
-            else return 1;
-        default:
-            return 0;
-    }
+    if (f_dtype == s_dtype) return 0;
+    else return 1;
 }
 
 int compareid(addrStack *a, addrStack *b) {
@@ -170,11 +165,36 @@ void gen_fmt(char *fmt) {
     gen_macro("%s", fmt);
 }
 
+void gen_var(char *type, char *id, char *value) {
+    tacCode *instruction = (tacCode *)malloc(sizeof *instruction);
+    utstring_new(instruction->code);
+    int size = strlen(value);
+    if (!strcmp(type, "char") && size > 1) {
+        utstring_printf(instruction->code, "%s %s[%d] = {", type, id, size-2);
+        for (int i = 0; i < size-2; i++)
+            utstring_printf(instruction->code, "'%c'%s", value[i+1],
+                (size==i+3)?"":", ");
+        utstring_printf(instruction->code, "}\n");
+        
+    }
+    else utstring_printf(instruction->code, "%s %s = %s\n", type, id, value);
+    DL_APPEND(tac_table, instruction);
+}
+
 void new_label(char *dest) {
     UT_string *tmp;
     utstring_new(tmp);
     utstring_printf(tmp, "L%d", label_counter);
     label_counter++;
+    strcpy(dest, utstring_body(tmp));
+    utstring_free(tmp);
+}
+
+void new_var(char *dest) {
+    UT_string *tmp;
+    utstring_new(tmp);
+    utstring_printf(tmp, "var%d", var_counter);
+    var_counter++;
     strcpy(dest, utstring_body(tmp));
     utstring_free(tmp);
 }
@@ -190,22 +210,22 @@ void new_addr(char *dest) {
 
 void print_tac() {
     tacCode *item2, *tmp2;
-    addrStack *item;
-    symbolTable *s, *tmp;
-    printf("\n\tTAC CODE:\n");
-
-    printf(".table\n");
-    DL_FOREACH(head, item) {
-        HASH_ITER(hh, item->st, s, tmp) {
-            if (s->type == 'P')
-                printf("%s = 1\n", s->id);
-        }
+    FILE *fp = fopen("output.tac", "w");
+    if (has_error){
+        printf("Can't generate TAC, code has errors.");
+        return;
+    }
+    fprintf(fp, ".table\n");
+    DL_FOREACH_SAFE(tac_table, item2, tmp2) {
+        fprintf(fp, "%s", utstring_body(item2->code));
     }
 
-    printf("\n.code\n");
+    fprintf(fp, "\n.code\n");
     DL_FOREACH_SAFE(tac_code, item2, tmp2) {
-        printf("%s", utstring_body(item2->code));
+        fprintf(fp, "%s", utstring_body(item2->code));
     }
+   fclose(fp);
+   printf("TAC printed to 'output.tac'.");
 }
 
 void free_tac() {

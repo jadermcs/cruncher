@@ -18,8 +18,6 @@ struct ast {
 
 struct ast *newast(int, struct ast *, struct ast *);
 
-void annotate_ast(struct ast *);
-
 void print_ast(struct ast *, int);
 
 void free_ast(struct ast *);

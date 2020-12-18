@@ -29,6 +29,7 @@ extern labelStack *lhead;
 int addr_counter;
 int label_counter;
 int param_counter;
+int var_counter;
 struct ast* syntax_tree = NULL;
 %}
 
@@ -117,7 +118,8 @@ params:
 param:
   TYPE identifier {
     $$ = newast('A', $2, NULL);
-    add_symbol($2->addr, 'P', $1[0]);
+    new_addr($$->addr);
+    add_symbol($2->addr, 'P', $1[0], $$->addr);
     free($1);
   }
 ;
@@ -141,13 +143,17 @@ local_var_definition:
   TYPE identifier ';' {
     $$ = $2;
     $$->dtype = $1[0];
-    add_symbol($2->addr, 'V', $1[0]);
+    char tmp[8];
+    new_addr(tmp);
+    add_symbol($2->addr, 'V', $1[0], tmp);
     free($1);
   }
 | TYPE identifier '=' expression ';' {
     $$ = newast('V', $2, $4);
     $$->dtype = $1[0];
-    add_symbol($2->addr, 'V', $1[0]);
+    new_addr($$->addr);
+    add_symbol($2->addr, 'V', $1[0], $$->addr);
+    gen2("mov", $$->addr, $4->addr);
     free($1);
   }
 ;
@@ -162,7 +168,7 @@ selection_statement:
   }
 | if_block '(' expression ')' '{' inner_declarations '}' {
 
-    char tmp_label[5];
+    char tmp_label[8];
     new_label(tmp_label);
     gen1("jump", tmp_label);
 
@@ -184,7 +190,7 @@ selection_statement:
 
 if_block:
   IF {
-    char tmp_label[5];
+    char tmp_label[8];
     new_label(tmp_label);
     labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
     strcpy(ltmp->label, tmp_label);
@@ -231,7 +237,10 @@ term:
     $$ = $1;
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
-    $$->dtype = s->dtype;
+    else {
+      $$->dtype = s->dtype;
+      strcpy($$->addr, s->symbol);
+    }
   }
 | INTCONST {
     $$ = newast('c', NULL, NULL);
@@ -249,15 +258,17 @@ term:
     $$ = newast('c', NULL, NULL);
     $$->dtype = 'c';
     $$->value.char_ = $1[0];
+    new_var($$->addr);
+    gen_var("char", $$->addr, $$->value.str_);
     free($1);
-    new_addr($$->addr);
   }
 | STRINGCONST {
     $$ = newast('c', NULL, NULL);
     $$->dtype = 's';
     $$->value.str_ = strdup($1);
+    new_var($$->addr);
+    gen_var("char", $$->addr, $$->value.str_);
     free($1);
-    new_addr($$->addr);
   }
 | pathconst { $$ = $1; }
 | call { $$ = $1;}
@@ -269,13 +280,15 @@ pathconst:
     $$->value.str_ = strdup($1);
     $$->dtype = 'p';
     $$->flag = $1[0];
+    new_var($$->addr);
+    gen_var("// path not implemented", "", "");
     free($1);
 }
 ;
 
 while_statement:
   WHILE {
-    char tmp_label[5];
+    char tmp_label[8];
     new_label(tmp_label);
     gen_label(tmp_label);
     labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
@@ -304,9 +317,8 @@ while_statement:
 
 for_statement:
   FOR {
-    char tmp_label[5];
+    char tmp_label[8];
     new_label(tmp_label);
-    gen_label(tmp_label);
     labelStack *ltmp = (labelStack *)malloc(sizeof *ltmp);
     strcpy(ltmp->label, tmp_label);
     STACK_PUSH(lhead, ltmp);
@@ -335,7 +347,6 @@ for_expression:
   simple_expression ';' expression ';' expression {
     $$ = newast('E', $1, newast('E', $3, $5));
   }
-| sub_expression IN file { $$ = newast('E', $1, $3); }
 ;
 
 simple_expression:
@@ -343,6 +354,12 @@ simple_expression:
     $$ = newast('H', $1, $3);
     if (type_match($1->dtype, $3->dtype)) error_type($1->dtype, $3->dtype);
     else $$->dtype = $1->dtype;
+    symbolTable *tmp = find_symbol($1->addr);
+    gen2("mov", tmp->symbol, $3->addr);
+    
+    labelStack *a_tmp = (labelStack *)malloc(sizeof *a_tmp);
+    a_tmp = STACK_TOP(lhead);
+    gen_label(a_tmp->next->label);
   }
 | sub_expression { $$ = $1; }
 ;
@@ -350,7 +367,9 @@ simple_expression:
 sub_expression:
   TYPE identifier {
     $$ = $2;
-    add_symbol($2->addr, 'E', $1[0]);
+    char tmp[8];
+    new_addr(tmp);
+    add_symbol($2->addr, 'E', $1[0], tmp);
     $$->dtype = $1[0];
     free($1);
   }
@@ -382,6 +401,7 @@ assignment_expression:
     symbolTable *s = find_symbol($1->addr);
     if (s == NULL) error_scope();
     else $$->dtype = s->dtype;
+    gen2("mov", s->symbol, $3->addr);
   }
 ;
 
@@ -560,7 +580,6 @@ int main(int argc, char **argv) {
     else
             yyin = stdin;
     yyparse();
-    annotate_ast(syntax_tree);
     print_ast(syntax_tree, 0);
     print_table();
     print_tac();

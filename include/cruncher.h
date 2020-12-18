@@ -21,11 +21,13 @@
         utstring_printf(instruction->code, fmt, ##__VA_ARGS__); \
         DL_APPEND(tac_code, instruction);
 
-typedef struct {
+typedef struct symbolTable {
     char id[64];
     char type;
     char dtype;
+    char symbol[8];
     UT_hash_handle hh;
+    struct symbolTable *prev, *next;
 } symbolTable;
 
 typedef struct addrStack {
@@ -37,7 +39,7 @@ typedef struct addrStack {
 } addrStack;
 
 typedef struct labelStack {
-    char label[5];
+    char label[8];
     struct labelStack *prev, *next;
 } labelStack;
 
@@ -48,7 +50,7 @@ typedef struct tacCode {
 
 extern int fileno(FILE *);
 
-void add_symbol(char *, char, char);
+void add_symbol(char *, char, char, char *);
 void add_table(char *, char, char);
 void print_table();
 void free_table();
@@ -66,8 +68,10 @@ void gen1(char *, char *);
 void gen2(char *, char *, char *);
 void gen3(char *, char *, char *, char *);
 void gen_label(char *);
+void gen_var(char*, char *, char *);
 void new_label(char *);
 void new_addr(char *);
+void new_var(char *);
 void gen_fmt(char *);
 
 void print_tac();
