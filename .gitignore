@@ -3,6 +3,7 @@ bin/
 .vscode/
 *.output
 *.dot
+*.tac
 ## Core latex/pdflatex auxiliary files:
 *.pdf
 *.aux
