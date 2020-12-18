@@ -541,6 +541,7 @@ call:
   identifier '(' args ')' {
     $$ = newast('T', $1, $3);
     symbolTable *s = find_symbol($1->addr);
+    $$->dtype = s->dtype;
     if (s == NULL || s->type != 'F') error_scope();
     else if (param_counter > 0) {
       /*utstring_fromint(param_counter);

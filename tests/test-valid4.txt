@@ -6,16 +6,13 @@ int main(int argv, char argc){
     a = a - b * c;
     a = a * b - c;
     if (a > (a+b)) {
-        float b;
         b = 2 + 3;
     }
 
     if (b > (a-b)) {
-        float b;
         b = 1 * 2;
     }
     else {
-        float a;
         a = 2 * 2;
     }
 
